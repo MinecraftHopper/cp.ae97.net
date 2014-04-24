@@ -1,0 +1,41 @@
+<div class="col-sm-3 col-md-2 sidebar">
+  <ul class="nav nav-sidebar">
+    <li><a href="/">Overview</a></li>
+    <li class="active"><a href="/factoid">Factoid Database</a></li>
+    <li><a href="/ban">Ban Management</a></li>
+    <li><a href="/user">User Management</a></li>
+    <li><a href="/bot">Bot Management</a></li>
+  </ul>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+  <h2 class="sub-header">Factoid Management</h2>          
+  <div class="">
+    <h3 class="sub-header">Factoid list</h3>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Content</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          foreach ($this->factoids as $type => $msg):
+            echo '<tr>';
+            echo '<td><a id="' . $msg['id'] . '"></a><italics>' . $msg['id'] . '</italics></td>  ';
+            echo '<td><strong>' . $msg['name'] . '</strong></td> ';
+            echo '<td>' . make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])) . '</td> ';
+            echo "</tr>\r\n";
+          endforeach;
+
+          function make_urls_into_links($plain_text) {
+            return preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text);
+          }
+          ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

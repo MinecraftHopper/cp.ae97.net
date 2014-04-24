@@ -1,0 +1,60 @@
+<div class="col-sm-3 col-md-2 sidebar">
+  <ul class="nav nav-sidebar">
+    <li><a href="/">Overview</a></li>
+    <li><a href="/factoid">Factoid Database</a></li>
+    <li><a href="/ban">Ban Management</a></li>
+    <li class="active"><a href="/user">User Management</a></li>
+    <li><a href="/bot">Bot Management</a></li>
+  </ul>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+  <h2 class="sub-header">User Management</h2>          
+  <div class="">
+    <h3 class="sub-header">Unapproved accounts</h3>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          foreach ($this->accounts as $type => $msg):
+            echo '<tr>';
+            echo '<td>' . $msg['id'] . '</td>';
+            echo '<td>' . $msg['user'] . '</td>';
+            echo '<td>' . $msg['email'] . '</td>';
+            echo '<td>' . '<button onclick="approveUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-success">Approve</button>' .
+            '  ' . '<button onclick="deleteUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-danger">Delete</button>' . '</td>';
+            echo '</tr>';
+          endforeach;
+          ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  function approveUser(value) {
+    var form = document.createElement('form');
+    form.setAttribute('method', 'post');
+    form.setAttribute('action', 'https://panel.ae97.net/user/approve/' + value);
+    form.style.display = 'hidden';
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  function deleteUser(value) {
+    var form = document.createElement('form');
+    form.setAttribute('method', 'post');
+    form.setAttribute('action', 'https://panel.ae97.net/user/delete/' + value);
+    form.style.display = 'hidden';
+    document.body.appendChild(form);
+    form.submit();
+  }
+</script>
