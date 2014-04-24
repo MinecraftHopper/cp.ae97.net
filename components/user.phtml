@@ -23,14 +23,22 @@
         </thead>
         <tbody>
           <?php
+          echo "\r\n";
+          $perms = $this->perms;
           foreach ($this->accounts as $type => $msg):
             echo '<tr>';
             echo '<td>' . $msg['id'] . '</td>';
             echo '<td>' . $msg['user'] . '</td>';
             echo '<td>' . $msg['email'] . '</td>';
-            echo '<td>' . '<button onclick="approveUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-success">Approve</button>' .
-            '  ' . '<button onclick="deleteUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-danger">Delete</button>' . '</td>';
-            echo '</tr>';
+            echo '<td>';
+            if ($perms['approve']) {
+              echo '<button onclick="approveUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-success">Approve</button>';
+            }
+            if ($perms['delete']) {
+              echo '<button onclick="deleteUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-danger">Delete</button>';
+            }
+            echo '</td>';
+            echo "</tr>\r\n";
           endforeach;
           ?>
         </tbody>

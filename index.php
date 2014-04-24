@@ -53,7 +53,7 @@ $klein->respond('/bot', function($request, $response, $service, $app) {
   }
 });
 
-$klein->respond('/user/approve/[i:id]', function($request, $response, $service, $app) {
+$klein->respond('POST', '/user/approve/[i:id]', function($request, $response, $service, $app) {
   if (verifySession($app)) {
     try {
       $statement = $app->db->prepare("UPDATE auth SET approved=1 WHERE authkey=?");
@@ -67,7 +67,7 @@ $klein->respond('/user/approve/[i:id]', function($request, $response, $service, 
   }
 });
 
-$klein->respond('/user/delete/[i:id]', function($request, $response, $service, $app) {
+$klein->respond('POST', '/user/delete/[i:id]', function($request, $response, $service, $app) {
   if (verifySession($app)) {
     try {
       $statement = $app->db->prepare("DELETE FROM auth WHERE authkey=?");
@@ -90,7 +90,9 @@ $klein->respond('/user', function($request, $response, $service, $app) {
     } catch (PDOException $ex) {
       $accounts = array();
     }
-    $service->render("components/index.phtml", array('action' => 'user', 'accounts' => $accounts));
+    $perms['approve'] = checkPermission($app, 'approveuser', 'perms_user');
+    $perms['delete'] = checkPermission($app, 'deleteuser', 'perms_user');
+    $service->render("components/index.phtml", array('action' => 'user', 'accounts' => $accounts, 'perms' => $perms));
   } else {
     $response->redirect("/login", 302);
   }
@@ -104,7 +106,9 @@ $klein->respond('/factoid', function($request, $response, $service, $app) {
   } catch (PDOException $ex) {
     $factoids = array();
   }
-  $service->render("components/index.phtml", array('action' => 'factoid', 'factoids' => $factoids));
+  $perms['edit'] = checkPermission($app, 'editentry', 'perms_factoid');
+  $perms['delete'] = checkPermission($app, 'removeentry', 'perms_factoid');
+  $service->render("components/index.phtml", array('action' => 'factoid', 'factoids' => $factoids, 'perms' => $perms));
 });
 
 $klein->respond('/ban', function($request, $response, $service, $app) {
@@ -116,6 +120,9 @@ $klein->respond('/ban', function($request, $response, $service, $app) {
 });
 
 $klein->respond('/logout', function($request, $response, $service, $app) {
+  if (!verifySession($app)) {
+    $response->redirect("/", 302);
+  }
   try {
     $statement = $app->db->prepare("UPDATE auth SET session = ? WHERE authkey = ?");
     $statement->execute(array('null', $_SESSION['authkey']));
@@ -129,6 +136,9 @@ $klein->respond('/logout', function($request, $response, $service, $app) {
 });
 
 $klein->respond('GET', '/login', function($request, $response, $service, $app) {
+  if (verifySession($app)) {
+    $response->redirect("/", 302);
+  }
   $service->render("components/index.phtml", array('action' => 'login'));
 });
 
@@ -155,7 +165,7 @@ $klein->respond('POST', '/login', function($request, $response, $service, $app) 
       $statement->execute(array($str, $db['authkey']));
       $_SESSION['authkey'] = $db['authkey'];
       $_SESSION['session'] = $str;
-      $response->redirect("/", 302);
+      $service->back();
     } else {
       throw new Exception("Incorrect password");
     }
@@ -321,7 +331,6 @@ $klein->respond('GET', '/verify', function($request, $response, $service, $app) 
     $db = $statement->fetch();
     if ($request->param('key') == $db['data']) {
       $statement = $app->db->prepare("UPDATE auth SET verified = 1, data = null WHERE email=?");
-//$service->flash("Statement: " . $statement);
       $statement->execute(array($request->param('email')));
       $service->flash('Your email has been verified');
       $response->redirect("/login", 302);
@@ -371,6 +380,21 @@ function verifySession($app) {
     $_SESSION['authkey'] = null;
     $_SESSION['session'] = null;
     return false;
+  }
+}
+
+function checkPermission($app, $perm, $table) {
+  if (!verifySession($app)) {
+    return 0;
+  }
+  try {
+    $statement = $app->db->prepare("SELECT " . $perm . " FROM " . $table . " WHERE authkey = ?");
+    $statement->execute(array($_SESSION["authkey"]));
+    $statement->setFetchMode(PDO::FETCH_ASSOC);
+    $db = $statement->fetch();
+    return isset($db[$perm]) && $db[$perm] === "1";
+  } catch (PDOException $ex) {
+    return 0;
   }
 }
 

@@ -1084,7 +1084,7 @@ pre code {
     margin-left: 0;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 200px) {
   .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
     float: left;
   }
@@ -1119,7 +1119,7 @@ pre code {
     width: 25%;
   }
   .col-md-2 {
-    width: 16.66666667%;
+    width: 150px;
   }
   .col-md-1 {
     width: 8.33333333%;
@@ -1233,7 +1233,7 @@ pre code {
     margin-left: 25%;
   }
   .col-md-offset-2 {
-    margin-left: 16.66666667%;
+    margin-left: 175px;
   }
   .col-md-offset-1 {
     margin-left: 8.33333333%;
@@ -1410,6 +1410,7 @@ th {
 .table {
   width: 100%;
   margin-bottom: 20px;
+  table-layout: fixed;
 }
 .table > thead > tr > th,
 .table > tbody > tr > th,
@@ -1582,7 +1583,7 @@ table th[class*="col-"] {
 .table-hover > tbody > tr.danger:hover > th {
   background-color: #ebcccc;
 }
-@media (max-width: 767px) {
+@media (max-width: 700px) {
   .table-responsive {
     width: 100%;
     margin-bottom: 15px;
