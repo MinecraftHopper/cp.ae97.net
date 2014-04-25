@@ -32,7 +32,7 @@
             echo '<td>' . $msg['email'] . '</td>';
             echo '<td>';
             if ($perms['approve']) {
-              echo '<button onclick="approveUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-success">Approve</button>';
+              echo '<button onclick="approveUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-success">Approve</button>  -  ';
             }
             if ($perms['delete']) {
               echo '<button onclick="deleteUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-danger">Delete</button>';
@@ -51,7 +51,7 @@
   function approveUser(value) {
     var form = document.createElement('form');
     form.setAttribute('method', 'post');
-    form.setAttribute('action', 'https://panel.ae97.net/user/approve/' + value);
+    form.setAttribute('action', 'https://cp.ae97.net/user/approve/' + value);
     form.style.display = 'hidden';
     document.body.appendChild(form);
     form.submit();
@@ -60,7 +60,7 @@
   function deleteUser(value) {
     var form = document.createElement('form');
     form.setAttribute('method', 'post');
-    form.setAttribute('action', 'https://panel.ae97.net/user/delete/' + value);
+    form.setAttribute('action', 'https://cp.ae97.net/user/delete/' + value);
     form.style.display = 'hidden';
     document.body.appendChild(form);
     form.submit();

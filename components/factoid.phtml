@@ -9,58 +9,93 @@
 </div>
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
   <h2 class="sub-header">Factoid Management</h2>          
-  <div class="">
-    <h3 class="sub-header">Factoid list</h3>
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th style="width:50px">ID</th>
-            <th style="width:20%">Name</th>
-            <th style="width:60%">Content</th>
+  <div class="navbar navbar-default">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand">Factoid Database - <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "All databases" : $this->gamelist[$this->game] ?></a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Select Database <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="/factoid">All</a></li>
               <?php
-              $display = false;
-              foreach ($this->perms as $type => $perm):
-                if ($perm) {
-                  $display = true;
-                }
+              foreach ($this->gamelist as $games => $game):
+                echo '<li><a href="/factoid?db=' . $game['idname'] . '">' . $game['displayname'] . '</a></li>';
+                echo "\r";
               endforeach;
-              if ($display) {
-                echo '<th>Action</th>';
-              }
               ?>
-          </tr>
-        </thead>
-        <tbody>
-          <?php
-          echo "\r\n";
-          $perms = $this->perms;
-          echo "\r\n";
-          foreach ($this->factoids as $type => $msg):
-            echo '<tr>';
-            echo '<td><a id="' . $msg['id'] . '"></a><italics>' . $msg['id'] . '</italics></td>  ';
-            echo '<td><strong>' . $msg['name'] . '</strong></td> ';
-            echo '<td>' . make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])) . '</td> ';
-            echo '<td>';
-            if ($perms['edit']) {
-              echo '<button onclick="editFactoid(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-warning">Edit</button>';
-              echo ' ';
-            }
-            if ($perms['delete']) {
-              echo '<button onclick="deleteFactoid(' . $msg['id'] . ', ' . $msg['name'] . ');" type="button" class="btn btn-xs btn-danger">Delete</button>';
-            }
-            echo '</td> ';
-            echo "</tr>\r\n";
-          endforeach;
-
-          function make_urls_into_links($plain_text) {
-            return urldecode(preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text));
-          }
-          ?>
-        </tbody>
-      </table>
+            </ul>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
     </div>
   </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th style="width:50px">ID</th>
+          <th style="width:200px">Name</th>
+          <th style="width:100px"><?php
+            if ($this->game == null) {
+              echo 'Game';
+            }
+            ?></th>
+          <th style="width:60%">Content</th>
+          <th style="width:75px"><?php
+            $display = false;
+            foreach ($this->perms as $type => $perm):
+              if ($perm) {
+                $display = true;
+              }
+            endforeach;
+            if ($display) {
+              echo 'Action';
+            }
+            ?>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+        echo "\r\n";
+        $perms = $this->perms;
+        echo "\r\n";
+        foreach ($this->factoids as $type => $msg):
+          echo '<tr>';
+          echo '<td><a style="padding-top:75px" id="' . $msg['id'] . '"></a><italics>' . $msg['id'] . '</italics></td>  ';
+          echo '<td><strong>' . $msg['name'] . '</strong></td> ';
+          echo '<td>';
+          if ($this->game == null) {
+            echo $msg['game'];
+          }
+          echo '</td>';
+
+          echo '<td>' . make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])) . '</td> ';
+          echo '<td>';
+          if ($perms['edit']) {
+            echo '<button onclick="editFactoid(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-warning">Edit</button>';
+            echo '<br>';
+          }
+          if ($perms['delete']) {
+            echo '<button onclick="deleteFactoid(' . $msg['id'] . ', ' . $msg['name'] . ');" type="button" class="btn btn-xs btn-danger">Delete</button>';
+          }
+          echo '</td> ';
+          echo "</tr>\r\n";
+        endforeach;
+
+        function make_urls_into_links($plain_text) {
+          return urldecode(preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text));
+        }
+        ?>
+      </tbody>
+    </table>
+  </div>
+</div>
 </div>
 
 <script>

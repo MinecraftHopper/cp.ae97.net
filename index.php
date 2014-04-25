@@ -19,7 +19,7 @@ $blocked = array(
 
 foreach ($blocked as $key => $target):
   $klein->respond($target, function($request, $response, $service, $app) {
-    return 404;
+    $response->redirect("/403", 302);
   });
 endforeach;
 
@@ -32,12 +32,25 @@ $klein->respond(function($request, $response, $service, $app) {
     return $db;
   });
   $app->register('mail', function() {
+    require('../configs/config.php');
     $mail = new Mailgun\Mailgun($_MAILGUN['key']);
     return $mail;
   });
+  $app->register('email', function() {
+    require('../configs/config.php');
+    return $_MAILGUN['email'];
+  });
   $app->register('domain', function() {
-    $domain = "cp.ae97.net";
-    return $domain;
+    require('../configs/config.php');
+    return $_SITE['domain'];
+  });
+  $app->register('site', function() {
+    require('../configs/config.php');
+    return $_SITE['site'];
+  });
+  $app->register('fullsite', function() {
+    require('../configs/config.php');
+    return $_SITE['fullsite'];
   });
 });
 
@@ -83,11 +96,16 @@ $klein->respond('POST', '/user/delete/[i:id]', function($request, $response, $se
 
 $klein->respond('/user', function($request, $response, $service, $app) {
   if (verifySession($app)) {
-    try {
-      $statement = $app->db->prepare("SELECT authkey as id,username as user,email FROM auth WHERE approved=0 and verified=1");
-      $statement->execute();
-      $accounts = $statement->fetchAll();
-    } catch (PDOException $ex) {
+    $perms['view'] = checkPermission($app, 'viewuser', 'perms_user');
+    if ($perms['view']) {
+      try {
+        $statement = $app->db->prepare("SELECT authkey as id,username as user,email FROM auth WHERE approved=0 and verified=1");
+        $statement->execute();
+        $accounts = $statement->fetchAll();
+      } catch (PDOException $ex) {
+        $accounts = array();
+      }
+    } else {
       $accounts = array();
     }
     $perms['approve'] = checkPermission($app, 'approveuser', 'perms_user');
@@ -99,16 +117,26 @@ $klein->respond('/user', function($request, $response, $service, $app) {
 });
 
 $klein->respond('/factoid', function($request, $response, $service, $app) {
+  $game = $request->param("db");
   try {
-    $statement = $app->db->prepare("SELECT id,name,content FROM factoids");
-    $statement->execute();
+    $gameliststatement = $app->db->prepare("SELECT idname,displayname FROM games");
+    $gameliststatement->execute();
+    $gamelist = $gameliststatement->fetchAll();
+    if ($game == null) {
+      $statement = $app->db->prepare("SELECT id,name,content,game FROM factoids");
+      $statement->execute();
+    } else {
+      $statement = $app->db->prepare("SELECT id,name,content FROM factoids WHERE game=?");
+      $statement->execute(array($game));
+    }
     $factoids = $statement->fetchAll();
   } catch (PDOException $ex) {
     $factoids = array();
+    $gamelist = array();
   }
   $perms['edit'] = checkPermission($app, 'editentry', 'perms_factoid');
   $perms['delete'] = checkPermission($app, 'removeentry', 'perms_factoid');
-  $service->render("components/index.phtml", array('action' => 'factoid', 'factoids' => $factoids, 'perms' => $perms));
+  $service->render("components/index.phtml", array('action' => 'factoid', 'factoids' => $factoids, 'perms' => $perms, 'game' => $game, 'gamelist' => $gamelist));
 });
 
 $klein->respond('/ban', function($request, $response, $service, $app) {
@@ -203,8 +231,8 @@ $klein->respond('POST', '/resetpw', function($request, $response, $service, $app
     $authkey = $db['authkey'];
     $resetkey = generate_string(64);
     $app->db->prepare("UPDATE auth SET data = ? WHERE authkey = ?")->execute(array($resetkey, $authkey));
-    $url = 'https://cp.ae97.net/reset-pw?authkey=' . $authkey . '&resetkey=' . $resetkey;
-    $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $_MAILGUN['email'] . '>',
+    $url = $app->fullsite . '/reset-pw?authkey=' . $authkey . '&resetkey=' . $resetkey;
+    $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
         'to' => $db['email'],
         'subject' => 'Password reset for cp.ae97.net',
         'html' => 'Someone requested your password to be reset. If you wanted to do this, please use <strong><a href="' . $url . '">this link</a></strong> to '
@@ -239,7 +267,7 @@ $klein->respond('GET', '/reset-pw', function($request, $response, $service, $app
       $unhashed = generate_string(16);
       $newpass = password_hash($unhashed, PASSWORD_DEFAULT);
       $app->db->prepare("UPDATE auth SET password = ?, data = null WHERE authkey = ?")->execute(array($newpass, $db['authkey']));
-      $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $_MAILGUN['email'] . '>',
+      $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
           'to' => $db['email'],
           'subject' => 'New panel password',
           'html' => 'Your password has been changed. Your new password is : ' . $unhashed));
@@ -307,11 +335,11 @@ $klein->respond('POST', '/register', function($request, $response, $service, $ap
       $hashedPW = password_hash($request->param('password'), PASSWORD_DEFAULT);
       $params = array($request->param('username'), $request->param('email'), $hashedPW, 0, 0, $approveKey);
       $statement->execute($params);
-      $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $_MAILGUN['email'] . '>',
+      $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
           'to' => $request->param('email'),
           'subject' => 'Account approval',
-          'html' => 'Someone has registered an account on <a href="https://cp.ae97.net">https://cp.ae97.net</a> using this email. '
-          . 'If this was you, please click the following link to verify your email: <a href="https://cp.ae97.net/verify?email=' . $request->param("email") . '&key=' . $approveKey . '">Verify email</a>'));
+          'html' => 'Someone has registered an account on <a href="' . $app->fullsite . '">' . $app->fullsite . '</a> using this email. '
+          . 'If this was you, please click the following link to verify your email: <a href="' . $app->fullsite . '/verify?email=' . $request->param("email") . '&key=' . $approveKey . '">Verify email</a>'));
       $service->flash("Your account has been created, an email has been sent to verify");
       $response->redirect("/login", 302);
     } catch (PDOException $e) {
