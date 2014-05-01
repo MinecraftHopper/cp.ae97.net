@@ -56,6 +56,10 @@ $klein->respond('GET', '/[|index|index.php:page]?', function($request, $response
   $service->render("components/index.phtml", array('action' => 'welcome'));
 });
 
+$klein->respond('GET', '/test', function($request, $response, $service, $app) {
+  $service->render("components/test.phtml");
+});
+
 $klein->respond('GET', '/factoid', function($request, $response, $service, $app) {
   $game = $request->param("db");
   try {

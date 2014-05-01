@@ -56,8 +56,7 @@
             if ($display) {
               echo 'Action';
             }
-            ?>
-          </th>
+            ?></th>
         </tr>
       </thead>
       <tbody>
@@ -67,41 +66,95 @@
         echo "\r\n";
         foreach ($this->factoids as $type => $msg):
           echo '<tr>';
-          echo '<td><a style="padding-top:75px" id="' . $msg['id'] . '"></a><italics>' . $msg['id'] . '</italics></td>  ';
-          echo '<td><strong>' . $msg['name'] . '</strong></td> ';
+          echo '<td><italics>' . $msg['id'] . '</italics></td>  ';
+          echo '<td><strong id="name_' . $msg['id'] . '" data-type="text" data-pk="' . $msg['id'] . '">' . $msg['name'] . '</strong></td> ';
           echo '<td>';
           if ($this->game == null) {
-            echo $msg['game'];
+            echo '<p id="game_' . $msg['id'] . '" inputclass="editable-input-textarea" data-rows=4 data-onblur="ignore" data-type="text" data-pk="' . $msg['id'] . '">' . $msg['game'] . '</p>';
           }
           echo '</td>';
-
-          echo '<td>' . make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])) . '</td> ';
+          echo '<td><p id="content_' . $msg['id'] . '" inputclass="editable-input-textarea" data-rows=4 data-onblur="ignore" data-type="textarea" data-pk="' . $msg['id'] . '">' . make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])) . '</p></td> ';
           echo '<td>';
-          if ($perms['edit']) {
-            echo '<button onclick="editFactoid(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-warning">Edit</button>';
-            echo '<br>';
-          }
+          #if ($perms['edit']) {
+          echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
+          echo '<br>';
+          #}
           if ($perms['delete']) {
-            echo '<button onclick="deleteFactoid(' . $msg['id'] . ', ' . $msg['name'] . ');" type="button" class="btn btn-xs btn-danger">Delete</button>';
+            echo '<button id="deletebutton" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-danger">Delete</button>';
           }
           echo '</td> ';
           echo "</tr>\r\n";
         endforeach;
 
         function make_urls_into_links($plain_text) {
-          return urldecode(preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text));
+          return preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text);
         }
         ?>
       </tbody>
     </table>
   </div>
 </div>
-</div>
+<script src="js/bootstrap-editable.js"></script>
+<script type="text/javascript">
 
-<script>
-  function editFactoid(value) {
-  }
+  $.fn.editable.defaults.mode = 'inline';
 
-  function deleteFactoid(id, name) {
-  }
+  $('.editbutton').click(
+      function(e) {
+        e.stopPropagation();
+        var legacy = $(this);
+        var contentBox = $('#content_' + legacy.data('factoid'));
+        var gameBox = $('#game_' + legacy.data('factoid'));
+        var nameBox = $('#name_' + legacy.data('factoid'));
+        contentBox.editable('enable');
+        contentBox.editable('toggle');
+        contentBox.editable({
+          highlight: false,
+          toggle: "manual"
+        });
+        gameBox.editable('enable');
+        gameBox.editable('toggle');
+        gameBox.editable({
+          highlight: false,
+          toggle: "manual"
+        });
+        nameBox.editable('enable');
+        nameBox.editable('toggle');
+        nameBox.editable({
+          highlight: false,
+          toggle: "manual"
+        });
+        contentBox.on('hidden', function() {
+          e.stopPropagation();
+          contentBox.editable('toggle');
+          contentBox.editable('disable');
+          gameBox.editable('toggle');
+          gameBox.editable('disable');
+          nameBox.editable('toggle');
+          nameBox.editable('disable');
+          legacy.show();
+        });
+        gameBox.on('hidden', function() {
+          e.stopPropagation();
+          contentBox.editable('toggle');
+          contentBox.editable('disable');
+          gameBox.editable('toggle');
+          gameBox.editable('disable');
+          nameBox.editable('toggle');
+          nameBox.editable('disable');
+          legacy.show();
+        });
+        nameBox.on('hidden', function() {
+          e.stopPropagation();
+          contentBox.editable('toggle');
+          contentBox.editable('disable');
+          gameBox.editable('toggle');
+          gameBox.editable('disable');
+          nameBox.editable('toggle');
+          nameBox.editable('disable');
+          legacy.show();
+        });
+        legacy.hide();
+      }
+  );
 </script>
