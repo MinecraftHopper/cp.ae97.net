@@ -97,64 +97,39 @@
   </div>
 </div>
 <script src="js/bootstrap-editable.js"></script>
+
 <script type="text/javascript">
 
   $.fn.editable.defaults.mode = 'inline';
   $('.editable-input').parents('form').removeClass('form-inline');
 
+  function toggleEditable(name, inputId, type)
+  {
+    //throw new Error('#' + name + "_" + inputId);
+    var input = $('#' + name + "_" + inputId);
+    input.editable({
+      highlight: false,
+      toggle: 'manual',
+      onblur: 'ignore',
+      rows: 4,
+      type: type,
+      showbuttons: false
+    });
+    input.editable('toggle');
+  }
+
   $('.editbutton').click(function(e) {
     e.stopPropagation();
-    var legacy = $(this);
-    var contentBox = $('#content_' + legacy.data('factoid'));
-    var gameBox = $('#game_' + legacy.data('factoid'));
-    var nameBox = $('#name_' + legacy.data('factoid'));
-    contentBox.editable({
-      highlight: false,
-      toggle: 'manual',
-      onblur: 'ignore',
-      rows: 3,
-      type: 'textarea',
-      showbuttons: false
-    });
-    contentBox.editable('enable');
-    contentBox.editable('toggle');
-    gameBox.editable({
-      highlight: false,
-      toggle: 'manual',
-      onblur: 'ignore',
-      type: 'text',
-      showbuttons: false,
-      inputclass: '.editable-input-textarea'
-    });
-    gameBox.editable('enable');
-    gameBox.editable('toggle');
-    nameBox.editable({
-      highlight: false,
-      toggle: 'manual',
-      onblur: 'ignore',
-      type: 'text',
-      showbuttons: false
-    });
-    nameBox.editable('enable');
-    nameBox.editable('toggle');
-    legacy.addClass("btn-success");
-    legacy.removeClass("btn-warning");
-    legacy.removeClass("editbutton");
-    legacy.text("Save");
-    legacy.addClass("savebutton");
-    $('.savebutton').click(function(e) {
-      e.stopPropagation();
-      contentBox.editable('toggle');
-      contentBox.editable('disable');
-      gameBox.editable('toggle');
-      gameBox.editable('disable');
-      nameBox.editable('toggle');
-      nameBox.editable('disable');
-      legacy.removeClass("btn-success");
-      legacy.addClass("btn-warning");
-      legacy.addClass("editbutton");
-      legacy.text("Edit");
-      legacy.removeClass("savebutton");
-    });
+    toggleEditable("name", $(this).attr('data-factoid'), "text");
+    toggleEditable("game", $(this).attr('data-factoid'), "text");
+    toggleEditable("content", $(this).attr('data-factoid'), "textarea");
   });
+
+  $('.savebutton').click(function(e) {
+    e.stopPropagation();
+    toggleEditable("name", $(this).attr('data-factoid'), "text");
+    toggleEditable("game", $(this).attr('data-factoid'), "text");
+    toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+  });
+
 </script>
