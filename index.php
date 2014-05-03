@@ -184,7 +184,7 @@ $klein->respond('GET', '/settings', function($request, $response, $service, $app
 
 $klein->respond('GET', '/bot', function($request, $response, $service, $app) {
   if (verifySession($app)) {
-    $service->render("components/index.phtml", array('action' => 'bot', 'page' => 'components/bot.phtml'));
+    $service->render("components/index.phtml", array('action' => 'bot', 'page' => 'admin/bot.phtml'));
   } else {
     $response->redirect("/login", 302);
   }
@@ -207,7 +207,7 @@ $klein->respond('GET', '/user', function($request, $response, $service, $app) {
     }
     $perms['approve'] = checkPermission($app, 'approveuser', 'perms_user');
     $perms['delete'] = checkPermission($app, 'deleteuser', 'perms_user');
-    $service->render("components/index.phtml", array('action' => 'user', 'page' => 'components/user.phtml', 'accounts' => $accounts, 'perms' => $perms));
+    $service->render("components/index.phtml", array('action' => 'user', 'page' => 'admin/user.phtml', 'accounts' => $accounts, 'perms' => $perms));
   } else {
     $response->redirect("/login", 302);
   }
@@ -215,7 +215,7 @@ $klein->respond('GET', '/user', function($request, $response, $service, $app) {
 
 $klein->respond('GET', '/ban', function ($request, $response, $service, $app) {
   if (verifySession($app)) {
-    $service->render("components/index.phtml", array('action' => 'ban', 'page' => 'components/ban.phtml'));
+    $service->render("components/index.phtml", array('action' => 'ban', 'page' => 'admin/ban.phtml'));
   } else {
     $response->redirect("/login", 302);
   }
