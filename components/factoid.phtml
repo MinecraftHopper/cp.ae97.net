@@ -62,36 +62,43 @@
       </thead>
       <tbody>
         <?php
-        echo "\r\n";
         $perms = $this->perms;
         $total = count($this->factoids);
-        echo "\r\n";
         foreach ($this->factoids as $type => $msg):
-          echo '<tr>';
-          echo '<td><italics>' . $msg['id'] . '</italics></td>  ';
-          echo '<td><strong id="name_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . $msg['name'] . '</strong></td> ';
-          echo '<td>';
+          ?>
+          <tr>
+            <td><italics><?php echo($msg['id']) ?></italics></td>
+        <td><strong id="name_<?php echo $msg['id']; ?>" data-pk="' . $msg['id'] . '"><?php echo $msg['name']; ?></strong></td>
+        <td>
+          <?php
           if ($this->game == null) {
             echo '<p id="game_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . $msg['game'] . '</p>';
           }
-          echo '</td>';
-          echo '<td><p id="content_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])) . '</p></td> ';
-          echo '<td>';
+          ?>
+        </td>
+        <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>'"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
+        <td>
+          <?php
           #if ($perms['edit']) {
           echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
           echo '<br>';
           #}
+          ?>
+          <?php
           if ($perms['delete']) {
             echo '<button id="deletebutton" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-danger">Delete</button>';
           }
-          echo '</td> ';
-          echo "</tr>\r\n";
-        endforeach;
+          ?>
+        </td>
+        </tr>
+      <?php endforeach; ?>
 
-        function make_urls_into_links($plain_text) {
-          return preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text);
-        }
-        ?>
+      <?php
+
+      function make_urls_into_links($plain_text) {
+        return preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text);
+      }
+      ?>
       </tbody>
     </table>
   </div>
@@ -107,15 +114,21 @@
   {
     //throw new Error('#' + name + "_" + inputId);
     var input = $('#' + name + "_" + inputId);
-    input.editable({
-      highlight: false,
-      toggle: 'manual',
-      onblur: 'ignore',
-      rows: 4,
-      type: type,
-      showbuttons: false
-    });
-    input.editable('toggle');
+
+    if (!input.hasClass("editable")) {
+      input.editable({
+        highlight: false,
+        toggle: 'manual',
+        onblur: 'ignore',
+        rows: 4,
+        type: type,
+        showbuttons: false
+      });
+      input.enable();
+    } else {
+      input.disable();
+      input.destroy();
+    }
   }
 
   $('.editbutton').click(function(e) {
