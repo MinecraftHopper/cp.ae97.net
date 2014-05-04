@@ -68,13 +68,13 @@
           ?>
           <tr>
             <td><em><?php echo($msg['id']) ?></em></td>
-            <td><strong id="name_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>'"><?php echo $msg['name']; ?></strong></td>
+            <td><strong id="name_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo $msg['name']; ?></strong></td>
             <td><?php
               if ($this->game == null) {
                 echo '<p id="game_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . $msg['game'] . '</p>';
               }
               ?></td>
-            <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>'"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
+            <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
             <td><?php
               #if ($perms['edit']) {
               echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
