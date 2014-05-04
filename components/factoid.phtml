@@ -8,7 +8,7 @@
   </ul>
 </div>
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-  <h2 class="sub-header">Factoid Management</h2>          
+  <h2 class="sub-header">Factoid Management</h2>
   <div class="navbar navbar-default">
     <div class="container">
       <div class="navbar-header">
@@ -67,38 +67,35 @@
         foreach ($this->factoids as $type => $msg):
           ?>
           <tr>
-            <td><italics><?php echo($msg['id']) ?></italics></td>
-        <td><strong id="name_<?php echo $msg['id']; ?>" data-pk="' . $msg['id'] . '"><?php echo $msg['name']; ?></strong></td>
-        <td>
-          <?php
-          if ($this->game == null) {
-            echo '<p id="game_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . $msg['game'] . '</p>';
-          }
-          ?>
-        </td>
-        <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>'"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
-        <td>
-          <?php
-          #if ($perms['edit']) {
-          echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
-          echo '<br>';
-          #}
-          ?>
-          <?php
-          if ($perms['delete']) {
-            echo '<button id="deletebutton" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-danger">Delete</button>';
-          }
-          ?>
-        </td>
-        </tr>
-      <?php endforeach; ?>
+            <td><em><?php echo($msg['id']) ?></em></td>
+            <td><strong id="name_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>'"><?php echo $msg['name']; ?></strong></td>
+            <td><?php
+              if ($this->game == null) {
+                echo '<p id="game_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . $msg['game'] . '</p>';
+              }
+              ?></td>
+            <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>'"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
+            <td><?php
+              #if ($perms['edit']) {
+              echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
+              echo '<button id="savebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-success savebutton">Save</button>';
+              echo '<script>$("#savebutton_' . $msg['id'] . '").hide()</script>';
+              #}
+              ?>
+              <?php
+              if ($perms['delete']) {
+                echo '<button id="deletebutton" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-danger">Delete</button>';
+              }
+              ?></td>
+          </tr>
+        <?php endforeach; ?>
 
-      <?php
+        <?php
 
-      function make_urls_into_links($plain_text) {
-        return preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text);
-      }
-      ?>
+        function make_urls_into_links($plain_text) {
+          return preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text);
+        }
+        ?>
       </tbody>
     </table>
   </div>
@@ -109,6 +106,8 @@
 
   $.fn.editable.defaults.mode = 'inline';
   $('.editable-input').parents('form').removeClass('form-inline');
+
+
 
   function toggleEditable(name, inputId, type)
   {
@@ -122,12 +121,15 @@
         onblur: 'ignore',
         rows: 4,
         type: type,
-        showbuttons: false
+        showbuttons: false,
+        innerClass: 'editable-input-textarea'
       });
-      input.enable();
+      input.editable('enable');
+      input.editable('toggle');
     } else {
-      input.disable();
-      input.destroy();
+      input.editable('toggle');
+      input.editable('disable');
+      input.editable('destroy');
     }
   }
 
@@ -136,6 +138,8 @@
     toggleEditable("name", $(this).attr('data-factoid'), "text");
     toggleEditable("game", $(this).attr('data-factoid'), "text");
     toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+    $(this).hide();
+    $('#savebutton_' + $(this).attr('data-factoid')).show();
   });
 
   $('.savebutton').click(function(e) {
@@ -143,6 +147,8 @@
     toggleEditable("name", $(this).attr('data-factoid'), "text");
     toggleEditable("game", $(this).attr('data-factoid'), "text");
     toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+    $(this).hide();
+    $('#editbutton_' + $(this).attr('data-factoid')).show();
   });
 
 </script>
