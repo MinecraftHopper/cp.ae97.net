@@ -76,11 +76,11 @@
               ?></td>
             <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
             <td><?php
-              #if ($perms['edit']) {
-              echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
-              echo '<button id="savebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-success savebutton">Save</button>';
-              echo '<script>$("#savebutton_' . $msg['id'] . '").hide()</script>';
-              #}
+              if ($perms['edit']) {
+                echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
+                echo '<button id="savebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-success savebutton">Save</button>';
+                echo '<script>$("#savebutton_' . $msg['id'] . '").hide()</script>';
+              }
               ?>
               <?php
               if ($perms['delete']) {
@@ -100,14 +100,13 @@
     </table>
   </div>
 </div>
+
 <script src="js/bootstrap-editable.js"></script>
 
 <script type="text/javascript">
 
   $.fn.editable.defaults.mode = 'inline';
   $('.editable-input').parents('form').removeClass('form-inline');
-
-
 
   function toggleEditable(name, inputId, type)
   {
