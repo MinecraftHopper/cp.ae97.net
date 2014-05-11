@@ -51,7 +51,7 @@
   function approveUser(value) {
     var form = document.createElement('form');
     form.setAttribute('method', 'post');
-    form.setAttribute('action', 'https://cp.ae97.net/user/approve/' + value);
+    form.setAttribute('action', 'https://cp.ae97.net/admin/user/approve/' + value);
     form.style.display = 'hidden';
     document.body.appendChild(form);
     form.submit();
@@ -60,7 +60,7 @@
   function deleteUser(value) {
     var form = document.createElement('form');
     form.setAttribute('method', 'post');
-    form.setAttribute('action', 'https://cp.ae97.net/user/delete/' + value);
+    form.setAttribute('action', 'https://cp.ae97.net/admin/user/delete/' + value);
     form.style.display = 'hidden';
     document.body.appendChild(form);
     form.submit();

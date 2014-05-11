@@ -9,7 +9,7 @@
 </div>
 <link href="css/signin.css?<?php echo filemtime("css/signin.css"); ?>" rel="stylesheet">
 <div class="container">
-  <form class = "form-signin" role = "form" action = "/resetpw" method = "post">
+  <form class = "form-signin" role = "form" action = "/auth/resetpw" method = "post">
     <h3 class = "form-signin-heading">Request new password</h3>
     <?php
     foreach ($this->flashes() as $type => $messages):
