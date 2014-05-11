@@ -53,15 +53,19 @@ $klein->respond(function($request, $response, $service, $app) {
 });
 
 $klein->respond('/ban', function($request, $response, $service, $app) {
-  $response->redirect("/auth/ban", 302);
+  $response->redirect("/admin/ban", 302);
 });
 
 $klein->respond('/user', function($request, $response, $service, $app) {
-  $response->redirect("/auth/user", 302);
+  $response->redirect("/admin/user", 302);
 });
 
 $klein->respond('/bot', function($request, $response, $service, $app) {
-  $response->redirect("/auth/bot", 302);
+  $response->redirect("/admin/bot", 302);
+});
+
+$klein->respond('/settings', function($request, $response, $service, $app) {
+  $response->redirect("/user/settings", 302);
 });
 
 $klein->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
@@ -92,16 +96,9 @@ $klein->respond('GET', '/factoid', function($request, $response, $service, $app)
   $service->render('index.phtml', array('action' => 'factoid', 'page' => 'components/factoid.phtml', 'factoids' => $factoids, 'perms' => $perms, 'game' => $game, 'gamelist' => $gamelist));
 });
 
-$klein->respond('GET', '/settings', function($request, $response, $service, $app) {
-  if (verifySession($app)) {
-    $service->render('index.phtml', array('action' => 'settings', 'page' => 'components/settings.phtml'));
-  } else {
-    $response->redirect("/auth/login", 302);
-  }
-});
-
 $klein->with('/auth', 'auth/index.php');
 $klein->with('/admin', 'admin/index.php');
+$klein->with('/user', 'user/index.php');
 
 $klein->respond('POST', '/factoid', function($request, $response, $service, $app) {
   if (verifySession($app)) {

@@ -216,4 +216,3 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
     }
   }
 });
-?>

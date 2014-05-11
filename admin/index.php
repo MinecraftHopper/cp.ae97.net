@@ -65,4 +65,3 @@ $this->respond('POST', '/user/delete/[i:id]', function($request, $response, $ser
     $response->redirect("/auth/login", 302);
   }
 });
-?>
