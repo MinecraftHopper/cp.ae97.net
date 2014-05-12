@@ -60,6 +60,11 @@ $this->respond('POST', '/new', function($request, $response, $service, $app) {
   }
 });
 
+$this->respond('GET', '/get', function($request, $response, $service, $app) {
+  include('post.php');
+  echo getDatabase($app->db, $request->param("db"));
+});
+
 $this->respond('POST', '/get', function($request, $response, $service, $app) {
   if (verifySession($app)) {
     try {
