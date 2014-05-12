@@ -53,42 +53,7 @@
             ?></th>
         </tr>
       </thead>
-      <tbody>
-        <!--
-        <?php /* $perms = $this->perms;
-          $total = count($this->factoids);
-          foreach ($this->factoids as $type => $msg):
-          ?>
-          <tr>
-          <td><em><?php echo($msg['id']) ?></em></td>
-          <td><strong id="name_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo $msg['name']; ?></strong></td>
-          <td><?php
-          if ($this->game == null) {
-          echo '<p id="game_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . $msg['game'] . '</p>';
-          }
-          ?></td>
-          <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
-          <td><?php
-          if ($perms['edit']) {
-          echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
-          echo '<button id="savebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-success savebutton">Save</button>';
-          echo '<script>$("#savebutton_' . $msg['id'] . '").hide()</script>';
-          }
-          ?>
-          <?php
-          if ($perms['delete']) {
-          echo '<button id="deletebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-danger">Delete</button>';
-          }
-          ?></td>
-          </tr>
-          <?php endforeach; */ ?>
-        -->
-        <?php
-
-        function make_urls_into_links($plain_text) {
-          return preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-~]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $plain_text);
-        }
-        ?>
+      <tbody id="factoidtable">
       </tbody>
     </table>
   </div>
@@ -120,19 +85,44 @@
   });
 
   $('#dbListings').append('<li id="loader"><a href="/">Loading</a></li>');
-  var posting = $.post('factoid/get', {db: <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>}, "json");
+  var game = <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>;
+  var perms = <?php echo json_encode($this->perms); ?>;
+  var posting = $.post('factoid/get', {db: game}, "json");
   posting.done(function(data) {
     $('#loader').remove();
     $('#dbListings').append('<li><a href="/factoid">All</a></li>');
     var json = JSON.parse(data);
+    var menu = $('#dbListings');
     for (var i = 0; i < json.games.length; i++) {
-      $('#dbListings').append('<li><a href="/factoid">' + json.games[i].displayname + '</a></li>');
+      menu.append('<li><a href="/factoid">' + json.games[i].displayname + '</a></li>');
+    }
+    var table = $("#factoidtable");
+    var factoids = json.factoids;
+    for (var i = 0; i < factoids.length; i++) {
+      var factoid = factoids[i];
+      table.append('<tr>');
+      table.append('<td><em>' + factoid.id + '</em></td>');
+      table.append('<td><strong id="name_' + factoid.id + '" data-pk="' + factoid.id + '">' + factoid.name + '</strong></td>');
+      if (game === null) {
+        table.append('<td><p id="game_' + factoid.id + '" data-pk="' + factoid.id + '">' + factoid.game + '</p></td>');
+      }
+      table.append('<td><p id="content_' + factoid.id + '" data-pk="' + factoid.id + '">' + factoid.content + '</p></td>');
+      table.append('<td>');
+      if (perms.edit) {
+        table.append('<button id="editbutton_' + factoid.id + '" data-factoid="' + factoid.id + '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>');
+        table.append('<button id="savebutton_' + factoid.id + '" data-factoid="' + factoid.id + '" type="button" class="btn btn-xs btn-success savebutton">Save</button>');
+        $('#savebutton_' + factoid.id).hide();
+      }
+      if (perms.delete) {
+        table.append('<button id="deletebutton_' + factoid.id + '" data-factoid="' + factoid.id + '" type="button" class="btn btn-xs btn-danger">Delete</button>');
+      }
+      table.append('</td>');
+      table.append('</tr>');
     }
   });
 
   function toggleEditable(name, inputId, type) {
     var input = $('#' + name + "_" + inputId);
-
     if (!input.hasClass("editable")) {
       input.editable({
         highlight: false,

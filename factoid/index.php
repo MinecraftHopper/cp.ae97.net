@@ -1,7 +1,7 @@
 <?php
+
 $this->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
   $game = $request->param("db");
-
   $perms['edit'] = checkPermission($app, 'editentry', 'perms_factoid');
   $perms['delete'] = checkPermission($app, 'removeentry', 'perms_factoid');
   $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms));
