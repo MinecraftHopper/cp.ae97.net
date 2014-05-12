@@ -85,40 +85,53 @@
   });
 
   $('#dbListings').append('<li id="loader"><a href="/">Loading</a></li>');
+
   var game = <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>;
   var perms = <?php echo json_encode($this->perms); ?>;
   var posting = $.post('factoid/get', {db: game}, "json");
+  $('#factoidtable').hide();
+
   posting.done(function(data) {
     $('#loader').remove();
     $('#dbListings').append('<li><a href="/factoid">All</a></li>');
+
     var json = JSON.parse(data);
     var menu = $('#dbListings');
+
     for (var i = 0; i < json.games.length; i++) {
       menu.append('<li><a href="/factoid">' + json.games[i].displayname + '</a></li>');
     }
     var table = $("#factoidtable");
     var factoids = json.factoids;
+
     for (var i = 0; i < factoids.length; i++) {
       var factoid = factoids[i];
       table.append('<tr>');
       table.append('<td><em>' + factoid.id + '</em></td>');
       table.append('<td><strong id="name_' + factoid.id + '" data-pk="' + factoid.id + '">' + factoid.name + '</strong></td>');
+
       if (game === null) {
         table.append('<td><p id="game_' + factoid.id + '" data-pk="' + factoid.id + '">' + factoid.game + '</p></td>');
       }
+
       table.append('<td><p id="content_' + factoid.id + '" data-pk="' + factoid.id + '">' + factoid.content + '</p></td>');
       table.append('<td>');
+
       if (perms.edit) {
         table.append('<button id="editbutton_' + factoid.id + '" data-factoid="' + factoid.id + '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>');
         table.append('<button id="savebutton_' + factoid.id + '" data-factoid="' + factoid.id + '" type="button" class="btn btn-xs btn-success savebutton">Save</button>');
         $('#savebutton_' + factoid.id).hide();
       }
+
       if (perms.delete) {
         table.append('<button id="deletebutton_' + factoid.id + '" data-factoid="' + factoid.id + '" type="button" class="btn btn-xs btn-danger">Delete</button>');
       }
+
       table.append('</td>');
       table.append('</tr>');
     }
+    table.show();
+    $('#progressbar').hide();
   });
 
   function toggleEditable(name, inputId, type) {
