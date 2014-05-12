@@ -19,16 +19,25 @@
           <li></li>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Select Database <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="/factoid">All</a></li>
-              <?php
-              foreach ($this->gamelist as $games => $game):
-                echo '<li><a href="/factoid?db=' . $game['idname'] . '">' . $game['displayname'] . '</a></li>';
-                echo "\r";
-              endforeach;
-              ?>
+            <ul id="dbListings" class="dropdown-menu">
             </ul>
           </li>
+          <script type="text/javascript">
+            $('#dbListings').append('<li id="loader"><a href="/">Loading</a></li>');
+            var posting = $.post("get", {db: <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>}, "json");
+            posting.done(function(data) {
+              $('#loader').remove();
+              $('#dbListings').append('<li><a href="/factoid">All</a></li>');
+              var json = JSON.parse(data);
+              console.log(json.games);
+              for (var game in json.games) {
+                console.log("1) " + game);
+                if (json.games.hasOwnProperty(game)) {
+                  $('#dbListings').append('<li><a href="/factoid">' + game.displayname + '</a></li>');
+                }
+              }
+            });
+          </script>
         </ul>
       </div><!--/.nav-collapse -->
     </div>
@@ -61,35 +70,35 @@
         </tr>
       </thead>
       <tbody>
-        <?php
-        $perms = $this->perms;
-        $total = count($this->factoids);
-        foreach ($this->factoids as $type => $msg):
+        <!--
+        <?php /* $perms = $this->perms;
+          $total = count($this->factoids);
+          foreach ($this->factoids as $type => $msg):
           ?>
           <tr>
-            <td><em><?php echo($msg['id']) ?></em></td>
-            <td><strong id="name_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo $msg['name']; ?></strong></td>
-            <td><?php
-              if ($this->game == null) {
-                echo '<p id="game_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . $msg['game'] . '</p>';
-              }
-              ?></td>
-            <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
-            <td><?php
-              if ($perms['edit']) {
-                echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
-                echo '<button id="savebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-success savebutton">Save</button>';
-                echo '<script>$("#savebutton_' . $msg['id'] . '").hide()</script>';
-              }
-              ?>
-              <?php
-              if ($perms['delete']) {
-                echo '<button id="deletebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-danger">Delete</button>';
-              }
-              ?></td>
+          <td><em><?php echo($msg['id']) ?></em></td>
+          <td><strong id="name_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo $msg['name']; ?></strong></td>
+          <td><?php
+          if ($this->game == null) {
+          echo '<p id="game_' . $msg['id'] . '" data-pk="' . $msg['id'] . '">' . $msg['game'] . '</p>';
+          }
+          ?></td>
+          <td><p id="content_<?php echo $msg['id']; ?>" data-pk="<?php echo $msg['id']; ?>"><?php echo make_urls_into_links(str_replace(';;', " <br><br> ", $msg['content'])); ?></p></td>
+          <td><?php
+          if ($perms['edit']) {
+          echo '<button id="editbutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
+          echo '<button id="savebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-success savebutton">Save</button>';
+          echo '<script>$("#savebutton_' . $msg['id'] . '").hide()</script>';
+          }
+          ?>
+          <?php
+          if ($perms['delete']) {
+          echo '<button id="deletebutton_' . $msg['id'] . '" data-factoid="' . $msg['id'] . '" type="button" class="btn btn-xs btn-danger">Delete</button>';
+          }
+          ?></td>
           </tr>
-        <?php endforeach; ?>
-
+          <?php endforeach; */ ?>
+        -->
         <?php
 
         function make_urls_into_links($plain_text) {
@@ -105,50 +114,52 @@
 
 <script type="text/javascript">
 
-  $.fn.editable.defaults.mode = 'inline';
-  $('.editable-input').parents('form').removeClass('form-inline');
+            $.fn.editable.defaults.mode = 'inline';
+            $('.editable-input').parents('form').removeClass('form-inline');
 
-  function toggleEditable(name, inputId, type)
-  {
-    //throw new Error('#' + name + "_" + inputId);
-    var input = $('#' + name + "_" + inputId);
+            function toggleEditable(name, inputId, type)
+            {
+              //throw new Error('#' + name + "_" + inputId);
+              var input = $('#' + name + "_" + inputId);
 
-    if (!input.hasClass("editable")) {
-      input.editable({
-        highlight: false,
-        toggle: 'manual',
-        onblur: 'ignore',
-        rows: 4,
-        type: type,
-        showbuttons: false,
-        innerClass: 'editable-input-textarea'
-      });
-      input.editable('enable');
-      input.editable('toggle');
-    } else {
-      input.editable('toggle');
-      input.editable('disable');
-      input.editable('destroy');
-      input.css({display: 'block'});
-    }
-  }
+              if (!input.hasClass("editable")) {
+                input.editable({
+                  highlight: false,
+                  toggle: 'manual',
+                  onblur: 'ignore',
+                  rows: 4,
+                  type: type,
+                  showbuttons: false,
+                  innerClass: 'editable-input-textarea'
+                });
+                input.editable('enable');
+                input.editable('toggle');
+              } else {
+                input.editable('toggle');
+                input.editable('disable');
+                input.editable('destroy');
+                input.css({display: 'block'});
+              }
+            }
 
-  $('.editbutton').click(function(e) {
-    e.stopPropagation();
-    toggleEditable("name", $(this).attr('data-factoid'), "text");
-    toggleEditable("game", $(this).attr('data-factoid'), "text");
-    toggleEditable("content", $(this).attr('data-factoid'), "textarea");
-    $(this).hide();
-    $('#savebutton_' + $(this).attr('data-factoid')).show();
-  });
+            $('.editbutton').click(function(e) {
+              e.stopPropagation();
+              toggleEditable("name", $(this).attr('data-factoid'), "text");
+              toggleEditable("game", $(this).attr('data-factoid'), "text");
+              toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+              $(this).hide();
+              $('#savebutton_' + $(this).attr('data-factoid')).show();
+            });
 
-  $('.savebutton').click(function(e) {
-    e.stopPropagation();
-    toggleEditable("name", $(this).attr('data-factoid'), "text");
-    toggleEditable("game", $(this).attr('data-factoid'), "text");
-    toggleEditable("content", $(this).attr('data-factoid'), "textarea");
-    $(this).hide();
-    $('#editbutton_' + $(this).attr('data-factoid')).show();
-  });
+            $('.savebutton').click(function(e) {
+              e.stopPropagation();
+              toggleEditable("name", $(this).attr('data-factoid'), "text");
+              toggleEditable("game", $(this).attr('data-factoid'), "text");
+              toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+              $(this).hide();
+              $('#editbutton_' + $(this).attr('data-factoid')).show();
+            });
+
+
 
 </script>
