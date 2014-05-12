@@ -22,22 +22,6 @@
             <ul id="dbListings" class="dropdown-menu">
             </ul>
           </li>
-          <script type="text/javascript">
-            $('#dbListings').append('<li id="loader"><a href="/">Loading</a></li>');
-            var posting = $.post("get", {db: <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>}, "json");
-            posting.done(function(data) {
-              $('#loader').remove();
-              $('#dbListings').append('<li><a href="/factoid">All</a></li>');
-              var json = JSON.parse(data);
-              console.log(json.games);
-              for (var game in json.games) {
-                console.log("1) " + game);
-                if (json.games.hasOwnProperty(game)) {
-                  $('#dbListings').append('<li><a href="/factoid">' + game.displayname + '</a></li>');
-                }
-              }
-            });
-          </script>
         </ul>
       </div><!--/.nav-collapse -->
     </div>
@@ -114,52 +98,58 @@
 
 <script type="text/javascript">
 
-            $.fn.editable.defaults.mode = 'inline';
-            $('.editable-input').parents('form').removeClass('form-inline');
+  $.fn.editable.defaults.mode = 'inline';
+  $('.editable-input').parents('form').removeClass('form-inline');
 
-            function toggleEditable(name, inputId, type)
-            {
-              //throw new Error('#' + name + "_" + inputId);
-              var input = $('#' + name + "_" + inputId);
+  $('.editbutton').click(function(e) {
+    e.stopPropagation();
+    toggleEditable("name", $(this).attr('data-factoid'), "text");
+    toggleEditable("game", $(this).attr('data-factoid'), "text");
+    toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+    $(this).hide();
+    $('#savebutton_' + $(this).attr('data-factoid')).show();
+  });
 
-              if (!input.hasClass("editable")) {
-                input.editable({
-                  highlight: false,
-                  toggle: 'manual',
-                  onblur: 'ignore',
-                  rows: 4,
-                  type: type,
-                  showbuttons: false,
-                  innerClass: 'editable-input-textarea'
-                });
-                input.editable('enable');
-                input.editable('toggle');
-              } else {
-                input.editable('toggle');
-                input.editable('disable');
-                input.editable('destroy');
-                input.css({display: 'block'});
-              }
-            }
+  $('.savebutton').click(function(e) {
+    e.stopPropagation();
+    toggleEditable("name", $(this).attr('data-factoid'), "text");
+    toggleEditable("game", $(this).attr('data-factoid'), "text");
+    toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+    $(this).hide();
+    $('#editbutton_' + $(this).attr('data-factoid')).show();
+  });
 
-            $('.editbutton').click(function(e) {
-              e.stopPropagation();
-              toggleEditable("name", $(this).attr('data-factoid'), "text");
-              toggleEditable("game", $(this).attr('data-factoid'), "text");
-              toggleEditable("content", $(this).attr('data-factoid'), "textarea");
-              $(this).hide();
-              $('#savebutton_' + $(this).attr('data-factoid')).show();
-            });
+  $('#dbListings').append('<li id="loader"><a href="/">Loading</a></li>');
+  var posting = $.post("get", {db: <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>}, "json");
+  posting.done(function(data) {
+    $('#loader').remove();
+    $('#dbListings').append('<li><a href="/factoid">All</a></li>');
+    var json = JSON.parse('{"games":[{"idname":"minecraft","displayname":"Minecraft"},{"idname":"scrolls","displayname":"Scrolls"}]}');
+    for (var i = 0; i < json.games.length; i++) {
+      $('#dbListings').append('<li><a href="/factoid">' + json.games[i].displayname + '</a></li>');
+    }
+  });
 
-            $('.savebutton').click(function(e) {
-              e.stopPropagation();
-              toggleEditable("name", $(this).attr('data-factoid'), "text");
-              toggleEditable("game", $(this).attr('data-factoid'), "text");
-              toggleEditable("content", $(this).attr('data-factoid'), "textarea");
-              $(this).hide();
-              $('#editbutton_' + $(this).attr('data-factoid')).show();
-            });
+  function toggleEditable(name, inputId, type) {
+    var input = $('#' + name + "_" + inputId);
 
-
-
+    if (!input.hasClass("editable")) {
+      input.editable({
+        highlight: false,
+        toggle: 'manual',
+        onblur: 'ignore',
+        rows: 4,
+        type: type,
+        showbuttons: false,
+        innerClass: 'editable-input-textarea'
+      });
+      input.editable('enable');
+      input.editable('toggle');
+    } else {
+      input.editable('toggle');
+      input.editable('disable');
+      input.editable('destroy');
+      input.css({display: 'block'});
+    }
+  }
 </script>
