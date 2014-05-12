@@ -120,11 +120,11 @@
   });
 
   $('#dbListings').append('<li id="loader"><a href="/">Loading</a></li>');
-  var posting = $.post("get", {db: <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>}, "json");
+  var posting = $.post('factoid/get', {db: <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>}, "json");
   posting.done(function(data) {
     $('#loader').remove();
     $('#dbListings').append('<li><a href="/factoid">All</a></li>');
-    var json = JSON.parse('{"games":[{"idname":"minecraft","displayname":"Minecraft"},{"idname":"scrolls","displayname":"Scrolls"}]}');
+    var json = JSON.parse(data);
     for (var i = 0; i < json.games.length; i++) {
       $('#dbListings').append('<li><a href="/factoid">' + json.games[i].displayname + '</a></li>');
     }
