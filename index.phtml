@@ -41,21 +41,7 @@
             <li><a href="/settings">Settings</a></li>
             <!--<li><a href="/help">Help</a></li> -->
             <li>
-              <?php
-              echo("<a href=\"/");
-              if (isset($_SESSION["session"])) {
-                echo("logout");
-              } else {
-                echo("login");
-              }
-              echo("\">");
-              if (isset($_SESSION["session"])) {
-                echo("Logout");
-              } else {
-                echo("Login");
-              }
-              echo("</a>");
-              ?></li>
+              <a href="/auth/<?php echo isset($_SESSION["session"]) ? "logout" : "login"; ?>"><?php echo isset($_SESSION["session"]) ? "Logout" : "Login"; ?></a></li>
           </ul>
         </div>
       </div>

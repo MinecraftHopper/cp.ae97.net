@@ -16,11 +16,22 @@ $blocked = array(
     "/mailgun"
 );
 
+/*$redirect = array(
+    array('path' => '/login', 'redirect' => '/auth/login'),
+    array('path' => '/logout', 'redirect' => '/auth/logout'),
+);*/
+
 foreach ($blocked as $key => $target):
   $klein->respond($target, function($request, $response, $service, $app) {
     $response->redirect("/404", 302);
   });
 endforeach;
+
+/*foreach ($redirect as $key => $target):
+  $klein->respond($target['path'], function($request, $response, $service, $app) {
+    $response->redirect($target['redirect'], 302);
+  });
+endforeach;*/
 
 $klein->respond(function($request, $response, $service, $app) {
   $app->register('db', function() {
