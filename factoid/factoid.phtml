@@ -62,7 +62,9 @@
 
 <script src="/js/factoid.js"></script>
 <script type="text/javascript">
+
   var game = <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>;
   var perms = <?php echo json_encode($this->perms); ?>;
   FACTOID.load(game, perms);
+
 </script>

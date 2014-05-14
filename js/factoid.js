@@ -4,15 +4,10 @@ var FACTOID = FACTOID || (function() {
             $.fn.editable.defaults.mode = 'inline';
             $('.editable-input').parents('form').removeClass('form-inline');
 
-            $('#dbListings').append('<li id="loader"><a href="/">Loading</a></li>');
-
             var posting = $.post('factoid/get', {db: game}, "json");
             $('#factoidtable').hide();
 
             posting.done(function(data) {
-                $('#loader').remove();
-                $('#dbListings').append('<li><a href="/factoid">All</a></li>');
-
                 var json = JSON.parse(data);
                 var menu = $('#dbListings');
 
@@ -54,27 +49,26 @@ var FACTOID = FACTOID || (function() {
                         $('#savebutton_' + factoid.id).hide();
                     }
                 }
+
+                $('.editbutton').on("click", function(e) {
+                    e.stopPropagation();
+                    toggleEditable("name", $(this).attr('data-factoid'), "text");
+                    toggleEditable("game", $(this).attr('data-factoid'), "text");
+                    toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+                    $(this).hide();
+                    $('#savebutton_' + $(this).attr('data-factoid')).show();
+                });
+
+                $('.savebutton').on("click", function(e) {
+                    e.stopPropagation();
+                    toggleEditable("name", $(this).attr('data-factoid'), "text");
+                    toggleEditable("game", $(this).attr('data-factoid'), "text");
+                    toggleEditable("content", $(this).attr('data-factoid'), "textarea");
+                    $(this).hide();
+                    $('#editbutton_' + $(this).attr('data-factoid')).show();
+                });
+
                 table.show();
-                $('#progressbar').hide();
-            });
-
-            $('.editbutton').click(function(e) {
-                console.log("Edit fired");
-                e.stopPropagation();
-                toggleEditable("name", $(this).attr('data-factoid'), "text");
-                toggleEditable("game", $(this).attr('data-factoid'), "text");
-                toggleEditable("content", $(this).attr('data-factoid'), "textarea");
-                $(this).hide();
-                $('#savebutton_' + $(this).attr('data-factoid')).show();
-            });
-
-            $('.savebutton').click(function(e) {
-                e.stopPropagation();
-                toggleEditable("name", $(this).attr('data-factoid'), "text");
-                toggleEditable("game", $(this).attr('data-factoid'), "text");
-                toggleEditable("content", $(this).attr('data-factoid'), "textarea");
-                $(this).hide();
-                $('#editbutton_' + $(this).attr('data-factoid')).show();
             });
 
             function toggleEditable(name, inputId, type) {
