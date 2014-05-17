@@ -3,7 +3,6 @@ var FACTOID = FACTOID || (function() {
         load: function(game) {
             $.fn.editable.defaults.mode = 'inline';
             $('.editable-input').parents('form').removeClass('form-inline');
-
             load(game);
         }
     };
@@ -19,16 +18,17 @@ function toggleEditable(name, inputId, type) {
             rows: 4,
             type: type,
             showbuttons: false,
-            innerClass: 'editable-input-textarea',
-            savenochange: true
+            innerClass: 'editable-input-textarea'
         });
         input.editable('enable');
         input.editable('toggle');
     } else {
         input.editable('toggle');
         input.editable('disable');
+        var val = input.editable('getValue', true);
         input.editable('destroy');
         input.css({display: 'block'});
+        input.text(val);
     }
 }
 
@@ -36,6 +36,12 @@ function load(game) {
     formattedGame = game === null ? null : game.toLowerCase();
     $('#factoidtable').hide();
     $('#gamename').text(game === null ? "All databases" : game);
+    if (game === null) {
+        $('#game_column').show();
+    } else {
+        $('#game_column').hide();
+    }
+    $('#action_column').hide();
     var posting = $.post('factoid/get', {db: formattedGame}, "json");
     posting.done(function(data) {
         loadDatabase(game, data);
@@ -113,10 +119,13 @@ function loadDatabase(game, data) {
         $(this).hide();
         $('#editbutton_' + $(this).attr('data-factoid')).show();
         $id = $(this).attr('data-factoid');
-        $.post('/factoid/edit', {id: $(this).attr('data-factoid'), name: $('#name_' + $(this).attr('data-factoid')).editable('getValue'), content: $('#content_' + $(this).attr('data-factoid')).editable('getValue')}, function(data) {
+        $.post('/factoid/edit', {id: $(this).attr('data-factoid'), name: $('#name_' + $(this).attr('data-factoid')).text(), content: $('#content_' + $(this).attr('data-factoid')).text()}, function(data) {
             $('#flashwarning').hide();
             $('#flashwarning').text('Edit of ' + $id + ": " + data);
             $('#flashwarning').show();
+            $('#flashwarning').delay(5000).fadeOut(1000, function() {
+                $('#flashwarning').hide();
+            });
         });
     });
 

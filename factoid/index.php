@@ -24,7 +24,7 @@ $this->respond('POST', '/edit', function($request, $response, $service, $app) {
     try {
       if (checkPermission($app, 'editentry', 'perms_factoid')) {
         echo $request->param('name') + '\n';
-        echo $request->param('content') + '\n';
+        //echo $request->param('content') + '\n';
         $app->db->prepare("UPDATE factoids SET name = ?, content = ?  WHERE id = ?")->execute(array($request->param('name'), $request->param('content'), $request->param('id')));
         return "Success";
       }
