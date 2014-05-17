@@ -22,9 +22,16 @@ $this->respond('POST', '/delete', function($request, $response, $service, $app) 
 $this->respond('POST', '/edit', function($request, $response, $service, $app) {
   if (verifySession($app)) {
     try {
-      
+      if (checkPermission($app, 'editentry', 'perms_factoid')) {
+        echo $request->param('name') + '\n';
+        echo $request->param('content') + '\n';
+        $app->db->prepare("UPDATE factoids SET name = ?, content = ?  WHERE id = ?")->execute(array($request->param('name'), $request->param('content'), $request->param('id')));
+        return "Success";
+      }
+      return "Failed";
     } catch (PDOException $ex) {
       error_log(addSlashes($ex->getMessage()) . "\r");
+      return "Failed";
     }
   } else {
     $response->redirect("/auth/login", 302);
@@ -72,11 +79,17 @@ $this->respond('/get', function($request, $response, $service, $app) {
   $compiledFactoidlist = array();
   $counter = 0;
   foreach ($factoids as $f):
-    $compiledFactoidlist[$counter] = array('id' => $f['id'], 'name' => $f['name'], 'content' => $f['content'], 'game' => $game == null ? $f['name'] : $game);
+    $compiledFactoidlist[$counter] = array('id' => $f['id'], 'name' => $f['name'], 'content' => $f['content'], 'game' => $game == null ? $f['game'] : $game);
     $counter++;
   endforeach;
   $collection = array();
   $collection['games'] = $compiledGamelist;
   $collection['factoids'] = $compiledFactoidlist;
+  $perms = array();
+  $perms['edit'] = checkPermission($app, 'editentry', 'perms_factoid');
+  $perms['delete'] = checkPermission($app, 'removeentry', 'perms_factoid');
+  $collection['perms'] = $perms;
   echo json_encode($collection);
 });
+
+include('functions/functions.php');

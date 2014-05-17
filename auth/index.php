@@ -27,7 +27,7 @@ $this->respond('GET', '/register', function($request, $response, $service, $app)
   if (!verifySession($app)) {
     $service->render('index.phtml', array('action' => 'register', 'page' => 'auth/register.phtml'));
   } else {
-    $response->redirect("/index", 302);
+    $response->redirect("/", 302);
   }
 });
 
@@ -178,7 +178,7 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
     $failed = true;
   }
   if ($failed) {
-    $response->redirect("/register", 302);
+    $response->redirect("/auth/register", 302);
   } else {
     try {
       $statement = $app->db->prepare("SELECT authkey FROM auth WHERE email=?");
@@ -199,20 +199,19 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
         $approveKey = generate_string(32);
         $hashedPW = password_hash($request->param('password'), PASSWORD_DEFAULT);
         $params = array($request->param('username'), $request->param('email'), $hashedPW, 0, 0, $approveKey);
-
         $statement->execute($params);
         $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
             'to' => $request->param('email'),
             'subject' => 'Account approval',
             'html' => 'Someone has registered an account on <a href="' . $app->fullsite . '">' . $app->fullsite . '</a> using this email. '
-            . 'If this was you, please click the following link to verify your email: <a href="' . $app->fullsite . '/verify?email=' . $request->param("email") . '&key=' . $approveKey . '">Verify email</a>'));
+            . 'If this was you, please click the following link to verify your email: <a href="' . $app->fullsite . '/auth/verify?email=' . $request->param("email") . '&key=' . $approveKey . '">Verify email</a>'));
         $service->flash("Your account has been created, an email has been sent to verify");
         $response->redirect("/auth/login", 302);
       }
     } catch (PDOException $ex) {
       error_log(addSlashes($ex->getMessage()) . "\r");
       $service->flash("Error: The MySQL connection has failed, please contact the admins");
-      $response->redirect('/register', 302);
+      $response->redirect('/auth/register', 302);
     }
   }
 });
