@@ -7,6 +7,10 @@ $this->respond('GET', '/[|index|index.php:page]?', function($request, $response,
   $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms));
 });
 
+$this->respond('POST', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
+  
+});
+
 $this->respond('POST', '/delete', function($request, $response, $service, $app) {
   if (verifySession($app)) {
     try {
@@ -20,22 +24,23 @@ $this->respond('POST', '/delete', function($request, $response, $service, $app) 
 });
 
 $this->respond('POST', '/edit', function($request, $response, $service, $app) {
-  if (verifySession($app)) {
+  return json_encode($request->paramsPost());
+  /* if (verifySession($app)) {
     try {
-      if (checkPermission($app, 'editentry', 'perms_factoid')) {
-        echo $request->param('name') + '\n';
-        //echo $request->param('content') + '\n';
-        $app->db->prepare("UPDATE factoids SET name = ?, content = ?  WHERE id = ?")->execute(array($request->param('name'), $request->param('content'), $request->param('id')));
-        return "Success";
-      }
-      return "Failed";
-    } catch (PDOException $ex) {
-      error_log(addSlashes($ex->getMessage()) . "\r");
-      return "Failed";
+    if (checkPermission($app, 'editentry', 'perms_factoid')) {
+    echo $request->param('name') + '\n';
+    //echo $request->param('content') + '\n';
+    //$app->db->prepare("UPDATE factoids SET name = ?, content = ?  WHERE id = ?")->execute(array($request->param('name'), $request->param('content'), $request->param('id')));
+    //return "Success";
     }
-  } else {
+    return "Failed";
+    } catch (PDOException $ex) {
+    error_log(addSlashes($ex->getMessage()) . "\r");
+    return "Failed";
+    }
+    } else {
     $response->redirect("/auth/login", 302);
-  }
+    } */
 });
 
 $this->respond('POST', '/new', function($request, $response, $service, $app) {
