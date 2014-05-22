@@ -27,6 +27,7 @@
   </div>
 
   <div id="flashwarning" class="alert alert-danger"></div>
+  <div id="flashsuccess" class="alert alert-success"></div>
 
   <div class="table-responsive">
     <table class="table table-striped">
@@ -50,6 +51,7 @@
 <script src="/js/factoid.js"></script>
 <script type="text/javascript">
   $('#flashwarning').hide();
+  $('#flashsuccess').hide();
   var game = <?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "null" : $this->gamelist[$this->game] ?>;
   FACTOID.load(game);
 </script>

@@ -24,23 +24,21 @@ $this->respond('POST', '/delete', function($request, $response, $service, $app) 
 });
 
 $this->respond('POST', '/edit', function($request, $response, $service, $app) {
-  return json_encode($request->paramsPost());
-  /* if (verifySession($app)) {
+  if (verifySession($app)) {
     try {
-    if (checkPermission($app, 'editentry', 'perms_factoid')) {
-    echo $request->param('name') + '\n';
-    //echo $request->param('content') + '\n';
-    //$app->db->prepare("UPDATE factoids SET name = ?, content = ?  WHERE id = ?")->execute(array($request->param('name'), $request->param('content'), $request->param('id')));
-    //return "Success";
-    }
-    return "Failed";
+      if (checkPermission($app, 'editentry', 'perms_factoid')) {
+        $app->db->prepare("UPDATE factoids SET content = ?  WHERE id = ?")->execute(array($request->param('value'), $request->param('pk')));
+        return json_encode(array('msg' => 'Success, changed to ' . $request->param('value')));
+      }
+      return array('msg' => 'Failed, no permissions to edit');
     } catch (PDOException $ex) {
-    error_log(addSlashes($ex->getMessage()) . "\r");
-    return "Failed";
+      error_log(addSlashes($ex->getMessage()) . "\r");
+      return array('msg' => 'Failed, MySQL database returned error');
     }
-    } else {
-    $response->redirect("/auth/login", 302);
-    } */
+  } else {
+    //$response->redirect("/auth/login", 302);
+    return json_ecode(array('msg' => "Failed, not logged in"));
+  }
 });
 
 $this->respond('POST', '/new', function($request, $response, $service, $app) {

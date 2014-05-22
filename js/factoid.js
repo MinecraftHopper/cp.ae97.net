@@ -40,15 +40,15 @@ function loadDatabase(game, data) {
         var html = "";
         var $id = factoid.id;
         html += '<tr><td><em>' + $id + '</em></td>';
-        html += '<td><strong id="name_' + $id + '" class="factoidid_' + $id + '" data-pk="' + $id + '">' + factoid.name + '</strong></td>';
+        html += '<td><strong id="name_' + $id + '" data-pk="' + $id + '">' + factoid.name + '</strong></td>';
         if (game === null) {
-            html += '<td><p id="game_' + $id + '" class="factoidid_' + $id + '" data-pk="' + $id + '">' + factoid.game + '</p></td>';
+            html += '<td><p id="game_' + $id + '" data-pk="' + $id + '">' + factoid.game + '</p></td>';
             $('#game_column').show();
         } else {
             $('#game_column').hide();
         }
 
-        html += '<td><p id="content_' + $id + '" class="factoidid_' + $id + '" data-pk="' + $id + '">' + factoid.content + '</p></td>';
+        html += '<td><p id="content_' + $id + '" data-pk="' + $id + '">' + factoid.content + '</p></td>';
         html += '<td>';
         if (perms.edit) {
             html += '<button id="editbutton_' + $id + '" data-factoid="' + $id + '" type="button" class="btn btn-xs btn-warning editbutton">Edit</button>';
@@ -57,7 +57,7 @@ function loadDatabase(game, data) {
 
         if (perms.delete) {
             if (perms.edit) {
-                html += '<br><br>';
+                html += '<p>';
             }
             html += '<button id="deletebutton_' + $id + '" data-factoid="' + $id + '" type="button" class="btn btn-xs btn-danger">Delete</button>';
         }
@@ -82,16 +82,20 @@ function loadDatabase(game, data) {
                     dataType: 'json'
                 },
                 success: function(data, config) {
+                    $('#content_' + $id).css({display: 'block'});
+                    $('#content_' + $id).parent().find('.editableform-loading').css({display: 'none'});
                     $('#editbutton_' + $id).show();
-                    $('#flashwarning').text('Edit of ' + $id + ": " + JSON.stringify(data));
-                    $('#flashwarning').show();
-                    $('#flashwarning').delay(5000).fadeOut(1000, function() {
-                        $('#flashwarning').hide();
+                    $('#flashsuccess').text(data.msg);
+                    $('#flashsuccess').show();
+                    $('#flashsuccess').delay(5000).fadeOut(1000, function() {
+                        $('#flashsuccess').hide();
                     });
                 },
                 error: function(data, config) {
+                    $('#content_' + $id).css({display: 'block'});
+                    $('#content_' + $id).parent().find('.editableform-loading').css({display: 'none'});
                     $('#editbutton_' + $id).show();
-                    $('#flashwarning').text('Edit of ' + $id + ": " + JSON.stringify(data));
+                    $('#flashwarning').text(data.msg);
                     $('#flashwarning').show();
                     $('#flashwarning').delay(5000).fadeOut(1000, function() {
                         $('#flashwarning').hide();
@@ -101,7 +105,7 @@ function loadDatabase(game, data) {
             $input.on('hidden', function(e) {
                 $('#editbutton_' + $id).show();
             });
-            $input.editable('disable');
+            //$input.on('rendered', function(e) {            });
         }
 
         if (perms.edit || perms.delete) {
@@ -115,7 +119,6 @@ function loadDatabase(game, data) {
         e.stopPropagation();
         $id = $(this).attr('data-factoid');
         var input = $('#content_' + $id);
-        input.editable('enable');
         input.editable('toggle');
         $(this).hide();
     });
