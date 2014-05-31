@@ -1,53 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
-
-    <title>Pokebot Dashboard</title>
-
-    <!-- Bootstrap core CSS -->
-    <link href="/css/bootstrap.css?<?php echo filemtime("css/bootstrap.css"); ?>" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="/css/dashboard.css?<?php echo filemtime("css/dashboard.css"); ?>" rel="stylesheet">
-
-    <script src="/js/jquery.min.js"></script> 
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="/js/docs.min.js"></script>
-    <script src="/js/knockout.js"></script>
-  </head>
-
-  <body>  
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/">Pokebot Control Panel</a>
-        </div>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="/">Dashboard</a></li>
-            <li><a href="/settings">Settings</a></li>
-            <!--<li><a href="/help">Help</a></li> -->
-            <li>
-              <a href="/auth/<?php echo isset($_SESSION["session"]) ? "logout" : "login"; ?>"><?php echo isset($_SESSION["session"]) ? "Logout" : "Login"; ?></a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-md-2 sidebar">
-      <ul class="nav nav-sidebar">
-        <li><a href="/">Overview</a></li>
-        <li><a href="/factoid">Factoid Database</a></li>
-        <li><a href="/ban">Ban Management</a></li>
-        <li><a href="/user">User Management</a></li>
-        <li><a href="/bot">Bot Management</a></li>
-      </ul>
-    </div>
+  <body>
+    <?php
+    include('components/head.phtml');
+    include('components/header.phtml');
+    include('components/sidebar.phtml');
+    ?>
     <div class="container-fluid">
       <div class="row">
         <?php
