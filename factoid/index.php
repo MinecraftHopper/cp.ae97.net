@@ -7,8 +7,25 @@ $this->respond('GET', '/[|index|index.php:page]?', function($request, $response,
   $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms));
 });
 
-$this->respond('POST', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
-  
+$this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $app) {
+  if (verifySession($app)) {
+    try {
+      if (checkPermission($app, 'editentry', 'perms_factoid')) {
+
+        $statement = $app->db->prepare("SELECT id,name,content FROM factoids WHERE id=?");
+        $statement->execute(array($request->param('id')));
+        $factoids = $statement->fetchAll();
+        foreach ($factoids as $factoid):
+          $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/edit.phtml', 'id' => $factoid['id'], 'name' => $factoid['name'], 'content' => $factoid['content']));
+        endforeach;
+      }
+    } catch (PDOException $ex) {
+      error_log(addSlashes($ex->getMessage()) . "\r");
+      return array('msg' => 'Failed, MySQL database returned error');
+    }
+  } else {
+    $response->redirect("/auth/login", 302);
+  }
 });
 
 $this->respond('POST', '/delete', function($request, $response, $service, $app) {
@@ -23,11 +40,12 @@ $this->respond('POST', '/delete', function($request, $response, $service, $app) 
   }
 });
 
-$this->respond('POST', '/edit', function($request, $response, $service, $app) {
+$this->respond('POST', '/submit-edit', function($request, $response, $service, $app) {
   if (verifySession($app)) {
     try {
       if (checkPermission($app, 'editentry', 'perms_factoid')) {
-        $app->db->prepare("UPDATE factoids SET content = ?  WHERE id = ?")->execute(array($request->param('value'), $request->param('pk')));
+        $app->db->prepare("UPDATE factoids SET content = ?  WHERE id = ?")->execute(array($request->param('content'), $request->param('id')));
+        $response->redirect("/factoid", 302);
         return json_encode(array('msg' => 'Success, changed to ' . $request->param('value')));
       }
       return array('msg' => 'Failed, no permissions to edit');
@@ -36,8 +54,7 @@ $this->respond('POST', '/edit', function($request, $response, $service, $app) {
       return array('msg' => 'Failed, MySQL database returned error');
     }
   } else {
-    //$response->redirect("/auth/login", 302);
-    return json_ecode(array('msg' => "Failed, not logged in"));
+    $response->redirect("/auth/login", 302);
   }
 });
 
@@ -75,8 +92,12 @@ $this->respond('/get', function($request, $response, $service, $app) {
   }
   $compiledGamelist = array();
   $counter = 0;
+  $gameAskedFor = array();
   foreach ($gamelist as $gameitem):
     $compiledGamelist[$counter] = array('idname' => $gameitem['idname'], 'displayname' => $gameitem['displayname']);
+    if ($compiledGamelist[$counter]['idname'] === $game) {
+      $gameAskedFor = $compiledGamelist[$counter];
+    }
     $counter++;
   endforeach;
   $compiledFactoidlist = array();
@@ -86,6 +107,7 @@ $this->respond('/get', function($request, $response, $service, $app) {
     $counter++;
   endforeach;
   $collection = array();
+  $collection['gamerequest'] = $gameAskedFor;
   $collection['games'] = $compiledGamelist;
   $collection['factoids'] = $compiledFactoidlist;
   $perms = array();

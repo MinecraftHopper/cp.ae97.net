@@ -4,7 +4,7 @@
       game = "minecraft";
     }
     viewModel.tableLoaded(false);
-    var posting = $.post('factoid/get', {db: game}, "json");
+    var posting = $.post('/factoid/get', {db: game}, "json");
     posting.done(parseData);
   }
 
@@ -12,6 +12,7 @@
     var json = JSON.parse(data);
     viewModel.gameTable.removeAll();
     viewModel.factoidTable.removeAll();
+    viewModel.gameName(json.gamerequest.displayname);
     for (var counter = 0; counter < json.games.length; counter++) {
       var game = json.games[counter];
       viewModel.gameTable.push({'displayname': game.displayname, 'idname': game.idname});
@@ -44,7 +45,8 @@
     gameTable: ko.observableArray(),
     editPerm: ko.observable(false),
     deletePerm: ko.observable(false),
-    loadData: loadData
+    loadData: loadData,
+    gameName: ko.observable('Minecraft')
   };
   loadData("minecraft");
 </script>
@@ -54,7 +56,7 @@
   <div class="navbar navbar-default">
     <div class="container">
       <div class="navbar-header">
-        <a class="navbar-brand">Factoid Database - <a id="gamename" class="navbar-brand"><?php echo $this->game == null || !isset($this->gamelist[$this->game]) ? "All databases" : $this->gamelist[$this->game] ?></a></a>
+        <a class="navbar-brand">Factoid Database - <a data-bind="text: gameName" id="gamename" class="navbar-brand"></a></a>
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
@@ -85,9 +87,9 @@
           <td><p><strong data-bind="text: $data.name"></strong></p></td>
           <td><p data-bind="text: $data.content"></p></td>
           <td data-bind="visible: $parent.editPerm || $parent.deletePerm">
-            <button style="width: 60px" class="btn btn-xs btn-warning" type="button" data-bind="visible: $parent.editPerm">Edit</button>
+            <a style="width:60px" class="btn btn-xs btn-warning" data-bind="visible: $parent.editPerm, attr: {href: '/factoid/edit/' + $data.id}">Edit</a>
             <p data-bind="visible: $parent.editPerm"></p>
-            <button style="width: 60px" class="btn btn-xs btn-danger" type="button" data-bind="visible: $parent.deletePerm">Delete</button>
+            <a style="width:60px" class="btn btn-xs btn-danger" data-bind="visible: $parent.deletePerm, attr: {href: '/factoid/delete/' + $data.id}">Delete</a>
           </td>
         </tr>
       </tbody>
