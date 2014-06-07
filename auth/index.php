@@ -16,11 +16,11 @@ $this->respond('GET', '/logout', function($request, $response, $service, $app) {
   $response->redirect("/index", 302);
 });
 
-$this->respond('GET', '/login', function($request, $response, $service, $app) {
+$this->respond('GET', '/login/[*:request]?', function($request, $response, $service, $app) {
   if (verifySession($app)) {
     $response->redirect("/", 302);
   }
-  $service->render('index.phtml', array('action' => 'login', 'page' => 'auth/login.phtml'));
+  $service->render('index.phtml', array('action' => 'login', 'page' => 'auth/login.phtml', 'redirect' => $request->param('request')));
 });
 
 $this->respond('GET', '/register', function($request, $response, $service, $app) {
@@ -94,7 +94,7 @@ $this->respond('GET', '/reset-pw', function($request, $response, $service, $app)
   }
 });
 
-$this->respond('POST', '/login', function($request, $response, $service, $app) {
+$this->respond('POST', '/login/[*:redirectBack]?', function($request, $response, $service, $app) {
   $service->validateParam('email', 'Please enter a valid eamail')->isLen(5, 256);
   $service->validateParam('password', 'Please enter a password')->isLen(1, 256);
   try {
@@ -116,7 +116,11 @@ $this->respond('POST', '/login', function($request, $response, $service, $app) {
         $statement->execute(array($str, $db['authkey']));
         $_SESSION['authkey'] = $db['authkey'];
         $_SESSION['session'] = $str;
-        $service->back();
+        if ($request->param('redirectBack') !== null) {
+          $response->redirect('/' . $request->param('redirectBack'), 302);
+        } else {
+          $service->back();
+        }
       }
     } else {
       throw new Exception("Incorrect password");

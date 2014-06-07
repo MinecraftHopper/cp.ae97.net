@@ -1,0 +1,36 @@
+<div class="">
+  <h3 class="sub-header">Unapproved accounts</h3>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+        echo "\r\n";
+        $perms = $this->perms;
+        foreach ($this->accounts as $type => $msg):
+          echo '<tr>';
+          echo '<td>' . $msg['id'] . '</td>';
+          echo '<td>' . $msg['user'] . '</td>';
+          echo '<td>' . $msg['email'] . '</td>';
+          echo '<td>';
+          if ($perms['approveUser']) {
+            echo '<button onclick="approveUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-success">Approve</button>  -  ';
+          }
+          if ($perms['deleteUser']) {
+            echo '<button onclick="deleteUser(' . $msg['id'] . ');" type="button" class="btn btn-xs btn-danger">Delete</button>';
+          }
+          echo '</td>';
+          echo "</tr>\r\n";
+        endforeach;
+        ?>
+      </tbody>
+    </table>
+  </div>
+</div>

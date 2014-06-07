@@ -23,8 +23,9 @@ $this->respond('GET', '/user', function($request, $response, $service, $app) {
     } else {
       $accounts = array();
     }
-    $perms['approve'] = checkPermission($app, 'approveuser', 'perms_user');
-    $perms['delete'] = checkPermission($app, 'deleteuser', 'perms_user');
+    $perms['approveUser'] = checkPermission($app, 'approveuser', 'perms_user');
+    $perms['deleteUser'] = checkPermission($app, 'deleteuser', 'perms_user');
+    $perms['editUsers'] = checkPermission($app, 'edituser', 'perms_user');
     $service->render('index.phtml', array('action' => 'user', 'page' => 'admin/user.phtml', 'accounts' => $accounts, 'perms' => $perms));
   } else {
     $response->redirect("/auth/login", 302);

@@ -11,7 +11,6 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
   if (verifySession($app)) {
     try {
       if (checkPermission($app, 'editentry', 'perms_factoid')) {
-
         $statement = $app->db->prepare("SELECT id,name,content FROM factoids WHERE id=?");
         $statement->execute(array($request->param('id')));
         $factoids = $statement->fetchAll();
@@ -24,7 +23,15 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
       return array('msg' => 'Failed, MySQL database returned error');
     }
   } else {
-    $response->redirect("/auth/login", 302);
+    $response->redirect("/auth/login/factoid/edit/" . $request->param('id'), 302);
+  }
+});
+
+$this->respond('GET', '/new/', function($request, $response, $service, $app) {
+  if (verifySession($app)) {
+    if (checkPermission($app, 'editentry', 'perms_factoid')) {
+      
+    }
   }
 });
 
@@ -36,7 +43,7 @@ $this->respond('POST', '/delete', function($request, $response, $service, $app) 
       error_log(addSlashes($ex->getMessage()) . "\r");
     }
   } else {
-    $response->redirect("/auth/login", 302);
+    $response->redirect("/auth/login/factoid", 302);
   }
 });
 
@@ -54,7 +61,7 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
       return array('msg' => 'Failed, MySQL database returned error');
     }
   } else {
-    $response->redirect("/auth/login", 302);
+    $response->redirect("/auth/login/factoid/" . $request->param('id'), 302);
   }
 });
 
@@ -66,7 +73,7 @@ $this->respond('POST', '/new', function($request, $response, $service, $app) {
       error_log(addSlashes($ex->getMessage()) . "\r");
     }
   } else {
-    $response->redirect("/auth/login", 302);
+    $response->redirect("/auth/login/factoid/new", 302);
   }
 });
 
