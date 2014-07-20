@@ -1,0 +1,37 @@
+<link href="/css/register.css?<?php echo filemtime("css/register.css"); ?>" rel="stylesheet">
+<div class="container">
+    <form class = "form-register" role = "form" action = "/auth/register" method = "post">
+        <h3 class = "form-register-heading">Register new account</h3>
+        <?php
+        foreach ($this->flashes() as $type => $messages):
+            foreach ($messages as $msg):
+                echo '<div class="alert alert-danger">' . $msg . '</div>';
+            endforeach;
+        endforeach;
+        ?>
+        <input name = "username" type = "username" class = "form-control" placeholder = "Username" required autofocus
+        <?php
+        if (isset($this->username)) {
+            echo('value = "' . $this->username . '"');
+        }
+        ?>>
+        <br>
+        <input name = "email" type = "email" class = "form-control" placeholder = "Email" required autofocus
+        <?php
+        if (isset($this->email)) {
+            echo('value = "' . $this->email . '"');
+        }
+        ?>>
+        <input name = "email-verify" type = "email" class = "form-control" placeholder = "Verify email" required autofocus
+        <?php
+        if (isset($this->emailverify)) {
+            echo('value = "' . $this->emailverify . '"');
+        }
+        ?>>
+        <br>
+        <input name = "password" type = "password" class = "form-control" placeholder = "Password" required autofocus>
+        <input name = "password-verify" type = "password" class = "form-control" placeholder = "Verify password" required autofocus>
+        <p></p><p></p>
+        <button class = "btn btn-lg btn-primary btn-block" type = "submit">Register</button>
+    </form>
+</div>

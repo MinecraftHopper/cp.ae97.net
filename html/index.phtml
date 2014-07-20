@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <?php
+    include('../assets/layout/head.phtml');
+?>
+    <body>
+        <?php
+        include('../assets/layout/header.phtml');
+        include('../assets/layout/sidebar.phtml');
+        ?>
+        <div class="container-fluid">
+            <div class="row">
+                <?php
+                include($this->escape($this->page));
+                ?>
+            </div>
+        </div>
+    </body>
+</html>
