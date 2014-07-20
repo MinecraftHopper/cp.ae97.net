@@ -1,5 +1,5 @@
 <link href="/css/signin.css?<?php echo filemtime("css/signin.css"); ?>" rel="stylesheet">
-<div class="container">
+<div class="row col-lg-offset-4">
     <form class = "form-signin" role = "form" action = "/auth/login<?php echo ($this->redirect !== null) ? "/" . $this->redirect : "" ?>" method = "post">
         <h3 class = "form-signin-heading">Login</h3>
         <?php
@@ -9,9 +9,9 @@
             endforeach;
         endforeach;
         ?>
-        <input name = "email" type = "text" class = "form-control" placeholder = "Email" required autofocus>
-        <input name = "password" type = "password" class = "form-control" placeholder = "Password" required>
-        <button class = "btn btn-lg btn-primary btn-block" type = "submit">Login</button>
+        <input style="width:25%" name = "email" type = "text" class = "form-control" placeholder = "Email" required autofocus>
+        <input style="width:25%" name = "password" type = "password" class = "form-control" placeholder = "Password" required>
+        <button style="width:25%" class = "btn btn-primary btn-block" type = "submit">Login</button>
         <p></p>
         <p><a href='/auth/resetpw'>Forgot password</a></p>
         <p><a href='/auth/register'>Register</a></p>

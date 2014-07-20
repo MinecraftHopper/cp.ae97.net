@@ -18,9 +18,9 @@
         for (var counter = 0; counter < json.factoids.length; counter++) {
             var item = json.factoids[counter];
             viewModel.factoidTable.push({
-                'id': item.id,
+                //'id': item,
                 'name': item.name,
-                'content': item.content
+                'content': parseToText(item.content)
             });
         }
         viewModel.editPerm(json.perms.edit);
@@ -71,17 +71,17 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th id="id_column" style="width:50px">ID</th>
-                    <th id="name_column" style="width:200px">Name</th>
-                    <th id="content_column" style="width:500px">Content</th>
+                    <!--<th id="id_column" style="width:50px">ID</th>-->
+                    <th id="name_column" style="width:20%">Name</th>
+                    <th id="content_column" style="width:80%">Content</th>
                     <th id="action_column" data-bind="visible: editPerm || deletePerm" style="width:70px">Action</th>
                 </tr>
             </thead>
             <tbody data-bind="visible: tableLoaded, foreach: factoidTable" id="factoidtable">
                 <tr>
-                    <td><p><em data-bind="text: $data.id"></em></p></td>
+                    <!--<td><p><em data-bind="text: $data.id"></em></p></td>-->
                     <td><p><strong data-bind="text: $data.name"></strong></p></td>
-                    <td><p data-bind="text: $data.content"></p></td>
+                    <td><p data-bind="html: $data.content"></p></td>
                     <td data-bind="visible: $parent.editPerm || $parent.deletePerm">
                         <a style="width:60px" class="btn btn-xs btn-warning" data-bind="visible: $parent.editPerm, attr: {href: '/factoid/edit/' + $data.id}">Edit</a>
                         <p data-bind="visible: $parent.editPerm"></p>

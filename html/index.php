@@ -1,8 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../assets/php/vendor/autoload.php';
-require_once '../assets/php/functions.php';
-require_once '../config/config.php';
+require_once __DIR__ . '/../assets/php/functions.php';
+require_once __DIR__ . '/../config/config.php';
 
 $klein = new \Klein\Klein();
 
@@ -56,16 +56,16 @@ $klein->respond('/settings', function($request, $response, $service, $app) {
 });
 
 $klein->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
-    $service->render('index.phtml', array('action' => 'welcome', 'page' => 'index/welcome.phtml'));
+    $service->render('index.phtml', array('action' => null, 'page' => null));
 });
 
-$klein->with('cp/auth', __DIR__ . '/auth/index.php');
-$klein->with('cp/admin', __DIR__ . '/cp/admin/index.php');
-$klein->with('cp/user', __DIR__ . '/cp/user/index.php');
+$klein->with('/auth', __DIR__ . '/auth/index.php');
+$klein->with('/cp/admin', __DIR__ . '/cp/admin/index.php');
+$klein->with('/cp/user', __DIR__ . '/cp/user/index.php');
 $klein->with('/factoid', __DIR__ . '/factoid/index.php');
 
 $klein->respond('404', function($request, $response, $service, $app) {
-    $service->render('index.phtml', array('action' => '404', 'try' => $request, 'page' => 'error/404.phtml'));
+    $service->render('index.phtml', array('action' => '404', 'try' => $request->uri(), 'page' => __DIR__ . '/../error/404.phtml'));
 });
 
 $klein->onError(function($klein, $err_msg) {
