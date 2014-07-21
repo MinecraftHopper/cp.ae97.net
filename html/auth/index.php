@@ -1,7 +1,5 @@
 <?php
 
-namespace Auth;
-
 $this->respond('GET', '/logout', function($request, $response, $service, $app) {
     if (!verifySession($app)) {
         $response->redirect("/", 302);
@@ -18,11 +16,11 @@ $this->respond('GET', '/logout', function($request, $response, $service, $app) {
     $response->redirect("/index", 302);
 });
 
-$this->respond('GET', '/login/[*:request]?', function($request, $response, $service, $app) {
+$this->respond('GET', '/login/[*:redirect]?', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         $response->redirect("/", 302);
     }
-    $service->render('index.phtml', array('action' => 'login', 'page' => 'auth/login.phtml', 'redirect' => $request->param('request')));
+    $service->render('index.phtml', array('action' => 'login', 'page' => 'auth/login.phtml', 'redirect' => $request->param('redirect')));
 });
 
 $this->respond('GET', '/register', function($request, $response, $service, $app) {
@@ -102,7 +100,7 @@ $this->respond('POST', '/login/[*:redirectBack]?', function($request, $response,
     try {
         $statement = $app->auth_db->prepare("SELECT authkey,password,approved,verified,email FROM users WHERE email=?");
         $statement->execute(array($request->param("email")));
-        //$statement->setFetchMode(PDO::FETCH_ASSOC);
+        $statement->setFetchMode(PDO::FETCH_ASSOC);
         $db = $statement->fetch();
         if (!isset($db['password']) || !isset($db['authkey']) || !isset($db['approved']) || !isset($db['email'])) {
             throw new Exception("No user found");

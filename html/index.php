@@ -6,6 +6,8 @@ require_once __DIR__ . '/../config/config.php';
 
 $klein = new \Klein\Klein();
 
+session_start();
+
 $klein->respond(function($request, $response, $service, $app) {
     $app->register('factoid_db', function() {
         $_DATABASE = getDatabaseConfig();

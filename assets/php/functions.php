@@ -5,7 +5,7 @@ function verifySession($app) {
         return false;
     } else {
         try {
-            $statement = $app->db->prepare("SELECT authkey, session FROM auth WHERE authkey = ?");
+            $statement = $app->auth_db->prepare("SELECT authkey, session FROM users WHERE authkey = ?");
             $statement->execute(array($_SESSION["authkey"]));
             $statement->setFetchMode(PDO::FETCH_ASSOC);
             $db = $statement->fetch();
@@ -39,7 +39,7 @@ function checkPermission($app, $perm, $table) {
         return false;
     } else {
         try {
-            $statement = $app->db->prepare("SELECT " . $perm . " FROM " . $table . " WHERE authkey = ?");
+            $statement = $app->auth_db->prepare("SELECT " . $perm . " FROM " . $table . " WHERE authkey = ?");
             $statement->execute(array($_SESSION["authkey"]));
             $statement->setFetchMode(PDO::FETCH_ASSOC);
             $db = $statement->fetch();
