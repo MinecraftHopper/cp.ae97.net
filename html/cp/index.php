@@ -1,10 +1,7 @@
 <?php
-
-namespace CP\Admin;
-
 $this->respond('GET', '/bot', function($request, $response, $service, $app) {
     if (verifySession($app)) {
-        $service->render('index.phtml', array('action' => 'bot', 'page' => 'admin/bot.phtml'));
+        $service->render('index.phtml', array('action' => 'bot', 'page' => 'cp/admin/bot.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -16,7 +13,7 @@ $this->respond('GET', '/user', function($request, $response, $service, $app) {
         $perms['approveUser'] = checkPermission($app, 'approveuser', 'perms_user');
         $perms['deleteUser'] = checkPermission($app, 'deleteuser', 'perms_user');
         $perms['editUsers'] = checkPermission($app, 'edituser', 'perms_user');
-        $service->render('index.phtml', array('action' => 'user', 'page' => 'admin/user.phtml', 'perms' => $perms));
+        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user.phtml', 'perms' => $perms));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -24,7 +21,7 @@ $this->respond('GET', '/user', function($request, $response, $service, $app) {
 
 $this->respond('GET', '/ban', function($request, $response, $service, $app) {
     if (verifySession($app)) {
-        $service->render('index.phtml', array('action' => 'ban', 'page' => 'admin/ban.phtml'));
+        $service->render('index.phtml', array('action' => 'ban', 'page' => 'cp/admin/ban.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -73,6 +70,14 @@ $this->respond('POST', '/user/delete/[i:id]', function($request, $response, $ser
         } catch (PDOException $ex) {
             error_log(addSlashes($ex->getMessage()) . "\r");
         }
+    } else {
+        $response->redirect("/auth/login", 302);
+    }
+});
+
+$this->respond('GET', '/settings', function($request, $response, $service, $app) {
+    if (verifySession($app)) {
+        $service->render('index.phtml', array('action' => 'settings', 'page' => 'cp/user/settings.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }

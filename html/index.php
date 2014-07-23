@@ -54,7 +54,7 @@ $klein->respond('/bot', function($request, $response, $service, $app) {
 });
 
 $klein->respond('/settings', function($request, $response, $service, $app) {
-    $response->redirect("/user/settings", 302);
+    $response->redirect("/cp/settings", 302);
 });
 
 $klein->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
@@ -62,8 +62,7 @@ $klein->respond('GET', '/[|index|index.php:page]?', function($request, $response
 });
 
 $klein->with('/auth', __DIR__ . '/auth/index.php');
-$klein->with('/cp/admin', __DIR__ . '/cp/admin/index.php');
-$klein->with('/cp/user', __DIR__ . '/cp/user/index.php');
+$klein->with('/cp', __DIR__ . '/cp/index.php');
 $klein->with('/factoid', __DIR__ . '/factoid/index.php');
 
 $klein->respond('404', function($request, $response, $service, $app) {
