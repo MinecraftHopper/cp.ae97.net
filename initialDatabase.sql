@@ -1,6 +1,7 @@
 --Authentication and panel management
 CREATE DATABASE authentication;
 
+USE authentication;
 CREATE TABLE `groups` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(32) NOT NULL DEFAULT '0',
@@ -55,6 +56,7 @@ AUTO_INCREMENT=1;
 --Factoid management
 CREATE DATABASE factoid;
 
+USE factoid;
 CREATE TABLE `factoids` (
 	`id` INT(32) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(128) NOT NULL,
