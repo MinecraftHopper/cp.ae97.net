@@ -79,3 +79,8 @@ CREATE TABLE `games` (
 )
 COLLATE='utf8_general_ci'
 AUTO_INCREMENT=1;
+
+CREATE USER 'panel'@'localhost' IDENTIFIED BY '';
+
+GRANT ALL ON authentication.* TO 'panel'@'localhost';
+GRANT ALL ON factoid.* TO 'panel'@'localhost';
