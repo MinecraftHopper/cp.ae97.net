@@ -5,7 +5,7 @@ function getDatabaseConfig() {
         'host' => 'localhost',
         'factoiddb' => 'factoid',
         'authdb' => 'authentication',
-        'user' => '',
+        'user' => 'panel',
         'pass' => ''
     ];
 }
