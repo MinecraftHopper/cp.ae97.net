@@ -1,0 +1,43 @@
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <script type="text/javascript" src="/assets/js/approval.js"></script>
+    <script type="text/javascript">
+        var viewModel = {
+            'unapprovedUsers': ko.observableArray(),
+            'approve': <?php echo $this->perms['approveUser'] ?>,
+            'delete': <?php echo $this->perms['deleteUser'] ?>
+        };
+    </script>
+
+    <div class="col-lg-6">
+        <h3 class="sub-header">Unapproved accounts</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="unapprovedTable" data-bind="foreach: unapprovedUsers">
+                    <tr>
+                        <td><p data-bind="text: $data.id"></p></td>
+                        <td><p data-bind="text: $data.user"></p></td>
+                        <td><p data-bind="text: $data.email"></p></td>
+                        <td>
+                            <a data-bind="click: approveUser.bind($data.id)" class="btn btn-xs btn-success">Approve</a>
+                            <p></p>
+                            <a data-bind="click: deleteUser.bind($data.id)" class="btn btn-xs btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    ko.applyBindings(viewModel);
+    getUnapprovedUserList();
+</script>

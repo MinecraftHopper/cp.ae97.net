@@ -9,7 +9,18 @@ function verifySession($app) {
             $statement->execute(array($_SESSION["authkey"]));
             $statement->setFetchMode(PDO::FETCH_ASSOC);
             $db = $statement->fetch();
-            return validateSession($db, $_SESSION);
+            if (!isset($db['session']) || !isset($db['authkey'])) {
+                $session ['authkey'] = null;
+                $session ['session'] = null;
+                return false;
+            }
+            if ($_SESSION['authkey'] == $db['authkey'] && $_SESSION['session'] == $db['session']) {
+                return true;
+            } else {
+                $session['authkey'] = null;
+                $session['session'] = null;
+                return false;
+            }
         } catch (PDOException $ex) {
             error_log(addSlashes($ex->getMessage()) . "\r");
             $_SESSION['authkey'] = null;
@@ -19,31 +30,16 @@ function verifySession($app) {
     }
 }
 
-function validateSession($db, $session) {
-    if (!isset($db['session']) || !isset($db['authkey']) || !isset($session['authkey']) || !isset($session['authkey'])) {
-        $session ['authkey'] = null;
-        $session ['session'] = null;
-        return false;
-    }
-    if ($session['authkey'] == $db['authkey'] && $session['session'] == $db['session']) {
-        return true;
-    } else {
-        $session['authkey'] = null;
-        $session['session'] = null;
-        return false;
-    }
-}
-
-function checkPermission($app, $perm, $table) {
+function checkPermission($app, $perm) {
     if (!verifySession($app)) {
         return false;
     } else {
         try {
-            $statement = $app->auth_db->prepare("SELECT " . $perm . " FROM " . $table . " WHERE authkey = ?");
-            $statement->execute(array($_SESSION["authkey"]));
+            $statement = $app->auth_db->prepare("SELECT count(*) AS 'has' FROM permissions WHERE userId = ? AND perm IN ('*', ?)");
+            $statement->execute(array($_SESSION["authkey"], $perm));
             $statement->setFetchMode(PDO::FETCH_ASSOC);
             $db = $statement->fetch();
-            return isset($db[$perm]) && $db[$perm] === "1";
+            return $db['has'] > 0;
         } catch (PDOException $ex) {
             error_log(addSlashes($ex->getMessage()) . "\r");
             return false;

@@ -4,9 +4,9 @@ require_once __DIR__ . '/../assets/php/vendor/autoload.php';
 require_once __DIR__ . '/../assets/php/functions.php';
 require_once __DIR__ . '/../config/config.php';
 
-$klein = new \Klein\Klein();
-
 session_start();
+
+$klein = new \Klein\Klein();
 
 $klein->respond(function($request, $response, $service, $app) {
     $app->register('factoid_db', function() {
@@ -42,15 +42,15 @@ $klein->respond(function($request, $response, $service, $app) {
 });
 
 $klein->respond('/ban', function($request, $response, $service, $app) {
-    $response->redirect("/admin/ban", 302);
+    $response->redirect("/cp/admin/ban", 302);
 });
 
 $klein->respond('/user', function($request, $response, $service, $app) {
-    $response->redirect("/admin/user", 302);
+    $response->redirect("/cp/admin/user", 302);
 });
 
 $klein->respond('/bot', function($request, $response, $service, $app) {
-    $response->redirect("/admin/bot", 302);
+    $response->redirect("/cp/admin/bot", 302);
 });
 
 $klein->respond('/settings', function($request, $response, $service, $app) {
