@@ -5,12 +5,12 @@ $this->respond('GET', '/logout', function($request, $response, $service, $app) {
         $response->redirect("/", 302);
     }
     try {
-        $statement = $app->auth_db->prepare("UPDATE users SET session = ? WHERE authkey = ?");
-        $statement->execute(array('null', $_SESSION['authkey']));
+        $statement = $app->auth_db->prepare("UPDATE users SET session = ? WHERE uuid = ?");
+        $statement->execute(array('null', $_SESSION['uuid']));
     } catch (PDOException $ex) {
         error_log(addSlashes($ex->getMessage()) . "\r");
     }
-    $_SESSION['authkey'] = null;
+    $_SESSION['uuid'] = null;
     $_SESSION['session'] = null;
     $service->render('index.phtml', array('action' => 'logout', 'page' => 'auth/logout.phtml'));
     $response->redirect("/index", 302);
@@ -58,18 +58,18 @@ $this->respond('GET', '/resetpw', function($request, $response, $service, $app) 
 
 $this->respond('GET', '/reset-pw', function($request, $response, $service, $app) {
     try {
-        $service->validateParam('authkey', 'Invalid auth key');
+        $service->validateParam('uuid', 'Invalid uuid');
         $service->validateParam('resetkey', 'Invalid reset key')->isLen(64);
     } catch (Exception $e) {
         $service->flash("Error: " . $e->getMessage());
         $response->redirect('/resetpw', 302);
     }
     try {
-        $statement = $app->auth_db->prepare("SELECT authkey,data,email,verified FROM users WHERE authkey=?");
-        $statement->execute(array($request->param('authkey')));
+        $statement = $app->auth_db->prepare("SELECT uuid,data,email,verified FROM users WHERE uuid=?");
+        $statement->execute(array($request->param('uuid')));
         $statement->setFetchMode(PDO::FETCH_ASSOC);
         $db = $statement->fetch();
-        if (!isset($db['data']) || !isset($db['authkey'])) {
+        if (!isset($db['data']) || !isset($db['uuid'])) {
             $service->flash("Error: No reset was requested for this account");
             $response->redirect('/resetpw', 302);
         } else if (!isset($db['verified']) || $db['verified'] == 0) {
@@ -77,7 +77,7 @@ $this->respond('GET', '/reset-pw', function($request, $response, $service, $app)
         } else if ($db['data'] == $request->param('resetkey')) {
             $unhashed = generate_string(16);
             $newpass = password_hash($unhashed, PASSWORD_DEFAULT);
-            $app->auth_db->prepare("UPDATE users SET password = ?, data = null WHERE authkey = ?")->execute(array($newpass, $db['authkey']));
+            $app->auth_db->prepare("UPDATE users SET password = ?, data = null WHERE uuid = ?")->execute(array($newpass, $db['uuid']));
             $app->mail->sendMessage($app->domain, array('from' => 'Noreply@ae97.net <' . $app->email . '>',
                 'to' => $db['email'],
                 'subject' => 'New panel password', 'html' => 'Your password has been changed. Your new password is : ' . $unhashed));
@@ -98,11 +98,11 @@ $this->respond('POST', '/login/[*:redirectBack]?', function($request, $response,
     $service->validateParam('email', 'Please enter a valid eamail')->isLen(5, 256);
     $service->validateParam('password', 'Please enter a password')->isLen(1, 256);
     try {
-        $statement = $app->auth_db->prepare("SELECT authkey,password,approved,verified,email FROM users WHERE email=?");
+        $statement = $app->auth_db->prepare("SELECT uuid,password,approved,verified,email FROM users WHERE email=?");
         $statement->execute(array($request->param("email")));
         $statement->setFetchMode(PDO::FETCH_ASSOC);
         $db = $statement->fetch();
-        if (!isset($db['password']) || !isset($db['authkey']) || !isset($db['approved']) || !isset($db['email'])) {
+        if (!isset($db['password']) || !isset($db['uuid']) || !isset($db['approved']) || !isset($db['email'])) {
             throw new Exception("No user found");
         }
         if (password_verify($request->param('password'), $db['password'])) {
@@ -112,9 +112,9 @@ $this->respond('POST', '/login/[*:redirectBack]?', function($request, $response,
                 throw new Exception("Your account has not been approved");
             } else {
                 $str = generate_string(64);
-                $statement = $app->auth_db->prepare("UPDATE users SET session = ? WHERE authkey = ?");
-                $statement->execute(array($str, $db['authkey']));
-                $_SESSION['authkey'] = $db['authkey'];
+                $statement = $app->auth_db->prepare("UPDATE users SET session = ? WHERE uuid = ?");
+                $statement->execute(array($str, $db['uuid']));
+                $_SESSION['uuid'] = $db['uuid'];
                 $_SESSION['session'] = $str;
                 if ($request->param('redirectBack') !== null) {
                     $response->redirect('/' . $request->param('redirectBack'), 302);
@@ -135,7 +135,7 @@ $this->respond('POST', '/login/[*:redirectBack]?', function($request, $response,
 $this->respond('POST', '/resetpw', function($request, $response, $service, $app) {
     $service->validateParam('email', 'Invalid email')->isLen(5, 256);
     try {
-        $statement = $app->auth_db->prepare("SELECT authkey,username,email,verified FROM users WHERE email=?");
+        $statement = $app->auth_db->prepare("SELECT uuid,username,email,verified FROM users WHERE email=?");
         $statement->execute(array($request->param('email')));
         $db = $statement->fetch();
         if (!isset($db['email'])) {
@@ -143,10 +143,10 @@ $this->respond('POST', '/resetpw', function($request, $response, $service, $app)
         } else if (!isset($db['verified']) || $db['verified'] == 0) {
             throw new Exception("Account " . $request->param('email') . " not verified");
         } else {
-            $authkey = $db['authkey'];
+            $uuid = $db['uuid'];
             $resetkey = generate_string(64);
-            $app->auth_db->prepare("UPDATE users SET data = ? WHERE authkey = ?")->execute(array($resetkey, $authkey));
-            $url = $app->fullsite . '/reset-pw?authkey=' . $authkey . '&resetkey=' . $resetkey;
+            $app->auth_db->prepare("UPDATE users SET data = ? WHERE uuid = ?")->execute(array($resetkey, $uuid));
+            $url = $app->fullsite . '/reset-pw?uuid=' . $uuid . '&resetkey=' . $resetkey;
             $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
                 'to' => $db['email'],
                 'subject' => 'Password reset for cp.ae97.net',
@@ -185,10 +185,10 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
         $response->redirect("/auth/register", 302);
     } else {
         try {
-            $statement = $app->auth_db->prepare("SELECT authkey FROM users WHERE email=?");
+            $statement = $app->auth_db->prepare("SELECT uuid FROM users WHERE email=?");
             $statement->execute(array($request->param('email')));
             $result = $statement->fetch();
-            if (isset($result['authkey'])) {
+            if (isset($result['uuid'])) {
                 $service->flash('Email already exists, please use another');
                 return;
             }

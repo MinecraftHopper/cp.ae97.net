@@ -9,9 +9,13 @@ $this->respond('GET', '/bot', function($request, $response, $service, $app) {
 });
 
 $this->respond('GET', '/user/permissions', function($request, $response, $service, $app) {
-    if (verifySession($app) && checkPermission($app, 'panel.viewusers')) {
-        $perms['editPerms'] = checkPermission($app, 'panel.edituserperms');
-        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/permissions.phtml', 'perms' => $perms));
+    if (verifySession($app) && checkPermission($app, 'panel.viewusers') && checkPermission($app, 'panel.edituserperms')) {
+        try {
+            $statement = $app->auth_db->prepare("SELECT perms FROM perms_user WHERE userId = ? AND perms LIKE 'grant.%'");
+        } catch (PDOException $ex) {
+            error_log(addSlashes($ex->getMessage()) . "\r");
+        }
+        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/permissions.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -40,7 +44,7 @@ $this->respond('/user/list/unapproved', function($request, $response, $service, 
         $perms['view'] = checkPermission($app, 'panel.viewuser');
         if ($perms['view']) {
             try {
-                $statement = $app->auth_db->prepare("SELECT authkey as id,username as user,email FROM users WHERE approved=0 and verified=1");
+                $statement = $app->auth_db->prepare("SELECT uuid as id,username as user,email FROM users WHERE approved=0 and verified=1");
                 $statement->execute();
                 $accounts = $statement->fetchAll();
             } catch (PDOException $ex) {
@@ -59,7 +63,7 @@ $this->respond('/user/list/unapproved', function($request, $response, $service, 
 $this->respond('POST', '/user/approve/[i:id]', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         try {
-            $statement = $app->auth_db->prepare("UPDATE users SET approved=1 WHERE authkey=?");
+            $statement = $app->auth_db->prepare("UPDATE users SET approved=1 WHERE uuid=?");
             $statement->execute(array($request->id));
         } catch (PDOException $ex) {
             error_log(addSlashes($ex->getMessage()) . "\r");
@@ -73,7 +77,7 @@ $this->respond('POST', '/user/approve/[i:id]', function($request, $response, $se
 $this->respond('POST', '/user/delete/[i:id]', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         try {
-            $statement = $app->auth_db->prepare("DELETE FROM users WHERE authkey=?");
+            $statement = $app->auth_db->prepare("DELETE FROM users WHERE uuid=?");
             $statement->execute(array($request->id));
         } catch (PDOException $ex) {
             error_log(addSlashes($ex->getMessage()) . "\r");
