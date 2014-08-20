@@ -3,30 +3,31 @@
 function verifySession($app) {
     if (!isset($_SESSION['uuid']) || !isset($_SESSION['session']) || $_SESSION['uuid'] == null || $_SESSION['session'] == null) {
         return false;
+    }
+    try {
+        $statement = $app->auth_db->prepare("SELECT sessionToken FROM session
+                                            INNER JOIN users ON users.userId = session.userId
+                                            WHERE users.uuid = ?");
+        $statement->execute(array($_SESSION["uuid"]));
+        $statement->setFetchMode(PDO::FETCH_ASSOC);
+        $db = $statement->fetch();
+    } catch (PDOException $ex) {
+        error_log(addSlashes($ex->getMessage()) . "\r");
+        $_SESSION['uuid'] = null;
+        $_SESSION['session'] = null;
+        return false;
+    }
+    if (!isset($db['sessionToken'])) {
+        $_SESSION ['uuid'] = null;
+        $_SESSION ['session'] = null;
+        return false;
+    }
+    if ($_SESSION['session'] == $db['sessionToken']) {
+        return true;
     } else {
-        try {
-            $statement = $app->auth_db->prepare("SELECT uuid, session FROM users WHERE uuid = ?");
-            $statement->execute(array($_SESSION["uuid"]));
-            $statement->setFetchMode(PDO::FETCH_ASSOC);
-            $db = $statement->fetch();
-        } catch (PDOException $ex) {
-            error_log(addSlashes($ex->getMessage()) . "\r");
-            $_SESSION['uuid'] = null;
-            $_SESSION['session'] = null;
-            return false;
-        }
-        if (!isset($db['session']) || !isset($db['uuid'])) {
-            $_SESSION ['uuid'] = null;
-            $_SESSION ['session'] = null;
-            return false;
-        }
-        if ($_SESSION['uuid'] == $db['uuid'] && $_SESSION['session'] == $db['session']) {
-            return true;
-        } else {
-            $_SESSION['uuid'] = null;
-            $_SESSION['session'] = null;
-            return false;
-        }
+        $_SESSION['uuid'] = null;
+        $_SESSION['session'] = null;
+        return false;
     }
 }
 
@@ -35,7 +36,15 @@ function checkPermission($app, $perm) {
         return false;
     } else {
         try {
-            $statement = $app->auth_db->prepare("SELECT count(*) AS 'has' FROM perms_user WHERE userId = ? AND perm IN ('*', ?)");
+            $statement = $app->auth_db->prepare(
+                    "SELECT count(*) AS 'has'
+FROM groupperms
+INNER JOIN permissions ON permissions.permId = groupperms.permission
+INNER JOIN groups ON groups.groupId = groupperms.groupId
+WHERE groupperms.groupId IN (
+  SELECT groupId FROM usergroups INNER JOIN users ON users.userId = usergroups.userId WHERE uuid = ?
+)
+AND permissions.perm IN ('*', ?)");
             $statement->execute(array($_SESSION["uuid"], $perm));
             $statement->setFetchMode(PDO::FETCH_ASSOC);
             $db = $statement->fetch();

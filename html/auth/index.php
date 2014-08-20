@@ -5,8 +5,8 @@ $this->respond('GET', '/logout', function($request, $response, $service, $app) {
         $response->redirect("/", 302);
     }
     try {
-        $statement = $app->auth_db->prepare("UPDATE users SET session = ? WHERE uuid = ?");
-        $statement->execute(array('null', $_SESSION['uuid']));
+        $statement = $app->auth_db->prepare("DELETE FROM session WHERE userId = (SELECT userId FROM users WHERE uuid = ?)");
+        $statement->execute(array($_SESSION['uuid']));
     } catch (PDOException $ex) {
         error_log(addSlashes($ex->getMessage()) . "\r");
     }
@@ -112,14 +112,14 @@ $this->respond('POST', '/login/[*:redirectBack]?', function($request, $response,
                 throw new Exception("Your account has not been approved");
             } else {
                 $str = generate_string(64);
-                $statement = $app->auth_db->prepare("UPDATE users SET session = ? WHERE uuid = ?");
-                $statement->execute(array($str, $db['uuid']));
+                $statement = $app->auth_db->prepare("INSERT INTO session (userId, sessionToken) VALUES ((SELECT users.userId FROM users WHERE uuid = ?), ?) ON DUPLICATE KEY UPDATE sessionToken = ?");
+                $statement->execute(array($db['uuid'], $str, $str));
                 $_SESSION['uuid'] = $db['uuid'];
                 $_SESSION['session'] = $str;
                 if ($request->param('redirectBack') !== null) {
                     $response->redirect('/' . $request->param('redirectBack'), 302);
                 } else {
-                    $service->back();
+                    $response->redirect('/', 302);
                 }
             }
         } else {

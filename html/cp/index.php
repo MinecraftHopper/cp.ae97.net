@@ -9,13 +9,32 @@ $this->respond('GET', '/bot', function($request, $response, $service, $app) {
 });
 
 $this->respond('GET', '/user/permissions', function($request, $response, $service, $app) {
-    if (verifySession($app) && checkPermission($app, 'panel.viewusers') && checkPermission($app, 'panel.edituserperms')) {
+    if (verifySession($app) && checkPermission($app, 'user.view') && checkPermission($app, 'user.editperms')) {
         try {
-            $statement = $app->auth_db->prepare("SELECT perms FROM perms_user WHERE userId = ? AND perms LIKE 'grant.%'");
+            $statement = $app->auth_db->prepare("SELECT userId AS id, username AS name FROM users");
+            $statement->execute();
+            $resultSet = $statement->fetchAll();
         } catch (PDOException $ex) {
             error_log(addSlashes($ex->getMessage()) . "\r");
+            $resultSet = array();
         }
-        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/permissions.phtml'));
+        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/permissions.phtml', 'users' => $resultSet));
+    } else {
+        $response->redirect("/auth/login", 302);
+    }
+});
+
+$this->respond('GET', '/user/editpermissions/[i:id]', function($request, $response, $service, $app) {
+    if (verifySession($app) && checkPermission($app, 'user.view') && checkPermission($app, 'user.editperms')) {
+        try {
+            $statement = $app->auth_db->prepare("SELECT userId, username FROM users");
+            $statement->execute();
+            $resultSet = $statement->fetchAll();
+        } catch (PDOException $ex) {
+            error_log(addSlashes($ex->getMessage()) . "\r");
+            $resultSet = array();
+        }
+        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/editpermissions.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }
