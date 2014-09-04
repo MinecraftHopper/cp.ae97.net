@@ -2,8 +2,13 @@
 
 $this->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
     $perms = array();
-    $perms['edit'] = checkPermission($app, 'factoids.edit');
-    $perms['delete'] = checkPermission($app, 'factoids.remove');
+    if (verifySession($app)) {
+        $perms['edit'] = checkPermission($app, 'factoids.edit');
+        $perms['delete'] = checkPermission($app, 'factoids.remove');
+    } else {
+        $perms['edit'] = false;
+        $perms['delete'] = false;
+    }
     $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms));
 });
 
@@ -29,21 +34,25 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
 
 $this->respond('GET', '/new/', function($request, $response, $service, $app) {
     if (verifySession($app)) {
-        if (checkPermission($app, 'factoids.edit')) {
+        if (checkPermission($app, 'factoids.create')) {
             
         }
     }
 });
 
-$this->respond('POST', '/delete', function($request, $response, $service, $app) {
+$this->respond('GET', '/delete/[i:id]', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         try {
-            
+            if (checkPermission($app, 'factoids.delete')) {
+                $statement = $app->factoid_db->prepare("DELETE FROM factoids WHERE id=?");
+                $statement->execute(array($request->param('id')));
+            }
         } catch (PDOException $ex) {
             error_log(addSlashes($ex->getMessage()) . "\r");
         }
+        $response->redirect("/factoid", 302);
     } else {
-        $response->redirect("/auth/login/factoid", 302);
+        $response->redirect("/auth/login/factoid/delete/" . $request->param('id'), 302);
     }
 });
 

@@ -5,9 +5,7 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/">Dashboard</a></li>
                 <li><a href="/settings">Settings</a></li>
-                <!--<li><a href="/help">Help</a></li> -->
                 <li>
                     <a href="/auth/<?php echo isset($_SESSION["session"]) ? "logout" : "login"; ?>"><?php echo isset($_SESSION["session"]) ? "Logout" : "Login"; ?></a></li>
             </ul>
