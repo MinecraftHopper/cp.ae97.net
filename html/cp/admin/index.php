@@ -26,9 +26,29 @@ $this->respond('GET', '/user/approve', function($request, $response, $service, $
     }
 });
 
+$this->respond('GET', '/user/manage', function($request, $response, $service, $app) {
+    if (verifySession($app) && checkPermission($app, 'panel.viewusers')) {
+        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/managegroups.phtml'));
+    } else {
+        $response->redirect("/auth/login", 302);
+    }
+});
+
 $this->respond('GET', '/ban', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         $service->render('index.phtml', array('action' => 'ban', 'page' => 'cp/admin/ban/index.phtml'));
+    } else {
+        $response->redirect("/auth/login", 302);
+    }
+});
+
+$this->respond('GET', '/user', function($request, $response, $service, $app) {
+    if (verifySession($app)) {
+        if (checkPermission($app, 'panel.viewusers')) {
+            $perms['approveUser'] = checkPermission($app, 'panel.approveuser');
+            $perms['deleteUser'] = checkPermission($app, 'panel.deleteuser');
+            $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/approval.phtml', 'perms' => $perms));
+        }
     } else {
         $response->redirect("/auth/login", 302);
     }
