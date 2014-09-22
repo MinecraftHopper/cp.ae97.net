@@ -13,7 +13,7 @@ $this->respond('GET', '/logout', function($request, $response, $service, $app) {
     $_SESSION['uuid'] = null;
     $_SESSION['session'] = null;
     $service->render('index.phtml', array('action' => 'logout', 'page' => 'auth/logout.phtml'));
-    $response->redirect("/index", 302);
+    $response->redirect("/", 302);
 });
 
 $this->respond('GET', '/login/[*:redirect]?', function($request, $response, $service, $app) {
@@ -62,7 +62,7 @@ $this->respond('GET', '/reset-pw', function($request, $response, $service, $app)
         $service->validateParam('resetkey', 'Invalid reset key')->isLen(64);
     } catch (Exception $e) {
         $service->flash("Error: " . $e->getMessage());
-        $response->redirect('/resetpw', 302);
+        $response->redirect('/auth/resetpw', 302);
     }
     try {
         $statement = $app->auth_db->prepare("SELECT uuid,data,email,verified FROM users WHERE uuid=?");
@@ -71,7 +71,7 @@ $this->respond('GET', '/reset-pw', function($request, $response, $service, $app)
         $db = $statement->fetch();
         if (!isset($db['data']) || !isset($db['uuid'])) {
             $service->flash("Error: No reset was requested for this account");
-            $response->redirect('/resetpw', 302);
+            $response->redirect('/auth/resetpw', 302);
         } else if (!isset($db['verified']) || $db['verified'] == 0) {
             throw new Exception("Account not verified");
         } else if ($db['data'] == $request->param('resetkey')) {
@@ -82,15 +82,15 @@ $this->respond('GET', '/reset-pw', function($request, $response, $service, $app)
                 'to' => $db['email'],
                 'subject' => 'New panel password', 'html' => 'Your password has been changed. Your new password is : ' . $unhashed));
             $service->flash('Your new password has been emailed to you');
-            $response->redirect('/login', 302);
+            $response->redirect('/auth/login', 302);
         } else {
             $service->flash("Error: Reset key has expired");
-            $response->redirect('/resetpw', 302);
+            $response->redirect('/auth/resetpw', 302);
         }
     } catch (PDOException $ex) {
         error_log(addSlashes($ex->getMessage()) . "\r");
         $service->flash("Error: The MySQL connection has failed, please contact the admins");
-        $response->redirect('/login', 302);
+        $response->redirect('/auth/login', 302);
     }
 });
 
