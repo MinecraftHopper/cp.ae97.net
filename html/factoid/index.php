@@ -1,6 +1,6 @@
 <?php
 
-$this->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
+$this->respond('GET', '/[a:db]?', function($request, $response, $service, $app) {
     $perms = array();
     if (verifySession($app)) {
         $perms['edit'] = checkPermission($app, 'factoids.edit');
@@ -9,7 +9,11 @@ $this->respond('GET', '/[|index|index.php:page]?', function($request, $response,
         $perms['edit'] = false;
         $perms['delete'] = false;
     }
-    $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms));
+    $db = $request->param('db');
+    if ($db == null || $db === '') {
+        $db = 'Minecraft';
+    }
+    $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms, 'db' => $db));
 });
 
 $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $app) {
@@ -60,9 +64,13 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
     if (verifySession($app)) {
         try {
             if (checkPermission($app, 'factoids.edit')) {
-                $app->factoid_db->prepare("UPDATE factoids SET content = ?  WHERE id = ?")->execute(array($request->param('content'), $request->param('id')));
-                $response->redirect("/factoid", 302);
-                return json_encode(array('msg' => 'Success, changed to ' . $request->param('value')));
+                $id = $request->param('id');
+                $app->factoid_db->prepare("UPDATE factoids SET content = ?  WHERE id = ?")->execute(array($request->param('content'), $id));
+                $statement = $app->factoid_db->prepare("SELECT games.idname FROM factoids INNER JOIN games ON (factoids.game = games.id) WHERE factoids.id=?");
+                $statement->execute(array($id));
+                $game = $statement->fetch()[0];
+                $response->redirect('/factoid/' . $game, 302);
+                return json_encode(array('msg' => 'Success, changed to ' . $request->param('content'), 'game' => $game, 'id' => $id));
             }
             return array('msg' => 'Failed, no permissions to edit');
         } catch (PDOException $ex) {
