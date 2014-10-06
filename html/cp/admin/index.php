@@ -63,7 +63,7 @@ $this->respond('POST', '/user/list/unapproved', function($request, $response, $s
                 $statement->execute();
                 $accounts = $statement->fetchAll();
             } catch (PDOException $ex) {
-                error_log(addSlashes($ex->getMessage()) . "\r");
+                logError($ex);
                 $accounts = array();
             }
         } else {
@@ -81,7 +81,7 @@ $this->respond('POST', '/user/approve/[i:id]', function($request, $response, $se
             $statement = $app->auth_db->prepare("UPDATE users SET approved=1 WHERE uuid=?");
             $statement->execute(array($request->id));
         } catch (PDOException $ex) {
-            error_log(addSlashes($ex->getMessage()) . "\r");
+            logError($ex);
         }
         $response->redirect("/user", 302);
     } else {
@@ -95,7 +95,7 @@ $this->respond('POST', '/user/delete/[i:id]', function($request, $response, $ser
             $statement = $app->auth_db->prepare("DELETE FROM users WHERE uuid=?");
             $statement->execute(array($request->id));
         } catch (PDOException $ex) {
-            error_log(addSlashes($ex->getMessage()) . "\r");
+            logError($ex);
         }
     } else {
         $response->redirect("/auth/login", 302);

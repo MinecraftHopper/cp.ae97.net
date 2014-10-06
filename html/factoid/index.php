@@ -7,7 +7,7 @@ $this->respond('GET', '/[a:db]?', function($request, $response, $service, $app) 
         $perms['delete'] = checkPermission($app, 'factoids.remove');
     }
     $db = $request->param('db');
-    if ($db == null || $db === '') {
+    if ($db == null || $db == '') {
         $db = 'Minecraft';
     }
     $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms, 'db' => $db));
@@ -19,13 +19,13 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
             if (checkPermission($app, 'factoids.edit')) {
                 $statement = $app->factoid_db->prepare("SELECT id,name,content FROM factoids WHERE id=?");
                 $statement->execute(array($request->param('id')));
-                $factoids = $statement->fetchAll();
+                $factoids = $statement->fetch();
                 foreach ($factoids as $factoid):
                     $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/edit.phtml', 'id' => $factoid['id'], 'name' => $factoid['name'], 'content' => $factoid['content']));
                 endforeach;
             }
         } catch (PDOException $ex) {
-            error_log(addSlashes($ex->getMessage()) . "\r");
+            logError($ex);
             return array('msg' => 'Failed, MySQL database returned error');
         }
     } else {
@@ -44,7 +44,7 @@ $this->respond('GET', '/new/', function($request, $response, $service, $app) {
             $response->redirect('/factoid/' . $game, 302);
             return json_encode(array('msg' => 'Success, created new factoid: ' . $request->param('name'), 'game' => $game, 'id' => $id));
         } catch (PDOException $ex) {
-            error_log(addSlashes($ex->getMessage()) . "\r");
+            logError($ex);
             return array('msg' => 'Failed, MySQL database returned error');
         }
     } else {
@@ -60,7 +60,7 @@ $this->respond('GET', '/delete/[i:id]', function($request, $response, $service, 
                 $statement->execute(array($request->param('id')));
             }
         } catch (PDOException $ex) {
-            error_log(addSlashes($ex->getMessage()) . "\r");
+            logError($ex);
         }
         $response->redirect("/factoid", 302);
     } else {
@@ -76,13 +76,13 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
                 $app->factoid_db->prepare("UPDATE factoids SET content = ?  WHERE id = ?")->execute(array($request->param('content'), $id));
                 $statement = $app->factoid_db->prepare("SELECT games.idname FROM factoids INNER JOIN games ON (factoids.game = games.id) WHERE factoids.id=?");
                 $statement->execute(array($id));
-                $game = $statement->fetch()[0];
+                $game = $statement->fetch();
                 $response->redirect('/factoid/' . $game, 302);
                 return json_encode(array('msg' => 'Success, changed to ' . $request->param('content'), 'game' => $game, 'id' => $id));
             }
             return array('msg' => 'Failed, no permissions to edit');
         } catch (PDOException $ex) {
-            error_log(addSlashes($ex->getMessage()) . "\r");
+            logError($ex);
             return array('msg' => 'Failed, MySQL database returned error');
         }
     } else {
@@ -95,16 +95,16 @@ $this->respond('POST', '/new', function($request, $response, $service, $app) {
         try {
             
         } catch (PDOException $ex) {
-            error_log(addSlashes($ex->getMessage()) . "\r");
+            logError($ex);
         }
     } else {
         $response->redirect("/auth/login/factoid/new", 302);
     }
 });
 
-$this->respond('/get', function($request, $response, $service, $app) {
+$this->respond('POST', '/get', function($request, $response, $service, $app) {
     $game = $request->param('db');
-    if ($game === null || $game === '') {
+    if ($game == null || $game == '') {
         $game = 'global';
     }
     $database = $app->factoid_db;
@@ -115,32 +115,28 @@ $this->respond('/get', function($request, $response, $service, $app) {
         $statement = $database->prepare("SELECT factoids.id,factoids.name, factoids.content, games.displayname FROM factoid.factoids
           INNER JOIN factoid.games ON (factoid.factoids.game = factoid.games.id)
           WHERE factoid.games.idname = ?");
-        $statement->execute(array($game));
-        $factoids = $statement->fetchAll();
+        $statement->execute(array(0 => $game));
+        $factoids = $statement->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $ex) {
-        error_log(addSlashes($ex->getMessage()) . "\r");
-        $factoids = array();
-        $gamelist = array();
+        logError($ex);
+        echo "Error";
+        return;
     }
-    $compiledGamelist = array();
-    $counter = 0;
-    $gameAskedFor = array();
+    $firstCounter = 0;
     foreach ($gamelist as $gameitem):
-        $compiledGamelist[$counter] = array('idname' => $gameitem['idname'], 'displayname' => $gameitem['displayname']);
-        if ($compiledGamelist[$counter]['idname'] === $game) {
-            $gameAskedFor = $compiledGamelist[$counter];
+        $compiledGamelist[$firstCounter] = array('idname' => $gameitem['idname'], 'displayname' => $gameitem['displayname']);
+        if ($compiledGamelist[$firstCounter]['idname'] === $game) {
+            $gameAskedFor = $compiledGamelist[$firstCounter];
         }
-        $counter = $counter + 1;
+        $firstCounter++;
     endforeach;
     $compiledFactoidlist = array();
-    $counter = 0;
     foreach ($factoids as $f):
-        $compiledFactoidlist[$counter] = array('id' => $f['id'], 'name' => $f['name'], 'content' => $f['content'], 'game' => $game == null ? $f['game'] : $game);
-        $counter = $counter + 1;
+        array_push($compiledFactoidlist, array('id' => $f['id'], 'name' => $f['name'], 'content' => $f['content'], 'game' => $game == null ? $f['game'] : $game));
     endforeach;
     $collection = array();
-    $collection['gamerequest'] = $gameAskedFor;
-    $collection['games'] = $compiledGamelist;
-    $collection['factoids'] = $compiledFactoidlist;
+    $collection['gamerequest'] = isset($gameAskedFor) ? $gameAskedFor : 'Minecraft';
+    $collection['games'] = isset($compiledGamelist) ? $compiledGamelist : array();
+    $collection['factoids'] = isset($compiledFactoidlist) ? $compiledFactoidlist : array();
     echo json_encode($collection);
 });

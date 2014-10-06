@@ -11,7 +11,7 @@ $klein = new \Klein\Klein();
 $klein->respond(function($request, $response, $service, $app) {
     $app->register('factoid_db', function() {
         $_DATABASE = getDatabaseConfig();
-        $db = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['factoiddb'], $_DATABASE['user'], $_DATABASE['pass']);
+        $db = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['factoiddb'], $_DATABASE['user'], $_DATABASE['pass'], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $db;
     });
@@ -70,7 +70,8 @@ $klein->respond('404', function($request, $response, $service, $app) {
 });
 
 $klein->onError(function($klein, $err_msg) {
-    $klein->service()->flash("Error: " . $err_msg);
+    logError($err_msg);
+    $klein->service()->flash("Error: " . $err_msg instanceof PDOException ? 'A database error occurred' : $err_msg);
     $klein->service()->back();
 });
 

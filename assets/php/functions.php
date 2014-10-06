@@ -9,25 +9,17 @@ function verifySession($app) {
                                             INNER JOIN users ON users.userId = session.userId
                                             WHERE users.uuid = ?");
         $statement->execute(array($_SESSION["uuid"]));
-        $statement->setFetchMode(PDO::FETCH_ASSOC);
         $db = $statement->fetch();
     } catch (PDOException $ex) {
-        error_log(addSlashes($ex->getMessage()) . "\r");
-        $_SESSION['uuid'] = null;
-        $_SESSION['session'] = null;
+        logError($ex);
+        clearSession();
         return false;
     }
-    if (!isset($db['sessionToken'])) {
-        $_SESSION ['uuid'] = null;
-        $_SESSION ['session'] = null;
+    if (!isset($db['sessionToken']) || $_SESSION['session'] !== $db['sessionToken']) {
+        clearSession();
         return false;
-    }
-    if ($_SESSION['session'] == $db['sessionToken']) {
-        return true;
     } else {
-        $_SESSION['uuid'] = null;
-        $_SESSION['session'] = null;
-        return false;
+        return true;
     }
 }
 
@@ -43,11 +35,10 @@ WHERE groupperms.groupId IN (
 )
 AND permissions.perm IN ('*', ?)");
         $statement->execute(array($_SESSION["uuid"], $perm));
-        $statement->setFetchMode(PDO::FETCH_ASSOC);
         $db = $statement->fetch();
         return $db['has'] > 0;
     } catch (PDOException $ex) {
-        error_log(addSlashes($ex->getMessage()) . "\r");
+        logError($ex);
         return false;
     }
 }
@@ -56,8 +47,17 @@ function generate_string($length) {
     $charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     $str = '';
     $count = strlen($charset);
-    while ($length--) {
+    for ($i = 0; $i < $length; $i++) {
         $str .= $charset[mt_rand(0, $count - 1)];
     }
     return $str;
+}
+
+function clearSession() {
+    $_SESSION['uuid'] = null;
+    $_SESSION['session'] = null;
+}
+
+function logError($ex) {
+    error_log(addSlashes($ex instanceof Exception ? $ex->getMessage() : $ex) . "\r");
 }
