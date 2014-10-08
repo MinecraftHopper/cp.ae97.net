@@ -6,8 +6,7 @@ function verifySession($app) {
     }
     try {
         $statement = $app->auth_db->prepare("SELECT sessionToken FROM session
-                                            INNER JOIN users ON users.userId = session.userId
-                                            WHERE users.uuid = ?");
+                                            WHERE uuid = ?");
         $statement->execute(array($_SESSION["uuid"]));
         $db = $statement->fetch();
     } catch (PDOException $ex) {
@@ -28,12 +27,11 @@ function checkPermission($app, $perm) {
         $statement = $app->auth_db->prepare(
                 "SELECT count(*) AS 'has'
 FROM groupperms
-INNER JOIN permissions ON permissions.permId = groupperms.permission
 INNER JOIN groups ON groups.groupId = groupperms.groupId
 WHERE groupperms.groupId IN (
-  SELECT groupId FROM usergroups INNER JOIN users ON users.userId = usergroups.userId WHERE uuid = ?
+  SELECT groupId FROM usergroups WHERE useruuid = ?
 )
-AND permissions.perm IN ('*', ?)");
+AND permission IN ('*', ?)");
         $statement->execute(array($_SESSION["uuid"], $perm));
         $db = $statement->fetch();
         return $db['has'] > 0;

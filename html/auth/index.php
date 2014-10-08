@@ -23,7 +23,7 @@ $this->respond('POST', '/login/?', function($request, $response, $service, $app)
         throw new Exception("Your account has not been approved");
     } else {
         $str = generate_string(64);
-        $statement = $app->auth_db->prepare("INSERT INTO session (userId, sessionToken) VALUES ((SELECT users.userId FROM users WHERE uuid = ?), ?) ON DUPLICATE KEY UPDATE sessionToken = ?");
+        $statement = $app->auth_db->prepare("INSERT INTO session (uuid, sessionToken) VALUES (?, ?) ON DUPLICATE KEY UPDATE sessionToken = ?");
         $statement->execute(array($db['uuid'], $str, $str));
         $_SESSION['uuid'] = $db['uuid'];
         $_SESSION['session'] = $str;
@@ -37,7 +37,7 @@ $this->respond('GET', '/logout', function($request, $response, $service, $app) {
         $response->redirect("/", 302);
     }
     try {
-        $statement = $app->auth_db->prepare("DELETE FROM session WHERE userId = (SELECT userId FROM users WHERE uuid = ?)");
+        $statement = $app->auth_db->prepare("DELETE FROM session WHERE uuid = ?");
         $statement->execute(array($_SESSION['uuid']));
     } catch (PDOException $ex) {
         logError($ex);
@@ -87,7 +87,7 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
         $hashedPW = password_hash($request->param('password'), PASSWORD_DEFAULT);
         $createUserStatement->execute(array($request->param('username'), $request->param('email'), $hashedPW, 0, 0));
 
-        $verificationStatement = $app->auth_db->prepare('INSERT INTO verification (userId, code) VALUES ((SELECT userId FROM users WHERE email = ?), ?)');
+        $verificationStatement = $app->auth_db->prepare('INSERT INTO verification (uuid, code) VALUES ((SELECT uuid FROM users WHERE email = ?), ?)');
         $approveKey = generate_string(32);
         $verificationStatement->execute(array($request->param('email'), $approveKey));
 
