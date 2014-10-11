@@ -17,12 +17,10 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
     if (verifySession($app)) {
         try {
             if (checkPermission($app, 'factoids.edit')) {
-                $statement = $app->factoid_db->prepare("SELECT id,name,content FROM factoids WHERE id=?");
+                $statement = $app->factoid_db->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game FROM factoids INNER JOIN games ON factoids.game = games.id WHERE factoids.id=? LIMIT 1");
                 $statement->execute(array($request->param('id')));
                 $factoids = $statement->fetch();
-                foreach ($factoids as $factoid):
-                    $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/edit.phtml', 'id' => $factoid['id'], 'name' => $factoid['name'], 'content' => $factoid['content']));
-                endforeach;
+                $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/edit.phtml', 'id' => $factoids['id'], 'name' => $factoids['name'], 'content' => $factoids['content'], 'game' => $factoids['game']));
             }
         } catch (PDOException $ex) {
             logError($ex);
@@ -33,7 +31,7 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
     }
 });
 
-$this->respond('GET', '/new/', function($request, $response, $service, $app) {
+$this->respond('POST', '/new/', function($request, $response, $service, $app) {
     if (verifySession($app) && checkPermission($app, 'factoids.create')) {
         try {
             $statement = $app->factoid_db->prepare("INSERT INTO factoids (name, game, content) VALUES (?, (SELECT games.id FROM games WHERE idname=?), ?");
@@ -55,14 +53,17 @@ $this->respond('GET', '/new/', function($request, $response, $service, $app) {
 $this->respond('GET', '/delete/[i:id]', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         try {
+            error_log('test');
             if (checkPermission($app, 'factoids.delete')) {
-                $statement = $app->factoid_db->prepare("DELETE FROM factoids WHERE id=?");
-                $statement->execute(array($request->param('id')));
+                $gameStmt = $app->factoid_db->prepare("SELECT displayname AS game FROM games INNER JOIN factoids ON factoids.game = games.id WHERE factoids.id = ?");
+                $gameStmt->execute(array($request->param('id')));
+                $game = $gameStmt->fetch()['game'];
+                $app->factoid_db->prepare("DELETE FROM factoids WHERE id=?")->execute(array($request->param('id')));
             }
         } catch (PDOException $ex) {
             logError($ex);
         }
-        $response->redirect("/factoid", 302);
+        $response->redirect('/factoid/' . $game);
     } else {
         $response->redirect("/auth/login/factoid/delete/" . $request->param('id'), 302);
     }
@@ -74,10 +75,10 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
             if (checkPermission($app, 'factoids.edit')) {
                 $id = $request->param('id');
                 $app->factoid_db->prepare("UPDATE factoids SET content = ?  WHERE id = ?")->execute(array($request->param('content'), $id));
-                $statement = $app->factoid_db->prepare("SELECT games.idname FROM factoids INNER JOIN games ON (factoids.game = games.id) WHERE factoids.id=?");
+                $statement = $app->factoid_db->prepare("SELECT games.displayname AS game FROM factoids INNER JOIN games ON (factoids.game = games.id) WHERE factoids.id=?");
                 $statement->execute(array($id));
                 $game = $statement->fetch();
-                $response->redirect('/factoid/' . $game, 302);
+                $response->redirect('/factoid/' . $game['game'], 302);
                 return json_encode(array('msg' => 'Success, changed to ' . $request->param('content'), 'game' => $game, 'id' => $id));
             }
             return array('msg' => 'Failed, no permissions to edit');

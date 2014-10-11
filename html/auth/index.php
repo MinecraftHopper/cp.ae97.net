@@ -103,7 +103,7 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
 
 //Reset
 $this->respond('GET', '/resetpw', function($request, $response, $service, $app) {
-    if ($request->parmam('uuid') == null || $request->param('resetkey') == null) {
+    if ($request->parma('uuid') == null || $request->param('resetkey') == null) {
         $service->render('index.phtml', array('action' => 'resetpw', 'page' => 'auth/resetpw.phtml'));
     } else {
         try {
