@@ -8,7 +8,7 @@ $this->respond('GET', '/[a:db]?', function($request, $response, $service, $app) 
     }
     $db = $request->param('db');
     if ($db == null || $db == '') {
-        $db = 'Minecraft';
+        $db = 'Global';
     }
     $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms, 'db' => $db));
 });
