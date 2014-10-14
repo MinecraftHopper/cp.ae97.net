@@ -83,17 +83,17 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
         $service->flash('Username already exists, please use another');
         return;
     } else {
-        $createUserStatement = $app->auth_db->prepare('INSERT INTO users (username,email,password,verified,approved) values (?,?,?,?,?,?)');
+        $createUserStatement = $app->auth_db->prepare('INSERT INTO users (uuid,username,email,password,verified,approved) values (?,?,?,?,?,?)');
         $hashedPW = password_hash($request->param('password'), PASSWORD_DEFAULT);
-        $createUserStatement->execute(array($request->param('username'), $request->param('email'), $hashedPW, 0, 0));
+        $createUserStatement->execute(array(getGUID(), $request->param('username'), $request->param('email'), $hashedPW, 0, 0));
 
-        $verificationStatement = $app->auth_db->prepare('INSERT INTO verification (uuid, code) VALUES ((SELECT uuid FROM users WHERE email = ?), ?)');
+        $verificationStatement = $app->auth_db->prepare('INSERT INTO verification (email, code) VALUES (?, ?)');
         $approveKey = generate_string(32);
         $verificationStatement->execute(array($request->param('email'), $approveKey));
 
         $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
             'to' => $request->param('email'),
-            'subject' => 'Account approval',
+            'subject' => 'Account verification',
             'html' => 'Someone has registered an account on <a href="' . $app->fullsite . '">' . $app->fullsite . '</a> using this email. '
             . 'If this was you, please click the following link to verify your email: <a href="' . $app->fullsite . '/auth/verify?email=' . $request->param("email") . '&key=' . $approveKey . '">Verify email</a>'));
         $service->flash("Your account has been created, an email has been sent to verify");
@@ -103,7 +103,7 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
 
 //Reset
 $this->respond('GET', '/resetpw', function($request, $response, $service, $app) {
-    if ($request->parma('uuid') == null || $request->param('resetkey') == null) {
+    if ($request->param('uuid') == null || $request->param('resetkey') == null) {
         $service->render('index.phtml', array('action' => 'resetpw', 'page' => 'auth/resetpw.phtml'));
     } else {
         try {
@@ -166,11 +166,11 @@ $this->respond('POST', '/resetpw', function($request, $response, $service, $app)
 $this->respond('GET', '/verify', function($request, $response, $service, $app) {
     $service->validateParam('email', 'Invalid email')->isLen(5, 256)->isEmail();
     $service->validateParam('key', 'Invalid verify key')->isLen(32);
-    $statement = $app->auth_db->prepare("SELECT data FROM users WHERE email=?");
+    $statement = $app->auth_db->prepare("SELECT code FROM verification WHERE email=?");
     $statement->execute(array($request->param("email")));
     $db = $statement->fetch();
-    if ($request->param('key') == $db['data']) {
-        $statement = $app->auth_db->prepare("UPDATE users SET verified = 1, data = null WHERE email=?");
+    if ($request->param('key') == $db['code']) {
+        $statement = $app->auth_db->prepare("UPDATE users SET verified = 1 WHERE email=?");
         $statement->execute(array($request->param('email')));
         $service->flash('Your email has been verified');
     } else {
