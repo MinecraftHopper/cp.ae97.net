@@ -4,7 +4,7 @@ function parseToText($string) {
         twitter: false,
         stripPrefix: false
     });
-    return mircToHtml(autolinker.link($string.replace(';;', ' <br>')));
+    return markdownToHtml(mircToHtml(autolinker.link($string.replace(';;', ' <br>'))));
 }
 
 function mircToHtml(text) {
@@ -43,4 +43,14 @@ function ircToMarkdown(text) {
         }
     }
     return text;
+}
+
+function markdownToHtml(text) {
+    return text
+            .replace(/\[b\]/gi, '<b>')
+            .replace(/\[\/b\]/gi, '</b>')
+            .replace(/\[i\]/gi, '<i>')
+            .replace(/\[\/i\]/gi, '</i>')
+            .replace(/\[u\]/gi, '<u>')
+            .replace(/\[\/u\]/gi, '</u>');
 }
