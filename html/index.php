@@ -71,7 +71,7 @@ $klein->respond('404', function($request, $response, $service, $app) {
 
 $klein->onError(function($klein, $err_msg) {
     logError($err_msg);
-    $klein->service()->flash("Error: " . $err_msg instanceof PDOException ? 'A database error occurred' : $err_msg);
+    $klein->service()->flash("Error: " . $err_msg);
     $klein->service()->back();
 });
 

@@ -75,7 +75,7 @@ $this->respond('POST', '/user/list/unapproved', function($request, $response, $s
     }
 });
 
-$this->respond('POST', '/user/approve/[i:id]', function($request, $response, $service, $app) {
+$this->respond('POST', '/user/approve/[:id]', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         try {
             $statement = $app->auth_db->prepare("UPDATE users SET approved=1 WHERE uuid=?");
@@ -89,7 +89,7 @@ $this->respond('POST', '/user/approve/[i:id]', function($request, $response, $se
     }
 });
 
-$this->respond('POST', '/user/delete/[i:id]', function($request, $response, $service, $app) {
+$this->respond('POST', '/user/delete/[:id]', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         try {
             $statement = $app->auth_db->prepare("DELETE FROM users WHERE uuid=?");
