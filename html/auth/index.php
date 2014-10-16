@@ -71,6 +71,7 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
     } catch (Exception $e) {
         $service->flash('Error: ' . $e->getMessage());
         $response->redirect("/auth/register", 302);
+        return;
     }
     $statement = $app->auth_db->prepare("SELECT uuid,username FROM users WHERE email=? OR username=?");
     $statement->execute(array($request->param('email'), $request->param('username')));
@@ -113,19 +114,20 @@ $this->respond('GET', '/resetpw', function($request, $response, $service, $app) 
             $service->flash("Error: " . $e->getMessage());
             $response->redirect('/auth/resetpw', 302);
         }
-        $statement = $app->auth_db->prepare("SELECT uuid,data,email,verified FROM users WHERE uuid=?");
+        $statement = $app->auth_db->prepare("SELECT resetkey FROM passwordreset WHERE uuid=?");
         $statement->execute(array($request->param('uuid')));
         $statement->setFetchMode(PDO::FETCH_ASSOC);
         $db = $statement->fetch();
-        if (!isset($db['data']) || !isset($db['uuid'])) {
+        if (!isset($db['resetkey']) || !isset($db['uuid'])) {
             $service->flash("Error: No reset was requested for this account");
             $response->redirect('/auth/resetpw', 302);
         } else if (!isset($db['verified']) || $db['verified'] == 0) {
-            throw new Exception("Account not verified");
-        } else if ($db['data'] == $request->param('resetkey')) {
+            $service->flash("Error: Account not verified");
+            $response->redirect('/auth/resetpw', 302);
+        } else if ($db['resetkey'] == $request->param('resetkey')) {
             $unhashed = generate_string(16);
             $newpass = password_hash($unhashed, PASSWORD_DEFAULT);
-            $app->auth_db->prepare("UPDATE users SET password = ?, data = null WHERE uuid = ?")->execute(array($newpass, $db['uuid']));
+            $app->auth_db->prepare("UPDATE users SET password = ? WHERE uuid = ?")->execute(array($newpass, $db['uuid']));
             $app->mail->sendMessage($app->domain, array('from' => 'Noreply@ae97.net <' . $app->email . '>',
                 'to' => $db['email'],
                 'subject' => 'New panel password', 'html' => 'Your password has been changed. Your new password is : ' . $unhashed));
@@ -150,7 +152,7 @@ $this->respond('POST', '/resetpw', function($request, $response, $service, $app)
     } else {
         $uuid = $db['uuid'];
         $resetkey = generate_string(64);
-        $app->auth_db->prepare("UPDATE users SET data = ? WHERE uuid = ?")->execute(array($resetkey, $uuid));
+        $app->auth_db->prepare("UPDATE passwordreset SET resetkey = ? WHERE uuid = ?")->execute(array($resetkey, $uuid));
         $url = $app->fullsite . '/resetpw?uuid=' . $uuid . '&resetkey=' . $resetkey;
         $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
             'to' => $db['email'],
@@ -158,7 +160,7 @@ $this->respond('POST', '/resetpw', function($request, $response, $service, $app)
             'html' => 'Someone requested your password to be reset. If you wanted to do this, please use <strong><a href="' . $url . '">this link</a></strong> to '
             . 'reset your password'));
         $service->flash('Your reset link has been emailed to you');
-        $response->redirect('/login', 302);
+        $response->redirect('/auth/login', 302);
     }
 });
 
