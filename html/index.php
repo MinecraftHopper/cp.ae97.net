@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../assets/php/vendor/autoload.php';
+require_once __DIR__ . '/../assets/php/composer/vendor/autoload.php';
 require_once __DIR__ . '/../assets/php/functions.php';
 require_once __DIR__ . '/../config/config.php';
 
