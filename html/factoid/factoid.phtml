@@ -15,6 +15,13 @@
     <h2 class="sub-header">Factoid Management</h2>
     <div class="navbar navbar-default">
         <div class="container">
+            <?php
+            foreach ($this->flashes() as $type => $messages):
+                foreach ($messages as $msg):
+                    echo '<h5 class = \"form-signin-heading\">' . $msg . '</h5>';
+                endforeach;
+            endforeach;
+            ?>
             <div class="navbar-header">
                 <a class="navbar-brand">Factoid Database - <a data-bind="text: gameName" id="gamename" class="navbar-brand"></a></a>
             </div>

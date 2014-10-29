@@ -6,24 +6,31 @@
     <h2 class="sub-header">Factoid Management</h2>
     <div class="navbar navbar-default">
         <div class="container">
-            <h3>Editing factoid</h3>
-            <?php
-            foreach ($this->flashes() as $type => $messages):
-                foreach ($messages as $msg):
-                    echo '<h5 class = \"form-signin-heading\">' . $msg . '</h5>';
+            <h3>Create factoid</h3>
+            <form style="width: 80%" name="edit" action="/factoid/submit-new" method="post" accept-charset="UTF-8">
+                <?php
+                foreach ($this->flashes() as $type => $messages):
+                    foreach ($messages as $msg):
+                        echo '<h5 class = \"form-signin-heading\">' . $msg . '</h5>';
+                    endforeach;
                 endforeach;
-            endforeach;
-            ?>
-            <form style="width: 80%" name="edit" action="/factoid/submit-edit" method="post" accept-charset="UTF-8">
-                <p><strong>ID:</strong> <em><?php echo $this->id; ?></em><input type="hidden" name= "id" value="<?php echo $this->id; ?>"></input></p>
-                <p><strong>Name:</strong> <input name="name" value="<?php echo $this->name; ?>"></input></p>
+                ?>
+                <p><strong>Game:</strong>
+                <li class="dropdown">
+                    <ul name="game" id="game" class="dropdown-menu">
+                        <?php
+                        ?>
+                    </ul>
+                </li>
+                <p><strong>Name:</strong> <input name = "name"></input></p>
                 <p><strong>Content:</strong></p>
                 <p>
-                    <textarea id="content" name="content" data-provide="markdown"><?php echo $this->content; ?></textarea>
+                    <textarea id = "content" name = "content" data-provide = "markdown"><?php echo $this->content;
+                        ?></textarea>
                 </p>
                 <p></p>
                 <p></p>
-                <button type="submit" style="width:75px" class="btn btn-xs btn-warning" type="button">Edit</button>
+                <button type="submit" style="width:75px" class="btn btn-xs btn-success" type="button">Create</button>
             </form>
             <p></p>
             <p></p>
