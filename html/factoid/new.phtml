@@ -15,18 +15,17 @@
                     endforeach;
                 endforeach;
                 ?>
-                <p><strong>Game:</strong>
-                <ul class="dropdown">
-                    <ul name="game" id="game" class="dropdown-menu">
+                <p><strong>Game:</strong> <select name="game" id="game" >
                         <?php
+                        foreach ($this->dbs as $db) {
+                            echo '<option value="' . $db['idname'] . '"><a>' . $db['displayname'] . '</a></li>';
+                        }
                         ?>
-                    </ul>
-                </ul>
+                    </select>
                 <p><strong>Name:</strong> <input name = "name"></input></p>
                 <p><strong>Content:</strong></p>
                 <p>
-                    <textarea id = "content" name = "content" data-provide = "markdown"><?php echo $this->content;
-                        ?></textarea>
+                    <textarea id = "content" name = "content" data-provide = "markdown"></textarea>
                 </p>
                 <p></p>
                 <p></p>
@@ -59,7 +58,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                        content = e.getContent();
+                                      content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -70,7 +69,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[b]'
-                                        && content.substr(selected.end, 4) === '[/b]') {
+                                      && content.substr(selected.end, 4) === '[/b]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;
@@ -90,7 +89,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                        content = e.getContent();
+                                      content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -101,7 +100,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[i]'
-                                        && content.substr(selected.end, 4) === '[/i]') {
+                                      && content.substr(selected.end, 4) === '[/i]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;
@@ -122,7 +121,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                        content = e.getContent();
+                                      content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -133,7 +132,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[u]'
-                                        && content.substr(selected.end, 4) === '[/u]') {
+                                      && content.substr(selected.end, 4) === '[/u]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;

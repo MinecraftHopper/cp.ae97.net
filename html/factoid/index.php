@@ -44,10 +44,10 @@ $this->respond('GET', '/new', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         try {
             if (checkPermission($app, 'factoids.create')) {
-                $statement = $app->factoid_db->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game FROM factoids INNER JOIN games ON factoids.game = games.id WHERE factoids.id=? LIMIT 1");
-                $statement->execute(array($request->param('id')));
-                $factoids = $statement->fetch();
-                $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/new.phtml', 'id' => $factoids['id'], 'name' => $factoids['name'], 'content' => $factoids['content'], 'game' => $factoids['game']));
+                $statement = $app->factoid_db->prepare("SELECT displayname,idname FROM games");
+                $statement->execute();
+                $dbs = $statement->fetchAll(PDO::FETCH_ASSOC);
+                $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/new.phtml', "dbs" => $dbs));
             }
         } catch (PDOException $ex) {
             logError($ex);
@@ -91,7 +91,7 @@ $this->respond('GET', '/delete/[i:id]', function($request, $response, $service, 
         } catch (PDOException $ex) {
             logError($ex);
         }
-        $response->redirect('/factoid/' . $game);
+        $response->redirect('/factoid/db/' . $game);
     } else {
         $response->redirect("/auth/login", 302);
     }
