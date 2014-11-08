@@ -41,22 +41,6 @@ $klein->respond(function($request, $response, $service, $app) {
     });
 });
 
-$klein->respond('/ban', function($request, $response, $service, $app) {
-    $response->redirect("/cp/admin/ban", 302);
-});
-
-$klein->respond('/user', function($request, $response, $service, $app) {
-    $response->redirect("/cp/admin/user", 302);
-});
-
-$klein->respond('/bot', function($request, $response, $service, $app) {
-    $response->redirect("/cp/admin/bot", 302);
-});
-
-$klein->respond('/settings', function($request, $response, $service, $app) {
-    $response->redirect("/cp/settings", 302);
-});
-
 $klein->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
     $service->render('index.phtml', array('action' => null, 'page' => null));
 });
