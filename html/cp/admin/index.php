@@ -28,7 +28,7 @@ $this->respond('GET', '/user/approve', function($request, $response, $service, $
 
 $this->respond('GET', '/user/manage', function($request, $response, $service, $app) {
     if (verifySession($app) && checkPermission($app, 'panel.viewusers')) {
-        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/managegroups.phtml'));
+        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/manage.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -36,10 +36,62 @@ $this->respond('GET', '/user/manage', function($request, $response, $service, $a
 
 $this->respond('GET', '/ban', function($request, $response, $service, $app) {
     if (verifySession($app)) {
-        $service->render('index.phtml', array('action' => 'ban', 'page' => 'cp/admin/ban/index.phtml'));
+
+        $casted = array();
+        $record = array();
+
+        foreach ($record as $id => $ban) {
+            $existing = $casted[$id];
+            if ($existing === null) {
+                $existing = array(
+                    'id' => $id,
+                    'issuer' => $ban['issuedBy'],
+                    'kickmessage' => $ban['kickMessage'],
+                    'issueDate' => $ban['issueDate'],
+                    'type' => $ban['type'] === 0 ? "standard" : "extended",
+                    'channels' => array($ban['channel'])
+                );
+            } else {
+                $existing['channels'][] = $ban['channel'];
+            }
+            $casted[id] = $existing;
+        }
+
+
+
+        $service->render('index.phtml', array('action' => 'ban', 'page' => 'cp/admin/ban/index.phtml', 'bans' => $casted));
     } else {
         $response->redirect("/auth/login", 302);
     }
+});
+
+$this->respond('GET', '/bantest', function($request, $response, $service, $app) {
+    try {
+        $statement = $app->auth_db->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
+              . "FROM bans "
+              . "INNER JOIN banchannels ON bans.id = banId");
+        $statement->execute();
+        $record = $statement->fetchAll();
+        $casted = array();
+    } catch (Exception $ex) {
+        return $ex;
+    }
+
+    foreach ($record as $ban) {
+        if (!isset($casted[$ban['id']])) {
+            $casted[$ban['id']] = array(
+                'id' => $ban['id'],
+                'issuer' => $ban['issuedBy'],
+                'kickmessage' => $ban['kickMessage'],
+                'issueDate' => $ban['issueDate'],
+                'type' => $ban['type'] === 0 ? "standard" : "extended",
+                'channels' => array($ban['channel'])
+            );
+        } else {
+            $casted[$ban['id']]['channels'][] = $ban['channel'];
+        }        
+    }
+    return json_encode($casted);
 });
 
 $this->respond('GET', '/user', function($request, $response, $service, $app) {
