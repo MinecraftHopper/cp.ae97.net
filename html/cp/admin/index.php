@@ -65,35 +65,6 @@ $this->respond('GET', '/ban', function($request, $response, $service, $app) {
     }
 });
 
-$this->respond('GET', '/bantest', function($request, $response, $service, $app) {
-    try {
-        $statement = $app->auth_db->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
-              . "FROM bans "
-              . "INNER JOIN banchannels ON bans.id = banId");
-        $statement->execute();
-        $record = $statement->fetchAll();
-        $casted = array();
-    } catch (Exception $ex) {
-        return $ex;
-    }
-
-    foreach ($record as $ban) {
-        if (!isset($casted[$ban['id']])) {
-            $casted[$ban['id']] = array(
-                'id' => $ban['id'],
-                'issuer' => $ban['issuedBy'],
-                'kickmessage' => $ban['kickMessage'],
-                'issueDate' => $ban['issueDate'],
-                'type' => $ban['type'] === 0 ? "standard" : "extended",
-                'channels' => array($ban['channel'])
-            );
-        } else {
-            $casted[$ban['id']]['channels'][] = $ban['channel'];
-        }        
-    }
-    return json_encode($casted);
-});
-
 $this->respond('GET', '/user', function($request, $response, $service, $app) {
     if (verifySession($app)) {
         if (checkPermission($app, 'panel.viewusers')) {
@@ -151,5 +122,45 @@ $this->respond('POST', '/user/delete/[:id]', function($request, $response, $serv
         }
     } else {
         $response->redirect("/auth/login", 302);
+    }
+});
+
+$this->respond('GET', '/bans/get', function($request, $response, $service, $app) {
+    $page = $request->param('p');
+    if ($page === null) {
+        $page = 1;
+    }
+    $page--;
+    if (verifySession($app) && checkPermission($app, "")) {
+        try {
+            $statement = $app->auth_db->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
+                  . "FROM bans "
+                  . "INNER JOIN banchannels ON bans.id = banId "
+                  . "ORDER BY id "
+                  . "LIMIT " . strval(intval($page) * 10) . ", 10");
+            $statement->execute();
+            $record = $statement->fetchAll(PDO::FETCH_ASSOC);
+            $casted = array();
+        } catch (Exception $ex) {
+            return $ex;
+        }
+
+        foreach ($record as $ban) {
+            if (!isset($casted[$ban['id']])) {
+                $casted[$ban['id']] = array(
+                    'id' => $ban['id'],
+                    'issuer' => $ban['issuedBy'],
+                    'kickmessage' => $ban['kickMessage'],
+                    'issueDate' => $ban['issueDate'],
+                    'type' => $ban['type'] === 0 ? "standard" : "extended",
+                    'channels' => array($ban['channel'])
+                );
+            } else {
+                $casted[$ban['id']]['channels'][] = $ban['channel'];
+            }
+        }
+        return json_encode($casted);
+    } else {
+        return '{msg="failed"}';
     }
 });

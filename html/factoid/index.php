@@ -134,9 +134,9 @@ $this->respond('POST', '/get', function($request, $response, $service, $app) {
         $gameliststatement->execute();
         $gamelist = $gameliststatement->fetchAll();
         $statement = $database->prepare("SELECT factoids.id,factoids.name, factoids.content, games.displayname "
-              . "FROM factoid.factoids "
-              . "INNER JOIN factoid.games ON (factoid.factoids.game = factoid.games.id) "
-              . "WHERE factoid.games.idname = ?");
+              . "FROM factoids "
+              . "INNER JOIN games ON (factoids.game = games.id) "
+              . "WHERE games.idname = ?");
         $statement->execute(array(0 => $game));
         $factoids = $statement->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $ex) {
