@@ -1,0 +1,6 @@
+{
+    "require": {
+        "klein/klein": "2.1",
+        "mailgun/mailgun-php": "~1.7.2"
+    }
+}

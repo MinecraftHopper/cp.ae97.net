@@ -14,7 +14,7 @@ $this->respond('GET', '/db/[a:db]?', function($request, $response, $service, $ap
     if ($db == null || $db == '') {
         $db = 'Global';
     }
-    $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/factoid.phtml', 'perms' => $perms, 'db' => $db));
+    $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/factoid.phtml', 'perms' => $perms, 'db' => $db));
 });
 
 $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $app) {
@@ -29,7 +29,7 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
                       . "LIMIT 1");
                 $statement->execute(array($request->param('id')));
                 $factoids = $statement->fetch();
-                $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/edit.phtml', 'id' => $factoids['id'], 'name' => $factoids['name'], 'content' => $factoids['content'], 'game' => $factoids['game'], 'mode' => 'Edit'));
+                $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/edit.phtml', 'id' => $factoids['id'], 'name' => $factoids['name'], 'content' => $factoids['content'], 'game' => $factoids['game'], 'mode' => 'Edit'));
             }
         } catch (PDOException $ex) {
             logError($ex);
@@ -47,7 +47,7 @@ $this->respond('GET', '/new', function($request, $response, $service, $app) {
                 $statement = $app->factoid_db->prepare("SELECT displayname,idname FROM games");
                 $statement->execute();
                 $dbs = $statement->fetchAll(PDO::FETCH_ASSOC);
-                $service->render('index.phtml', array('action' => 'factoid', 'page' => 'factoid/new.phtml', "dbs" => $dbs));
+                $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/new.phtml', "dbs" => $dbs));
             }
         } catch (PDOException $ex) {
             logError($ex);
@@ -102,7 +102,8 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
         try {
             if (checkPermission($app, 'factoids.edit')) {
                 $id = $request->param('id');
-                $app->factoid_db->prepare("UPDATE factoids SET content = ? WHERE id = ?")->execute(array($request->param('content'), $id));
+                $factoidContext = str_replace("\n", ";;", $request->param('content'));
+                $app->factoid_db->prepare("UPDATE factoids SET content = ? WHERE id = ?")->execute(array($factoidContext, $id));
                 $statement = $app->factoid_db
                       ->prepare("SELECT games.displayname AS game "
                       . "FROM factoids "

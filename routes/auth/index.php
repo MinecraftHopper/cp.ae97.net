@@ -4,7 +4,7 @@ $this->respond('GET', '/login/?', function($request, $response, $service, $app) 
     if (verifySession($app)) {
         $response->redirect("/", 302);
     }
-    $service->render('index.phtml', array('action' => 'login', 'page' => 'auth/login.phtml', 'redirect' => $request->param('redirect')));
+    $service->render(HTML_DIR . 'index.phtml', array('action' => 'login', 'page' => HTML_DIR . 'auth/login.phtml', 'redirect' => $request->param('redirect')));
 });
 
 $this->respond('POST', '/login/?', function($request, $response, $service, $app) {
@@ -43,14 +43,14 @@ $this->respond('GET', '/logout', function($request, $response, $service, $app) {
         logError($ex);
     }
     clearSession();
-    $service->render('index.phtml', array('action' => 'logout', 'page' => 'auth/logout.phtml'));
+    $service->render(HTML_DIR . 'index.phtml', array('action' => 'logout', 'page' => HTML_DIR . 'auth/logout.phtml'));
     $response->redirect("/", 302);
 });
 
 //Register
 $this->respond('GET', '/register', function($request, $response, $service, $app) {
     if (!verifySession($app)) {
-        $service->render('index.phtml', array('action' => 'register', 'page' => 'auth/register.phtml'));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'register', 'page' => HTML_DIR . 'auth/register.phtml'));
     } else {
         $response->redirect("/", 302);
     }
@@ -105,7 +105,7 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
 //Reset
 $this->respond('GET', '/resetpw', function($request, $response, $service, $app) {
     if ($request->param('uuid') == null || $request->param('resetkey') == null) {
-        $service->render('index.phtml', array('action' => 'resetpw', 'page' => 'auth/resetpw.phtml'));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'resetpw', 'page' => HTML_DIR . 'auth/resetpw.phtml'));
     } else {
         try {
             $service->validateParam('uuid', 'Invalid uuid');

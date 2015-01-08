@@ -1,8 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../assets/php/composer/vendor/autoload.php';
-require_once __DIR__ . '/../assets/php/functions.php';
-require_once __DIR__ . '/../config/config.php';
+define('BASE_DIR', dirname(__DIR__) . '/');
+define('ASSET_DIR', dirname(__DIR__) . '/assets/');
+define('CONFIG_DIR', dirname(__DIR__) . '/config/');
+define('HTML_DIR', dirname(__DIR__) . '/html/');
+define('ROUTES_DIR', dirname(__DIR__) . '/routes/');
+
+require_once BASE_DIR . 'vendor/autoload.php';
+require_once ASSET_DIR . 'php/functions.php';
+require_once CONFIG_DIR . 'config.php';
 
 session_start();
 
@@ -41,16 +47,16 @@ $klein->respond(function($request, $response, $service, $app) {
     });
 });
 
-$klein->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service, $app) {
-    $service->render('index.phtml', array('action' => null, 'page' => null));
+$klein->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service) {
+    $service->render(HTML_DIR . 'index.phtml', array('action' => null, 'page' => null));
 });
 
-$klein->with('/auth', __DIR__ . '/auth/index.php');
-$klein->with('/cp', __DIR__ . '/cp/index.php');
-$klein->with('/factoid', __DIR__ . '/factoid/index.php');
+$klein->with('/auth', ROUTES_DIR . 'auth/index.php');
+$klein->with('/cp', ROUTES_DIR . 'cp/index.php');
+$klein->with('/factoid', ROUTES_DIR . 'factoid/index.php');
 
-$klein->respond('404', function($request, $response, $service, $app) {
-    $service->render('index.phtml', array('action' => '404', 'try' => $request->uri(), 'page' => __DIR__ . '/../error/404.phtml'));
+$klein->respond('404', function($request, $response, $service) {
+    $service->render(HTML_DIR . 'index.phtml', array('action' => '404', 'try' => $request->uri(), 'page' => HTML_DIR . 'errors/404.phtml'));
 });
 
 $klein->onError(function($klein, $err_msg) {

@@ -2,7 +2,7 @@
 
 $this->respond('GET', '/', function($request, $response, $service, $app) {
     if (verifySession($app)) {
-        $service->render('index.phtml', array('action' => 'index', 'page' => 'cp/admin/index.phtml'));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'index', 'page' => HTML_DIR . 'cp/admin/index.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -10,7 +10,7 @@ $this->respond('GET', '/', function($request, $response, $service, $app) {
 
 $this->respond('GET', '/bot', function($request, $response, $service, $app) {
     if (verifySession($app)) {
-        $service->render('index.phtml', array('action' => 'bot', 'page' => 'cp/admin/bot/index.phtml'));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'bot', 'page' => HTML_DIR . 'cp/admin/bot/index.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -20,7 +20,7 @@ $this->respond('GET', '/user/approve', function($request, $response, $service, $
     if (verifySession($app) && checkPermission($app, 'panel.viewusers')) {
         $perms['approveUser'] = checkPermission($app, 'panel.approveuser');
         $perms['deleteUser'] = checkPermission($app, 'panel.deleteuser');
-        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/approval.phtml', 'perms' => $perms));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/approval.phtml', 'perms' => $perms));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -28,7 +28,7 @@ $this->respond('GET', '/user/approve', function($request, $response, $service, $
 
 $this->respond('GET', '/user/manage', function($request, $response, $service, $app) {
     if (verifySession($app) && checkPermission($app, 'panel.viewusers')) {
-        $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/manage.phtml'));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/manage.phtml'));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -59,7 +59,7 @@ $this->respond('GET', '/ban', function($request, $response, $service, $app) {
 
 
 
-        $service->render('index.phtml', array('action' => 'ban', 'page' => 'cp/admin/ban/index.phtml', 'bans' => $casted));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $casted));
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -70,7 +70,7 @@ $this->respond('GET', '/user', function($request, $response, $service, $app) {
         if (checkPermission($app, 'panel.viewusers')) {
             $perms['approveUser'] = checkPermission($app, 'panel.approveuser');
             $perms['deleteUser'] = checkPermission($app, 'panel.deleteuser');
-            $service->render('index.phtml', array('action' => 'user', 'page' => 'cp/admin/user/approval.phtml', 'perms' => $perms));
+            $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/approval.phtml', 'perms' => $perms));
         }
     } else {
         $response->redirect("/auth/login", 302);
