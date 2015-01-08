@@ -1,7 +1,9 @@
 <?php
 
+use \AE97\Panel\Authentication, \AE97\Panel\Utilities;
+
 $this->respond('GET', '/login/?', function($request, $response, $service, $app) {
-    if (verifySession($app)) {
+    if (Authentication::verifySession($app)) {
         $response->redirect("/", 302);
     }
     $service->render(HTML_DIR . 'index.phtml', array('action' => 'login', 'page' => HTML_DIR . 'auth/login.phtml', 'redirect' => $request->param('redirect')));
@@ -22,7 +24,7 @@ $this->respond('POST', '/login/?', function($request, $response, $service, $app)
     } else if (!$db['approved']) {
         throw new Exception("Your account has not been approved");
     } else {
-        $str = generate_string(64);
+        $str = Utilities::generate_string(64);
         $statement = $app->auth_db->prepare("INSERT INTO session (uuid, sessionToken) VALUES (?, ?) ON DUPLICATE KEY UPDATE sessionToken = ?");
         $statement->execute(array($db['uuid'], $str, $str));
         $_SESSION['uuid'] = $db['uuid'];
@@ -33,23 +35,23 @@ $this->respond('POST', '/login/?', function($request, $response, $service, $app)
 
 //Logout
 $this->respond('GET', '/logout', function($request, $response, $service, $app) {
-    if (!verifySession($app)) {
+    if (!Authentication::verifySession($app)) {
         $response->redirect("/", 302);
     }
     try {
         $statement = $app->auth_db->prepare("DELETE FROM session WHERE uuid = ?");
         $statement->execute(array($_SESSION['uuid']));
     } catch (PDOException $ex) {
-        logError($ex);
+        Utilities::logError($ex);
     }
-    clearSession();
+    Authentication::clearSession();
     $service->render(HTML_DIR . 'index.phtml', array('action' => 'logout', 'page' => HTML_DIR . 'auth/logout.phtml'));
     $response->redirect("/", 302);
 });
 
 //Register
 $this->respond('GET', '/register', function($request, $response, $service, $app) {
-    if (!verifySession($app)) {
+    if (!Authentication::verifySession($app)) {
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'register', 'page' => HTML_DIR . 'auth/register.phtml'));
     } else {
         $response->redirect("/", 302);
@@ -86,10 +88,10 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
     } else {
         $createUserStatement = $app->auth_db->prepare('INSERT INTO users (uuid,username,email,password,verified,approved) values (?,?,?,?,?,?)');
         $hashedPW = password_hash($request->param('password'), PASSWORD_DEFAULT);
-        $createUserStatement->execute(array(getGUID(), $request->param('username'), $request->param('email'), $hashedPW, 0, 0));
+        $createUserStatement->execute(array(Utilities::generateGUID(), $request->param('username'), $request->param('email'), $hashedPW, 0, 0));
 
         $verificationStatement = $app->auth_db->prepare('INSERT INTO verification (email, code) VALUES (?, ?)');
-        $approveKey = generate_string(32);
+        $approveKey = Utilities::generate_string(32);
         $verificationStatement->execute(array($request->param('email'), $approveKey));
 
         $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
@@ -125,7 +127,7 @@ $this->respond('GET', '/resetpw', function($request, $response, $service, $app) 
             $service->flash("Error: Account not verified");
             $response->redirect('/auth/resetpw', 302);
         } else if ($db['resetkey'] == $request->param('resetkey')) {
-            $unhashed = generate_string(16);
+            $unhashed = Utilities::generate_string(16);
             $newpass = password_hash($unhashed, PASSWORD_DEFAULT);
             $app->auth_db->prepare("UPDATE users SET password = ? WHERE uuid = ?")->execute(array($newpass, $db['uuid']));
             $app->mail->sendMessage($app->domain, array('from' => 'Noreply@ae97.net <' . $app->email . '>',
@@ -151,7 +153,7 @@ $this->respond('POST', '/resetpw', function($request, $response, $service, $app)
         throw new Exception("Account " . $request->param('email') . " not verified");
     } else {
         $uuid = $db['uuid'];
-        $resetkey = generate_string(64);
+        $resetkey = Utilities::generate_string(64);
         $app->auth_db->prepare("UPDATE passwordreset SET resetkey = ? WHERE uuid = ?")->execute(array($resetkey, $uuid));
         $url = $app->fullsite . '/resetpw?uuid=' . $uuid . '&resetkey=' . $resetkey;
         $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',

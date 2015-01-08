@@ -5,10 +5,13 @@ define('ASSET_DIR', dirname(__DIR__) . '/assets/');
 define('CONFIG_DIR', dirname(__DIR__) . '/config/');
 define('HTML_DIR', dirname(__DIR__) . '/html/');
 define('ROUTES_DIR', dirname(__DIR__) . '/routes/');
+define('LOADER_DIR', dirname(__DIR__) . '/functions/');
 
 require_once BASE_DIR . 'vendor/autoload.php';
-require_once ASSET_DIR . 'php/functions.php';
 require_once CONFIG_DIR . 'config.php';
+require_once LOADER_DIR . 'autoloader.php';
+
+use \AE97\Panel\Utilities;
 
 session_start();
 
@@ -60,7 +63,7 @@ $klein->respond('404', function($request, $response, $service) {
 });
 
 $klein->onError(function($klein, $err_msg) {
-    logError($err_msg);
+    Utilities::logError($err_msg);
     $klein->service()->flash("Error: " . $err_msg);
     $klein->service()->back();
 });

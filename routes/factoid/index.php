@@ -1,14 +1,16 @@
 <?php
 
-$this->respond('GET', '/?', function($request, $response, $service, $app) {
+use \AE97\Panel\Authentication, \AE97\Panel\Utilities;
+
+$this->respond('GET', '/?', function($request, $response) {
     $response->redirect("/factoid/db/global", 302);
 });
 
 $this->respond('GET', '/db/[a:db]?', function($request, $response, $service, $app) {
     $perms = array('edit' => false, 'delete' => false);
-    if (verifySession($app)) {
-        $perms['edit'] = checkPermission($app, 'factoids.edit');
-        $perms['delete'] = checkPermission($app, 'factoids.remove');
+    if (Authentication::verifySession($app)) {
+        $perms['edit'] = Authentication::checkPermission($app, 'factoids.edit');
+        $perms['delete'] = Authentication::checkPermission($app, 'factoids.remove');
     }
     $db = $request->param('db');
     if ($db == null || $db == '') {
@@ -18,9 +20,9 @@ $this->respond('GET', '/db/[a:db]?', function($request, $response, $service, $ap
 });
 
 $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $app) {
-    if (verifySession($app)) {
+    if (Authentication::verifySession($app)) {
         try {
-            if (checkPermission($app, 'factoids.edit')) {
+            if (Authentication::checkPermission($app, 'factoids.edit')) {
                 $statement = $app->factoid_db
                       ->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game "
                       . "FROM factoids "
@@ -32,7 +34,7 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
                 $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/edit.phtml', 'id' => $factoids['id'], 'name' => $factoids['name'], 'content' => $factoids['content'], 'game' => $factoids['game'], 'mode' => 'Edit'));
             }
         } catch (PDOException $ex) {
-            logError($ex);
+            Utilities::logError($ex);
             return array('msg' => 'Failed, MySQL database returned error');
         }
     } else {
@@ -41,16 +43,16 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
 });
 
 $this->respond('GET', '/new', function($request, $response, $service, $app) {
-    if (verifySession($app)) {
+    if (Authentication::verifySession($app)) {
         try {
-            if (checkPermission($app, 'factoids.create')) {
+            if (Authentication::checkPermission($app, 'factoids.create')) {
                 $statement = $app->factoid_db->prepare("SELECT displayname,idname FROM games");
                 $statement->execute();
                 $dbs = $statement->fetchAll(PDO::FETCH_ASSOC);
                 $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/new.phtml', "dbs" => $dbs));
             }
         } catch (PDOException $ex) {
-            logError($ex);
+            Utilities::logError($ex);
             return array('msg' => 'Failed, MySQL database returned error');
         }
     } else {
@@ -59,7 +61,7 @@ $this->respond('GET', '/new', function($request, $response, $service, $app) {
 });
 
 $this->respond('POST', '/submit-new', function($request, $response, $service, $app) {
-    if (verifySession($app) && checkPermission($app, 'factoids.create')) {
+    if (Authentication::verifySession($app) && Authentication::checkPermission($app, 'factoids.create')) {
         try {
             $app->factoid_db
                   ->prepare("INSERT INTO factoids (name, game, content) VALUES (?, (SELECT games.id FROM games WHERE idname=?), ?) "
@@ -68,7 +70,7 @@ $this->respond('POST', '/submit-new', function($request, $response, $service, $a
             $service->flash("Successfully created new factoid");
             $response->redirect('/factoid/db/' . $request->param('game'), 302);
         } catch (PDOException $ex) {
-            logError($ex);
+            Utilities::logError($ex);
             $service->flash("Failed to create factoid");
         }
     } else {
@@ -77,10 +79,9 @@ $this->respond('POST', '/submit-new', function($request, $response, $service, $a
 });
 
 $this->respond('GET', '/delete/[i:id]', function($request, $response, $service, $app) {
-    if (verifySession($app)) {
+    if (Authentication::verifySession($app)) {
         try {
-            error_log('test');
-            if (checkPermission($app, 'factoids.delete')) {
+            if (Authentication::checkPermission($app, 'factoids.delete')) {
                 $gameStmt = $app->factoid_db
                       ->prepare("SELECT displayname AS game FROM games "
                       . "INNER JOIN factoids ON factoids.game = games.id WHERE factoids.id = ?");
@@ -89,7 +90,7 @@ $this->respond('GET', '/delete/[i:id]', function($request, $response, $service, 
                 $app->factoid_db->prepare("DELETE FROM factoids WHERE id=?")->execute(array($request->param('id')));
             }
         } catch (PDOException $ex) {
-            logError($ex);
+            Utilities::logError($ex);
         }
         $response->redirect('/factoid/db/' . $game);
     } else {
@@ -98,9 +99,9 @@ $this->respond('GET', '/delete/[i:id]', function($request, $response, $service, 
 });
 
 $this->respond('POST', '/submit-edit', function($request, $response, $service, $app) {
-    if (verifySession($app)) {
+    if (Authentication::verifySession($app)) {
         try {
-            if (checkPermission($app, 'factoids.edit')) {
+            if (Authentication::checkPermission($app, 'factoids.edit')) {
                 $id = $request->param('id');
                 $factoidContext = str_replace("\n", ";;", $request->param('content'));
                 $app->factoid_db->prepare("UPDATE factoids SET content = ? WHERE id = ?")->execute(array($factoidContext, $id));
@@ -116,7 +117,7 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
             }
             return array('msg' => 'Failed, no permissions to edit');
         } catch (PDOException $ex) {
-            logError($ex);
+            Utilities::logError($ex);
             return array('msg' => 'Failed, MySQL database returned error');
         }
     } else {
