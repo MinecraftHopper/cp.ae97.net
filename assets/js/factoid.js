@@ -1,5 +1,6 @@
 function loadData(game) {
     viewModel.tableLoaded(false);
+    window.history.pushState({}, "", "/factoid?db=" + game);
     var posting = $.post('/factoid/get', {db: game}, "json");
     posting.done(parseData);
 }
@@ -22,6 +23,7 @@ function parseData(data) {
             'content': parseToText(item.content)
         });
     }
+
     viewModel.tableLoaded(true);
 }
 

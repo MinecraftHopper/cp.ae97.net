@@ -1,6 +1,7 @@
 <?php
 
-use \AE97\Panel\Authentication, \AE97\Panel\Utilities;
+use \AE97\Panel\Authentication,
+    \AE97\Panel\Utilities;
 
 $this->respond('GET', '/', function($request, $response, $service, $app) {
     if (Authentication::verifySession($app)) {

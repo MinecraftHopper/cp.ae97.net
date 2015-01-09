@@ -1,12 +1,11 @@
 <?php
 
-use \AE97\Panel\Authentication, \AE97\Panel\Utilities;
+use \AE97\Panel\Authentication,
+    \AE97\Panel\Utilities,
+    \AE97\Panel\Factoids,
+    \PDOException;
 
-$this->respond('GET', '/?', function($request, $response) {
-    $response->redirect("/factoid/db/global", 302);
-});
-
-$this->respond('GET', '/db/[a:db]?', function($request, $response, $service, $app) {
+$this->respond('GET', '/?', function($request, $response, $service, $app) {
     $perms = array('edit' => false, 'delete' => false);
     if (Authentication::verifySession($app)) {
         $perms['edit'] = Authentication::checkPermission($app, 'factoids.edit');
@@ -23,14 +22,8 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service, $a
     if (Authentication::verifySession($app)) {
         try {
             if (Authentication::checkPermission($app, 'factoids.edit')) {
-                $statement = $app->factoid_db
-                      ->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game "
-                      . "FROM factoids "
-                      . "INNER JOIN games ON factoids.game = games.id "
-                      . "WHERE factoids.id=? "
-                      . "LIMIT 1");
-                $statement->execute(array($request->param('id')));
-                $factoids = $statement->fetch();
+                $factoidManager = new Factoids($app->factoid_db);
+                $factoids = $factoidManager->getFactoid($request->param('id'));
                 $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/edit.phtml', 'id' => $factoids['id'], 'name' => $factoids['name'], 'content' => $factoids['content'], 'game' => $factoids['game'], 'mode' => 'Edit'));
             }
         } catch (PDOException $ex) {
@@ -68,7 +61,7 @@ $this->respond('POST', '/submit-new', function($request, $response, $service, $a
                         . "ON DUPLICATE KEY UPDATE content = ?")
                   ->execute(array($request->param('name'), $request->param('game'), $request->param('content'), $request->param('content')));
             $service->flash("Successfully created new factoid");
-            $response->redirect('/factoid/db/' . $request->param('game'), 302);
+            $response->redirect('/factoid?db=' . $request->param('game'), 302);
         } catch (PDOException $ex) {
             Utilities::logError($ex);
             $service->flash("Failed to create factoid");
@@ -92,7 +85,7 @@ $this->respond('GET', '/delete/[i:id]', function($request, $response, $service, 
         } catch (PDOException $ex) {
             Utilities::logError($ex);
         }
-        $response->redirect('/factoid/db/' . $game);
+        $response->redirect('/factoid?db=' . $game);
     } else {
         $response->redirect("/auth/login", 302);
     }
@@ -104,19 +97,14 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
             if (Authentication::checkPermission($app, 'factoids.edit')) {
                 $id = $request->param('id');
                 $factoidContext = str_replace("\n", ";;", $request->param('content'));
-                $app->factoid_db->prepare("UPDATE factoids SET content = ? WHERE id = ?")->execute(array($factoidContext, $id));
-                $statement = $app->factoid_db
-                      ->prepare("SELECT games.displayname AS game "
-                      . "FROM factoids "
-                      . "INNER JOIN games ON (factoids.game = games.id) "
-                      . "WHERE factoids.id=?");
-                $statement->execute(array($id));
-                $game = $statement->fetch();
-                $response->redirect('/factoid/db/' . $game['game'], 302);
-                return json_encode(array('msg' => 'Success, changed to ' . $request->param('content'), 'game' => $game, 'id' => $id));
+                $factoidManager = new Factoids($app->factoid_db);
+                $factoidManager->editFactoid($id, $factoidContext);
+                $game = $factoidManager->getGame($id);
+                $response->redirect('/factoid?db=' . $game['id'], 302);
+                return json_encode(array('msg' => 'Success, changed to ' . $request->param('content'), 'game' => $game['id'], 'id' => $id));
             }
             return array('msg' => 'Failed, no permissions to edit');
-        } catch (PDOException $ex) {
+        } catch (Exception $ex) {
             Utilities::logError($ex);
             return array('msg' => 'Failed, MySQL database returned error');
         }
@@ -126,41 +114,11 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
 });
 
 $this->respond('POST', '/get', function($request, $response, $service, $app) {
-    $game = $request->param('db');
-    if ($game == null || $game == '') {
-        $game = 'global';
+    $factoidManager = new Factoids($app->factoid_db);
+    if ($request->param('db') == null) {
+        $db = $factoidManager->getDatabase();
+    } else {
+        $db = $factoidManager->getDatabase($request->param('db'));
     }
-    $database = $app->factoid_db;
-    try {
-        $gameliststatement = $database->prepare("SELECT id,idname,displayname FROM games");
-        $gameliststatement->execute();
-        $gamelist = $gameliststatement->fetchAll();
-        $statement = $database->prepare("SELECT factoids.id,factoids.name, factoids.content, games.displayname "
-              . "FROM factoids "
-              . "INNER JOIN games ON (factoids.game = games.id) "
-              . "WHERE games.idname = ?");
-        $statement->execute(array(0 => $game));
-        $factoids = $statement->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $ex) {
-        logError($ex);
-        echo "Error";
-        return;
-    }
-    $firstCounter = 0;
-    foreach ($gamelist as $gameitem):
-        $compiledGamelist[$firstCounter] = array('idname' => $gameitem['idname'], 'displayname' => $gameitem['displayname']);
-        if ($compiledGamelist[$firstCounter]['idname'] === $game) {
-            $gameAskedFor = $compiledGamelist[$firstCounter];
-        }
-        $firstCounter++;
-    endforeach;
-    $compiledFactoidlist = array();
-    foreach ($factoids as $f):
-        array_push($compiledFactoidlist, array('id' => $f['id'], 'name' => $f['name'], 'content' => $f['content'], 'game' => $game == null ? $f['game'] : $game));
-    endforeach;
-    $collection = array();
-    $collection['gamerequest'] = isset($gameAskedFor) ? $gameAskedFor : 'Minecraft';
-    $collection['games'] = isset($compiledGamelist) ? $compiledGamelist : array();
-    $collection['factoids'] = isset($compiledFactoidlist) ? $compiledFactoidlist : array();
-    echo json_encode($collection);
+    echo json_encode($db);
 });

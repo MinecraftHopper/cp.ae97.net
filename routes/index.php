@@ -8,8 +8,9 @@ define('ROUTES_DIR', dirname(__DIR__) . '/routes/');
 define('LOADER_DIR', dirname(__DIR__) . '/functions/');
 
 require_once BASE_DIR . 'vendor/autoload.php';
+require_once BASE_DIR . 'library/autoload.php';
 require_once CONFIG_DIR . 'config.php';
-require_once LOADER_DIR . 'autoloader.php';
+require_once LOADER_DIR . 'autoload.php';
 
 use \AE97\Panel\Utilities;
 
@@ -58,8 +59,8 @@ $klein->with('/auth', ROUTES_DIR . 'auth/index.php');
 $klein->with('/cp', ROUTES_DIR . 'cp/index.php');
 $klein->with('/factoid', ROUTES_DIR . 'factoid/index.php');
 
-$klein->respond('404', function($request, $response, $service) {
-    $service->render(HTML_DIR . 'index.phtml', array('action' => '404', 'try' => $request->uri(), 'page' => HTML_DIR . 'errors/404.phtml'));
+$klein->onHttpError(function($httpCode, $klein) {
+    $klein->service()->render(HTML_DIR . 'index.phtml', array('action' => '404', 'try' => $klein->request()->uri(), 'page' => HTML_DIR . 'errors/404.phtml'));
 });
 
 $klein->onError(function($klein, $err_msg) {
