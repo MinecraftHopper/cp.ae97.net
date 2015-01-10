@@ -139,7 +139,7 @@ class Factoids {
         if ($id != null) {
             Validate::param($id)->isNum();
 
-            $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games" + " INNER JOIN factoids ON factoids.game = games.id" + " WHERE factoids.id = ?");
+            $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games INNER JOIN factoids ON factoids.game = games.id WHERE factoids.id = ?");
             return $statement->execute(array($id));
         } else {
             $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games");

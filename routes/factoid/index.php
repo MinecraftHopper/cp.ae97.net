@@ -101,12 +101,9 @@ $this->respond('POST', '/submit-edit', function($request, $response, $service, $
                 $factoidManager->editFactoid($id, $factoidContext);
                 $game = $factoidManager->getGame($id);
                 $response->redirect('/factoid?db=' . $game['id'], 302);
-                return json_encode(array('msg' => 'Success, changed to ' . $request->param('content'), 'game' => $game['id'], 'id' => $id));
             }
-            return array('msg' => 'Failed, no permissions to edit');
         } catch (Exception $ex) {
             Utilities::logError($ex);
-            return array('msg' => 'Failed, MySQL database returned error');
         }
     } else {
         $response->redirect("/auth/login", 302);
