@@ -8,11 +8,11 @@
         <div class="container">
             <h3>Editing factoid</h3>
             <?php
-            foreach ($this->flashes() as $type => $messages):
-                foreach ($messages as $msg):
-                    echo '<h5 class = \"form-signin-heading\">' . $msg . '</h5>';
-                endforeach;
-            endforeach;
+            foreach ($this->flashes() as $type => $messages) {
+                foreach ($messages as $msg) {
+                    ?><h5 class = \"form-signin-heading\"><?php echo $msg; ?></h5><?php
+                }
+            }
             ?>
             <form style="width: 80%" name="edit" action="/factoid/submit-edit" method="post" accept-charset="UTF-8">
                 <p><strong>ID:</strong> <em><?php echo $this->id; ?></em><input type="hidden" name= "id" value="<?php echo $this->id; ?>"></input></p>
@@ -52,7 +52,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                        content = e.getContent();
+                                      content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -63,7 +63,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[b]'
-                                        && content.substr(selected.end, 4) === '[/b]') {
+                                      && content.substr(selected.end, 4) === '[/b]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;
@@ -83,7 +83,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                        content = e.getContent();
+                                      content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -94,7 +94,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[i]'
-                                        && content.substr(selected.end, 4) === '[/i]') {
+                                      && content.substr(selected.end, 4) === '[/i]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;
@@ -115,7 +115,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                        content = e.getContent();
+                                      content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -126,7 +126,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[u]'
-                                        && content.substr(selected.end, 4) === '[/u]') {
+                                      && content.substr(selected.end, 4) === '[/u]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;

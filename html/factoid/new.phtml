@@ -9,16 +9,16 @@
             <h3>Create factoid</h3>
             <form style="width: 80%" name="edit" action="/factoid/submit-new" method="post" accept-charset="UTF-8">
                 <?php
-                foreach ($this->flashes() as $type => $messages):
-                    foreach ($messages as $msg):
-                        echo '<h5 class = \"form-signin-heading\">' . $msg . '</h5>';
-                    endforeach;
-                endforeach;
+                foreach ($this->flashes() as $type => $messages) {
+                    foreach ($messages as $msg) {
+                        ?><h5 class = \"form-signin-heading\"><?php echo $msg; ?>'</h5><?php
+                    }
+                }
                 ?>
                 <p><strong>Game:</strong> <select name="game" id="game" >
                         <?php
                         foreach ($this->dbs as $db) {
-                            echo '<option value="' . $db['idname'] . '"><a>' . $db['displayname'] . '</a></li>';
+                            ?><option value="' . $db['idname'] . '"><a><?php echo $db['displayname']; ?></a></li><?php
                         }
                         ?>
                     </select>

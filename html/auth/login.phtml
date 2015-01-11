@@ -1,13 +1,13 @@
-<link href="/assets/css/signin.min.css?<?php echo filemtime(__DIR__ .'/../../assets/css/signin.min.css'); ?>" rel="stylesheet">
+<link href="/assets/css/signin.min.css?<?php echo filemtime(__DIR__ . '/../../assets/css/signin.min.css'); ?>" rel="stylesheet">
 <div class="container">
     <form class = "form-signin" role = "form" action = "/auth/login<?php echo ($this->redirect !== null) ? "/" . $this->redirect : "" ?>" method = "post">
         <h3 class = "form-signin-heading">Login</h3>
         <?php
-        foreach ($this->flashes() as $type => $messages):
-            foreach ($messages as $msg):
-                echo '<h5 class = \"form-signin-heading\">' . $msg . '</h5>';
-            endforeach;
-        endforeach;
+        foreach ($this->flashes() as $type => $messages) {
+            foreach ($messages as $msg) {
+                ?><h5 class = \"form-signin-heading\"><?php echo $msg; ?></h5><?php
+            }
+        }
         ?>
         <input name = "email" type = "text" class = "form-control" placeholder = "Email" required autofocus>
         <input name = "password" type = "password" class = "form-control" placeholder = "Password" required>
