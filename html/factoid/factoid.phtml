@@ -73,10 +73,10 @@
                         echo '<td>';
                     }
                     if ($this->perms['edit']) {
-                        echo '<a style = "width:60px" class = "btn btn-xs btn-warning" data-bind = "attr: {href: \'/factoid/edit/\' + $data.id}">Edit</a>';
+                        echo '<a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: \'/factoid/edit/\' + $data.id}">Edit</a>';
                     }
                     if ($this->perms['delete']) {
-                        echo '<a style = "width:60px" class = "btn btn-xs btn-danger" data-bind = "attr: {href: \'/factoid/delete/\' + $data.id}">Delete</a>';
+                        echo '<a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: \'/factoid/delete/\' + $data.id}">Delete</a>';
                     }
                     if ($this->perms['edit'] || $this->perms['delete']) {
                         echo '</td>';

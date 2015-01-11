@@ -29,18 +29,15 @@ class Authentication {
         try {
             $statement = $app->auth_db->prepare(
                   "SELECT count(*) AS 'has'
-                    FROM groupperms
-                    INNER JOIN groups ON groups.groupId = groupperms.groupId
-                    WHERE groupperms.groupId IN (
-                        SELECT groupId FROM usergroups WHERE useruuid = ?
-                    )
+                    FROM userperms
+                    WHERE userId = ?
                     AND permission IN ('*', ?)"
             );
             $statement->execute(array($_SESSION["uuid"], $perm));
             $db = $statement->fetch();
             return $db['has'] > 0;
         } catch (PDOException $ex) {
-            logError($ex);
+            Utilities::logError($ex);
             return false;
         }
     }

@@ -1,13 +1,15 @@
 <?php
 
 use \AE97\Panel\Authentication,
-    \AE97\Panel\Utilities;
+    \AE97\Panel\Utilities,
+    \AE97\Validate,
+    \PDOException;
 
 $this->respond('GET', '/', function($request, $response, $service, $app) {
     if (Authentication::verifySession($app)) {
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'index', 'page' => HTML_DIR . 'cp/admin/index.phtml'));
     } else {
-        $response->redirect("/auth/login", 302);
+        $response->redirect("/auth/login", 302)->send();
     }
 });
 
@@ -15,7 +17,7 @@ $this->respond('GET', '/bot', function($request, $response, $service, $app) {
     if (Authentication::verifySession($app)) {
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'bot', 'page' => HTML_DIR . 'cp/admin/bot/index.phtml'));
     } else {
-        $response->redirect("/auth/login", 302);
+        $response->redirect("/auth/login", 302)->send();
     }
 });
 
@@ -25,15 +27,49 @@ $this->respond('GET', '/user/approve', function($request, $response, $service, $
         $perms['deleteUser'] = Authentication::checkPermission($app, 'panel.deleteuser');
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/approval.phtml', 'perms' => $perms));
     } else {
-        $response->redirect("/auth/login", 302);
+        $response->redirect("/auth/login", 302)->send();
     }
 });
 
 $this->respond('GET', '/user/manage', function($request, $response, $service, $app) {
     if (Authentication::verifySession($app) && Authentication::checkPermission($app, 'panel.viewusers')) {
-        $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/manage.phtml'));
+        $users = $app->auth_db->prepare("SELECT `uuid` AS `id`,`username` FROM users");
+        $users->execute();
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/manage.phtml', 'users' => $users->fetchAll()));
     } else {
-        $response->redirect("/auth/login", 302);
+        $response->redirect("/auth/login", 302)->send();
+    }
+});
+
+$this->respond('GET', '/user/edit', function($request, $response, $service, $app) {
+    if (Authentication::verifySession($app) && Authentication::checkPermission($app, 'panel.viewusers')) {
+        if ($request->param('name') == null) {
+            $response->redirect('/cp/admin/user/manage', 302)->send();
+            return;
+        }
+        $userstmt = $app->auth_db->prepare("SELECT uuid, username, email, verified, approved FROM users WHERE username = ?");
+        $userstmt->execute(array($request->param('name')));
+        $user = $userstmt->fetch();
+        if ($user == null) {
+            $response->redirect('/cp/admin/user/manage', 302)->send();
+            return;
+        }
+        $permstmt = $app->auth_db->prepare("SELECT perm FROM permissions");
+        $permstmt->execute();
+        $permList = $permstmt->fetchAll();
+
+        $userpermstmt = $app->auth_db->prepare("SELECT permission FROM userperms WHERE userId = ?");
+        $userpermstmt->execute(array($user['uuid']));
+        $userPermsTemp = $userpermstmt->fetchAll();
+
+        $userPerms = array();
+        foreach ($userPermsTemp as $perm) {
+            $userPerms[$perm['permission']] = true;
+        }
+
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/edit.phtml', "user" => $user, "allPerms" => $permList, "userPerms" => $userPerms));
+    } else {
+        $response->redirect("/auth/login", 302)->send();
     }
 });
 
@@ -59,12 +95,9 @@ $this->respond('GET', '/ban', function($request, $response, $service, $app) {
             }
             $casted[id] = $existing;
         }
-
-
-
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $casted));
     } else {
-        $response->redirect("/auth/login", 302);
+        $response->redirect("/auth/login", 302)->send();
     }
 });
 
@@ -76,7 +109,7 @@ $this->respond('GET', '/user', function($request, $response, $service, $app) {
             $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/approval.phtml', 'perms' => $perms));
         }
     } else {
-        $response->redirect("/auth/login", 302);
+        $response->redirect("/auth/login", 302)->send();
     }
 });
 
@@ -111,7 +144,7 @@ $this->respond('POST', '/user/approve/[:id]', function($request, $response, $ser
         }
         $response->redirect("/user", 302);
     } else {
-        $response->redirect("/auth/login", 302);
+        $response->redirect("/auth/login", 302)->send();
     }
 });
 
@@ -124,7 +157,37 @@ $this->respond('POST', '/user/delete/[:id]', function($request, $response, $serv
             Utilities::logError($ex);
         }
     } else {
-        $response->redirect("/auth/login", 302);
+        $response->redirect("/auth/login", 302)->send();
+    }
+});
+
+$this->respond('POST', '/user/edit', function($request, $response, $service, $app) {
+    Validate::param($request->param('user'))->notNull();
+    Validate::param($request->param('perms'))->notNull();
+    try {
+        $database = $app->auth_db;
+
+        $useridStmt = $database->prepare("SELECT uuid FROM users WHERE username = ?");
+        $useridStmt->execute(array($request->param('user')));
+        $user = $useridStmt->fetch();
+        if (!isset($user['uuid'])) {
+            return;
+        }
+        $uuid = $user['uuid'];
+
+        $database->beginTransaction();
+        $database->prepare("DELETE FROM userperms WHERE userId = ?")->execute(array($uuid));
+        foreach ($request->param('perms') as $perm) {
+            $database->prepare("INSERT INTO userperms VALUES(?,?)")->execute(array($uuid, $perm));
+        }
+        $database->commit();
+    } catch (PDOException $ex) {
+        Utilities::logError($ex);
+        try {
+            $app->auth_db->rollBack();
+        } catch (Exception $e) {
+            Utilities::logError($e);
+        }
     }
 });
 

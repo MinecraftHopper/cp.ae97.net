@@ -65,8 +65,9 @@ $klein->onHttpError(function($httpCode, $klein) {
 
 $klein->onError(function($klein, $err_msg) {
     Utilities::logError($err_msg);
-    $klein->service()->flash("Error: " . $err_msg);
-    $klein->service()->back();
+    echo $err_msg;
+    //$klein->service()->flash("Error: " . $err_msg);
+    //$klein->service()->back();
 });
 
 $klein->dispatch();
