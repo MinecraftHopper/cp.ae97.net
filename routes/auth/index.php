@@ -18,7 +18,7 @@ $this->respond('POST', '/login/?', function($request, $response, $service, $app)
     $statement->setFetchMode(PDO::FETCH_ASSOC);
     $db = $statement->fetch();
     if ((!isset($db['password']) || !isset($db['uuid']) || !isset($db['approved']) || !isset($db['email'])) || !password_verify($request->param('password'), $db['password'])) {
-
+        throw new Exception("Invalid creds");
     }
     if (!$db['verified']) {
         throw new Exception("Your email has not been verified");
