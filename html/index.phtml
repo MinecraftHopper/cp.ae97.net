@@ -1,3 +1,4 @@
+<?php $isset = isset($_SESSION['session']); ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -28,14 +29,13 @@
                     <a class="navbar-brand" href="/">Pokebot Control Panel</a>
                 </div>
                 <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                        <?php
-                        $isset = isset($_SESSION['session']);
-                        if ($isset) {
-                            echo '<li><a href="/cp/settings">Settings</a></li>';
-                        }
-                        ?>
-                        <li><a href="/auth/<?php echo $isset ? "logout" : "login"; ?><?php ?>"><?php echo $isset ? "Logout" : "Login"; ?></a></li>
+                    <ul class="nav navbar-nav navbar-right">                        
+                        <?php if ($isset) { ?>
+                            <li><a href="/cp/settings">Settings</a></li>
+                            <li><a href="/auth/logout">Logout</a></li>
+                        <?php } else { ?>
+                            <li><a href="/auth/login">Login</a></li>
+                        <?php } ?>
                     </ul>
                 </div>
             </div>
@@ -44,13 +44,11 @@
             <ul class="nav nav-sidebar">
                 <li><a href="/">Overview</a></li>
                 <li><a href="/factoid">Factoid Database</a></li>
-                <?php
-                if ($isset) {
-                    echo '<li><a href="/cp/admin/ban">Ban Management</a></li>
-                <li><a href="/cp/admin/user">User Management</a></li>
-                <li><a href="/cp/admin/bot">Bot Management</a></li>';
-                }
-                ?>
+                <?php if ($isset) { ?>
+                    <li><a href="/cp/admin/ban">Ban Management</a></li>
+                    <li><a href="/cp/admin/user">User Management</a></li>
+                    <li><a href="/cp/admin/bot">Bot Management</a></li>
+                <?php } ?>
             </ul>
         </div>
         <div class="container-fluid">
