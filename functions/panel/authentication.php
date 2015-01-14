@@ -2,6 +2,8 @@
 
 namespace AE97\Panel;
 
+use \AE97\Panel\Utilities;
+
 class Authentication {
 
     public static function verifySession($app) {
@@ -30,8 +32,8 @@ class Authentication {
             $statement = $app->auth_db->prepare(
                   "SELECT count(*) AS 'has'
                     FROM userperms
-                    WHERE userId = ?
-                    AND permission IN ('*', ?)"
+                    INNER JOIN `permissions` ON userperms.permission = permissions.id
+                    WHERE userid = ? AND perm IN ('*', ?)"
             );
             $statement->execute(array($_SESSION["uuid"], $perm));
             $db = $statement->fetch();

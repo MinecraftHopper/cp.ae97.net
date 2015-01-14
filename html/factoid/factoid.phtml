@@ -68,10 +68,10 @@
                         <td>
                         <?php } ?>
                         <?php if ($this->perms['edit']) { ?>
-                            <a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: \'/factoid/edit/\' + $data.id}">Edit</a>
+                            <a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: '/factoid/edit/' + $data.id}">Edit</a>
                         <?php } ?>
                         <?php if ($this->perms['delete']) { ?>
-                            <a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: \'/factoid/delete/\' + $data.id}">Delete</a>
+                            <a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: '/factoid/delete/' + $data.id}">Delete</a>
                         <?php } ?>
                         <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
                         </td>
