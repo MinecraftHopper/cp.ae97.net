@@ -13,43 +13,30 @@ $this->respond('GET', '/login/?', function($request, $response, $service, $app) 
 $this->respond('POST', '/login/?', function($request, $response, $service, $app) {
     $service->validateParam('email', 'Please enter a valid eamail')->isLen(5, 256);
     $service->validateParam('password', 'Please enter a password')->isLen(1, 256);
-    $statement = $app->auth_db->prepare("SELECT uuid,password,approved,verified,email FROM users WHERE email=?");
-    $statement->execute(array($request->param("email")));
-    $statement->setFetchMode(PDO::FETCH_ASSOC);
-    $db = $statement->fetch();
-    if (!isset($db['password']) || !isset($db['uuid']) || !isset($db['approved']) || !isset($db['email']) || !password_verify($request->param('password'), $db['password'])) {
+    $result = Authentication::validateCreds($request->param('email'), $request->param('password'));
+    if (!$result) {
         $service->flash("Error: Invalid creds");
         $service->back();
         return;
     }
-    if (!$db['verified']) {
+    if (!$result['verified']) {
         $service->flash("Your email has not been verified");
         $service->back();
         return;
-    } else if (!$db['approved']) {
+    } else if (!$result['approved']) {
         $service->flash("Your account has not been approved");
         $service->back();
         return;
     } else {
-        $str = Utilities::generate_string(64);
-        $statement = $app->auth_db->prepare("INSERT INTO session (uuid, sessionToken) VALUES (?, ?) ON DUPLICATE KEY UPDATE sessionToken = ?");
-        $statement->execute(array($db['uuid'], $str, $str));
-        $_SESSION['uuid'] = $db['uuid'];
-        $_SESSION['session'] = $str;
+        Authentication::createSession($result['uuid']);
         $response->redirect('/', 302);
     }
 });
 
 //Logout
 $this->respond('GET', '/logout', function($request, $response, $service, $app) {
-    if (!Authentication::verifySession($app)) {
+    if (!Authentication::verifySession()) {
         $response->redirect("/", 302);
-    }
-    try {
-        $statement = $app->auth_db->prepare("DELETE FROM session WHERE uuid = ?");
-        $statement->execute(array($_SESSION['uuid']));
-    } catch (PDOException $ex) {
-        Utilities::logError($ex);
     }
     Authentication::clearSession();
     $service->render(HTML_DIR . 'index.phtml', array('action' => 'logout', 'page' => HTML_DIR . 'auth/logout.phtml'));
@@ -58,7 +45,7 @@ $this->respond('GET', '/logout', function($request, $response, $service, $app) {
 
 //Register
 $this->respond('GET', '/register', function($request, $response, $service, $app) {
-    if (!Authentication::verifySession($app)) {
+    if (!Authentication::verifySession()) {
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'register', 'page' => HTML_DIR . 'auth/register.phtml'));
     } else {
         $response->redirect("/", 302);
@@ -82,30 +69,17 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
         $response->redirect("/auth/register", 302);
         return;
     }
-    $statement = $app->auth_db->prepare("SELECT uuid,username FROM users WHERE email=? OR username=?");
-    $statement->execute(array($request->param('email'), $request->param('username')));
-    $result = $statement->fetch();
-    if (isset($result['uuid'])) {
-        $service->flash('Email already exists, please use another');
-        return;
-    }
-    if (isset($result['username'])) {
-        $service->flash('Username already exists, please use another');
-        return;
+
+    $result = Authentication::createUser($request->param('email'), $request->param('email'), $request->param('password'));
+
+    if (!$result['success']) {
+        $service->flash($result['error']);
     } else {
-        $createUserStatement = $app->auth_db->prepare('INSERT INTO users (uuid,username,email,password,verified,approved) values (?,?,?,?,?,?)');
-        $hashedPW = password_hash($request->param('password'), PASSWORD_DEFAULT);
-        $createUserStatement->execute(array(Utilities::generateGUID(), $request->param('username'), $request->param('email'), $hashedPW, 0, 0));
-
-        $verificationStatement = $app->auth_db->prepare('INSERT INTO verification (email, code) VALUES (?, ?)');
-        $approveKey = Utilities::generate_string(32);
-        $verificationStatement->execute(array($request->param('email'), $approveKey));
-
         $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
             'to' => $request->param('email'),
             'subject' => 'Account verification',
             'html' => 'Someone has registered an account on <a href="' . $app->fullsite . '">' . $app->fullsite . '</a> using this email. '
-            . 'If this was you, please click the following link to verify your email: <a href="' . $app->fullsite . '/auth/verify?email=' . $request->param("email") . '&key=' . $approveKey . '">Verify email</a>'));
+            . 'If this was you, please click the following link to verify your email: <a href="' . $app->fullsite . '/auth/verify?email=' . $request->param("email") . '&key=' . $result['verify'] . '">Verify email</a>'));
         $service->flash("Your account has been created, an email has been sent to verify");
         $response->redirect("/auth/login", 302);
     }

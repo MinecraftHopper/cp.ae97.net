@@ -11,8 +11,14 @@ class Factoids {
 
     private $database;
 
-    public function __construct($database) {
-        $this->database = $database;
+    public function __construct($database = null) {
+        if ($database == null) {
+            $_DATABASE = Config::getGlobal('database');
+            $this->database = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['factoiddb'], $_DATABASE['user'], $_DATABASE['pass'], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+            $this->database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } else {
+            $this->database = $database;
+        }
     }
 
     public function editFactoid($id, $content) {
@@ -145,6 +151,10 @@ class Factoids {
             $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games");
             return $statement->execute();
         }
+    }
+
+    public function getDatabaseNames() {
+        return array();
     }
 
 }
