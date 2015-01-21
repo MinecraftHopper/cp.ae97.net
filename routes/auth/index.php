@@ -1,7 +1,9 @@
 <?php
 
 use \AE97\Panel\Authentication,
-    \AE97\Panel\Utilities;
+    \AE97\Panel\Utilities,
+    \AE97\Panel\Email,
+    \AE97\Panel\Config;
 
 $this->respond('GET', '/login/?', function($request, $response, $service, $app) {
     if (Authentication::verifySession($app)) {
@@ -75,11 +77,12 @@ $this->respond('POST', '/register', function($request, $response, $service, $app
     if (!$result['success']) {
         $service->flash($result['error']);
     } else {
-        $app->mail->sendMessage($app->domain, array('from' => 'Noreply <' . $app->email . '>',
-            'to' => $request->param('email'),
-            'subject' => 'Account verification',
-            'html' => 'Someone has registered an account on <a href="' . $app->fullsite . '">' . $app->fullsite . '</a> using this email. '
-            . 'If this was you, please click the following link to verify your email: <a href="' . $app->fullsite . '/auth/verify?email=' . $request->param("email") . '&key=' . $result['verify'] . '">Verify email</a>'));
+        $email = new Email();
+        $email->send($request->param('email'), 'Account verification', 'Someone has registered an account on '
+                . '<a href="' . Config::getGlobal('site')->fullSite . '">' . Config::getGlobal('site')->fullSite
+                . '</a> using this email. If this was you, please click the following link to verify your email: '
+                . '<a href="' . Config::getGlobal('site')->full . '/auth/verify?email=' . $request->param("email")
+                . '&key=' . $result['verify'] . '">Verify email</a>');
         $service->flash("Your account has been created, an email has been sent to verify");
         $response->redirect("/auth/login", 302);
     }
@@ -151,12 +154,7 @@ $this->respond('POST', '/resetpw', function($request, $response, $service, $app)
 $this->respond('GET', '/verify', function($request, $response, $service, $app) {
     $service->validateParam('email', 'Invalid email')->isLen(5, 256)->isEmail();
     $service->validateParam('key', 'Invalid verify key')->isLen(32);
-    $statement = $app->auth_db->prepare("SELECT code FROM verification WHERE email=?");
-    $statement->execute(array($request->param("email")));
-    $db = $statement->fetch();
-    if ($request->param('key') == $db['code']) {
-        $statement = $app->auth_db->prepare("UPDATE users SET verified = 1 WHERE email=?");
-        $statement->execute(array($request->param('email')));
+    if(Authentication::verifyUser($request->param('email'), $key)) {
         $service->flash('Your email has been verified');
     } else {
         $service->flash('Error: Invalid verify key for the email');

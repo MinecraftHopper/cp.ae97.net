@@ -18,7 +18,7 @@
                 <p><strong>Game:</strong> <select name="game" id="game" >
                         <?php
                         foreach ($this->dbs as $db) {
-                            ?><option value="' . $db['idname'] . '"><a><?php echo $db['displayname']; ?></a></li><?php
+                            ?><option value="<?php echo $db['idname']; ?>"><a><?php echo $db['displayname']; ?></a></li><?php
                         }
                         ?>
                     </select>
@@ -58,7 +58,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                      content = e.getContent();
+                                        content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -69,7 +69,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[b]'
-                                      && content.substr(selected.end, 4) === '[/b]') {
+                                        && content.substr(selected.end, 4) === '[/b]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;
@@ -89,7 +89,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                      content = e.getContent();
+                                        content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -100,7 +100,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[i]'
-                                      && content.substr(selected.end, 4) === '[/i]') {
+                                        && content.substr(selected.end, 4) === '[/i]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;
@@ -121,7 +121,7 @@
                             callback: function (e) {
                                 // Give/remove ** surround the selection
                                 var chunk, cursor, selected = e.getSelection(),
-                                      content = e.getContent();
+                                        content = e.getContent();
 
                                 if (selected.length === 0) {
                                     // Give extra word
@@ -132,7 +132,7 @@
 
                                 // transform selection and set the cursor into chunked text
                                 if (content.substr(selected.start - 3, 3) === '[u]'
-                                      && content.substr(selected.end, 4) === '[/u]') {
+                                        && content.substr(selected.end, 4) === '[/u]') {
                                     e.setSelection(selected.start - 3, selected.end + 4);
                                     e.replaceSelection(chunk);
                                     cursor = selected.start - 3;

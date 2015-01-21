@@ -35,7 +35,7 @@ class Authentication {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare(
-                  "SELECT count(*) AS 'has'
+                    "SELECT count(*) AS 'has'
                     FROM userperms
                     INNER JOIN `permissions` ON userperms.permission = permissions.id
                     WHERE userid = ? AND perm IN ('*', ?)"
@@ -102,6 +102,19 @@ class Authentication {
 
     public static function startResetPassword($email) {
         
+    }
+
+    public static function verifyUser($email, $key) {
+        $statement = self::$database->prepare("SELECT code FROM verification WHERE email=?");
+        $statement->execute(array($email));
+        $db = $statement->fetch();
+        if ($key == $db['code']) {
+            $statement = self::$database->prepare("UPDATE users SET verified = 1 WHERE email=?");
+            $statement->execute(array($email));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private static function validateDatabase() {

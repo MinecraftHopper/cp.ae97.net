@@ -2,8 +2,7 @@
 
 namespace AE97\Panel;
 
-use \AE97\Panel\Utilities,
-    \AE97\Validate,
+use \AE97\Validate,
     \PDOException,
     \PDO;
 
@@ -66,9 +65,9 @@ class Factoids {
             $gameliststatement->execute();
             $gamelist = $gameliststatement->fetchAll();
             $statement = $this->database->prepare("SELECT factoids.id,factoids.name, factoids.content, games.displayname "
-                  . "FROM factoids "
-                  . "INNER JOIN games ON (factoids.game = games.id) "
-                  . "WHERE games.idname = ?");
+                    . "FROM factoids "
+                    . "INNER JOIN games ON (factoids.game = games.id) "
+                    . "WHERE games.idname = ?");
             $statement->execute(array(0 => $table));
             $factoids = $statement->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $ex) {
@@ -100,10 +99,10 @@ class Factoids {
     public function getFactoid($id) {
         try {
             $statement = $this->database->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game "
-                  . "FROM factoids "
-                  . "INNER JOIN games ON factoids.game = games.id "
-                  . "WHERE factoids.id=? "
-                  . "LIMIT 1");
+                    . "FROM factoids "
+                    . "INNER JOIN games ON factoids.game = games.id "
+                    . "WHERE factoids.id=? "
+                    . "LIMIT 1");
             $statement->execute(array($id));
             return $statement->fetch();
         } catch (PDOException $ex) {
@@ -142,19 +141,31 @@ class Factoids {
     }
 
     public function getGame($id = null) {
-        if ($id != null) {
-            Validate::param($id)->isNum();
+        try {
+            if ($id != null) {
+                Validate::param($id)->isNum();
 
-            $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games INNER JOIN factoids ON factoids.game = games.id WHERE factoids.id = ?");
-            return $statement->execute(array($id));
-        } else {
-            $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games");
-            return $statement->execute();
+                $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games INNER JOIN factoids ON factoids.game = games.id WHERE factoids.id = ?");
+                return $statement->execute(array($id));
+            } else {
+                $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games");
+                return $statement->execute();
+            }
+        } catch (PDOException $ex) {
+            Utilities::logError($ex);
+            return array();
         }
     }
 
     public function getDatabaseNames() {
-        return array();
+        try {
+            $statement = $this->database->prepare("SELECT idname, displayname FROM games");
+            $statement->execute();
+            return $statement->fetchAll();
+        } catch (PDOException $ex) {
+            Utilities::logError($ex);
+            return array();
+        }
     }
 
 }

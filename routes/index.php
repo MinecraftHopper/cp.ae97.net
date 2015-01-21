@@ -9,7 +9,6 @@ define('LOADER_DIR', BASE_DIR . '/functions/');
 
 require_once BASE_DIR . 'vendor/autoload.php';
 require_once BASE_DIR . 'library/autoload.php';
-require_once CONFIG_DIR . 'config.php';
 require_once LOADER_DIR . 'autoload.php';
 
 use \AE97\Panel\Utilities;
