@@ -2,9 +2,7 @@
     <script type="text/javascript" src="/assets/js/approval.js"></script>
     <script type="text/javascript">
         var viewModel = {
-            'unapprovedUsers': ko.observableArray(),
-            'approve': <?php echo $this->perms['approveUser'] ?>,
-            'delete': <?php echo $this->perms['deleteUser'] ?>
+            'unapprovedUsers': ko.observableArray()
         };
     </script>
 
@@ -17,7 +15,9 @@
                         <th>#</th>
                         <th>Username</th>
                         <th>Email</th>
-                        <th>Action</th>
+                        <?php if ($this->perms['approveUser']) { ?>
+                            <th>Action</th>
+                        <?php } ?>
                     </tr>
                 </thead>
                 <tbody id="unapprovedTable" data-bind="foreach: unapprovedUsers">
@@ -25,11 +25,11 @@
                         <td><p data-bind="text: $data.id"></p></td>
                         <td><p data-bind="text: $data.user"></p></td>
                         <td><p data-bind="text: $data.email"></p></td>
-                        <td>
-                            <a data-bind="click: approveUser.bind($data.id)" class="btn btn-xs btn-success">Approve</a>
-                            <p></p>
-                            <a data-bind="click: deleteUser.bind($data.id)" class="btn btn-xs btn-danger">Delete</a>
-                        </td>
+                        <?php if ($this->perms['approveUser']) { ?>
+                            <td>
+                                <a data-bind="click: approveUser.bind($data.id)" class="btn btn-xs btn-success">Approve</a>
+                            </td>
+                        <?php } ?>
                     </tr>
                 </tbody>
             </table>

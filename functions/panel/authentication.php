@@ -79,44 +79,6 @@ class Authentication {
         $_SESSION['session'] = $str;
     }
 
-    public static function createUser($email, $username, $password) {
-        $statement = self::$database->prepare("SELECT uuid,username FROM users WHERE email=? OR username=?");
-        $statement->execute(array($email, $username));
-        $result = $statement->fetch();
-        if (isset($result['uuid'])) {
-            return array('success' => false, 'verify' => 'Email already exists, please use another');
-        }
-        if (isset($result['username'])) {
-            return array('success' => false, 'verify' => 'Username already exists, please use another');
-        } else {
-            $createUserStatement = self::$database->prepare('INSERT INTO users (uuid,username,email,password,verified,approved) values (?,?,?,?,?,?)');
-            $hashedPW = password_hash($password, PASSWORD_DEFAULT);
-            $createUserStatement->execute(array(Utilities::generateGUID(), $username, $email, $hashedPW, 0, 0));
-
-            $verificationStatement = self::$database->prepare('INSERT INTO verification (email, code) VALUES (?, ?)');
-            $approveKey = Utilities::generate_string(32);
-            $verificationStatement->execute(array($email, $approveKey));
-        }
-        return array('success' => true, 'verify' => $approveKey);
-    }
-
-    public static function startResetPassword($email) {
-        
-    }
-
-    public static function verifyUser($email, $key) {
-        $statement = self::$database->prepare("SELECT code FROM verification WHERE email=?");
-        $statement->execute(array($email));
-        $db = $statement->fetch();
-        if ($key == $db['code']) {
-            $statement = self::$database->prepare("UPDATE users SET verified = 1 WHERE email=?");
-            $statement->execute(array($email));
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private static function validateDatabase() {
         if (self::$database == null) {
             $_DATABASE = Config::getGlobal('database');

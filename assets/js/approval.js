@@ -4,13 +4,6 @@ function approveUser(data) {
     posting.done(getUnapprovedUserList);
 }
 
-function deleteUser(data) {
-    var value = data.id;
-    console.info(value);
-    var posting = $.post('/cp/admin/user/delete/' + value, {}, "json");
-    posting.done(getUnapprovedUserList);
-}
-
 function getUnapprovedUserList() {
     $("#unapprovedTable").hide();
     var posting = $.post('/cp/admin/user/list/unapproved', {}, "json");
