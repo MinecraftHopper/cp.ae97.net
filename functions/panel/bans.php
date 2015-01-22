@@ -2,7 +2,8 @@
 
 namespace AE97\Panel;
 
-use \PDOException;
+use \PDO,
+    \PDOException;
 
 class Bans {
 
@@ -12,9 +13,9 @@ class Bans {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
-                    . "FROM bans "
-                    . "INNER JOIN banchannels ON bans.id = banId "
-                    . "WHERE id = ?");
+                  . "FROM bans "
+                  . "INNER JOIN banchannels ON bans.id = banId "
+                  . "WHERE id = ?");
             $statement->execute(array($id));
             return self::combineChans($statement->fetch());
         } catch (PDOException $ex) {
@@ -27,10 +28,10 @@ class Bans {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
-                    . "FROM bans "
-                    . "INNER JOIN banchannels ON bans.id = banId "
-                    . "ORDER BY id "
-                    . "LIMIT " . strval(intval($page) * 10) . ", 10");
+                  . "FROM bans "
+                  . "INNER JOIN banchannels ON bans.id = banId "
+                  . "ORDER BY id "
+                  . "LIMIT " . strval(intval($page) * 10) . ", 10");
             $statement->execute();
             $record = $statement->fetchAll(PDO::FETCH_ASSOC);
             return self::combineChans($record);

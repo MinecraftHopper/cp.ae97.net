@@ -2,6 +2,9 @@
 
 namespace AE97\Panel;
 
+use \PDO,
+    \PDOException;
+
 class User {
 
     private static $database;

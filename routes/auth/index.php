@@ -76,9 +76,9 @@ $this->respond('POST', '/register', function($request, $response, $service) {
         $service->flash($result['error']);
     } else {
         Email::send($request->param('email'), 'Account verification', 'Someone has registered an account on '
-                . '<a href="' . Config::getGlobal('site')->full . '">' . Config::getGlobal('site')->full
+                . '<a href="' . Config::getGlobal('site')['full'] . '">' . Config::getGlobal('site')['full']
                 . '</a> using this email. If this was you, please click the following link to verify your email: '
-                . '<a href="' . Config::getGlobal('site')->full . '/auth/verify?email=' . $request->param("email")
+                . '<a href="' . Config::getGlobal('site')['full'] . '/auth/verify?email=' . $request->param("email")
                 . '&key=' . $result['verify'] . '">Verify email</a>');
         $service->flash("Your account has been created, an email has been sent to verify");
         $response->redirect("/auth/login", 302);
@@ -116,7 +116,7 @@ $this->respond('POST', '/resetpw', function($request, $response, $service) {
         $service->flash('Your reset link has been emailed to you');
         $response->redirect('/auth/login', 302);
     }
-    $url = Config::getGlobal('site')->full . '/resetpw?email=' . $request->param('email') . '&resetkey=' . $resetKey;
+    $url = Config::getGlobal('site')['full'] . '/auth/resetpw?email=' . $request->param('email') . '&resetkey=' . $resetKey;
     Email::send($request->param('email'), 'Password reset for cp.ae97.net', 'Someone requested your password to be reset. If you wanted to do this, please use <strong><a href="' . $url . '">this link</a></strong> to '
             . 'reset your password');
     $service->flash('Your reset link has been emailed to you');
@@ -127,7 +127,7 @@ $this->respond('POST', '/resetpw', function($request, $response, $service) {
 $this->respond('GET', '/verify', function($request, $response, $service) {
     $service->validateParam('email', 'Invalid email')->isLen(5, 256)->isEmail();
     $service->validateParam('key', 'Invalid verify key')->isLen(32);
-    if (User::verifyUser($request->param('email'), $request->param('key'))) {
+    if (User::verify($request->param('email'), $request->param('key'))) {
         $service->flash('Your email has been verified');
     } else {
         $service->flash('Error: Invalid verify key for the email');

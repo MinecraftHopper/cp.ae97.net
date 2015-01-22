@@ -96,7 +96,7 @@ $this->respond('POST', '/user/approve/[:id]', function($request, $response) {
     if (Authentication::verifySession() && Authentication::checkPermission("user.approve")) {
         $id = $request->id;
         User::approve($id);
-        $response->redirect("/user", 302);
+        $response->redirect("/cp/admin/user", 302);
     } else {
         $response->redirect("/auth/login", 302)->send();
     }
