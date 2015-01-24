@@ -9,7 +9,7 @@ $this->respond('GET', '/?', function($request, $response, $service) {
     $perms = array('edit' => false, 'delete' => false);
     if (Authentication::verifySession()) {
         $perms['edit'] = Authentication::checkPermission('factoids.edit');
-        $perms['delete'] = Authentication::checkPermission('factoids.remove');
+        $perms['delete'] = Authentication::checkPermission('factoids.delete');
     }
     $db = $request->param('db');
     if ($db == null || $db == '') {
@@ -89,7 +89,7 @@ $this->respond('POST', '/submit-edit', function($request, $response) {
         try {
             if (Authentication::checkPermission('factoids.edit')) {
                 $id = $request->param('id');
-                $factoidContext = str_replace("\n", ";;", $request->param('content'));
+                $factoidContext = str_ireplace(array("\r\n","\r","\n"), ";;", $request->param('content'));
                 $factoidManager = new Factoids();
                 $factoidManager->editFactoid($id, $factoidContext);
                 $game = $factoidManager->getGame($id);
