@@ -8,23 +8,13 @@ use \AE97\Validate,
 
 class Factoids {
 
-    private $database;
+    private static $database;
 
-    public function __construct($database = null) {
-        if ($database == null) {
-            $_DATABASE = Config::getGlobal('database');
-            $this->database = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['factoiddb'], $_DATABASE['user'], $_DATABASE['pass'], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
-            $this->database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } else {
-            $this->database = $database;
-        }
-    }
-
-    public function editFactoid($id, $content) {
+    public static function editFactoid($id, $content) {
         Validate::param($id, 'id')->isNum();
         Validate::param($content, 'content')->notNull();
         try {
-            $statement = $this->database->prepare("UPDATE factoids SET content = ? WHERE id = ?");
+            $statement = self::$database->prepare("UPDATE factoids SET content = ? WHERE id = ?");
             $statement->execute(array($content, $id));
             return $statement->rowCount() > 0;
         } catch (PDOException $ex) {
@@ -33,10 +23,10 @@ class Factoids {
         }
     }
 
-    public function deleteFactoid($id) {
+    public static function deleteFactoid($id) {
         Validate::param($id, 'id')->isNum();
         try {
-            $statement = $this->database->prepare("DELETE FROM factoids WHERE id = ?");
+            $statement = self::$database->prepare("DELETE FROM factoids WHERE id = ?");
             $statement->execute(array($id));
             return $statement->rowCount() > 0;
         } catch (PDOException $ex) {
@@ -45,12 +35,12 @@ class Factoids {
         }
     }
 
-    public function createFactoid($table, $key, $content) {
+    public static function createFactoid($table, $key, $content) {
         Validate::param($table)->notNull();
         Validate::param($key)->notNull();
         Validate::param($content)->notNull();
         try {
-            $statement = $this->database->prepare("INSERT INTO factoids (`name`,`game`,`content`) VALUES (?,?,?)");
+            $statement = self::$database->prepare("INSERT INTO factoids (`name`,`game`,`content`) VALUES (?,?,?)");
             $statement->execute(array($key, $content, $table));
             return $statement->rowCount() > 0;
         } catch (PDOException $ex) {
@@ -59,15 +49,15 @@ class Factoids {
         }
     }
 
-    public function getDatabase($table = 'global') {
+    public static function getDatabase($table = 'global') {
         try {
-            $gameliststatement = $this->database->prepare("SELECT id,idname,displayname FROM games");
+            $gameliststatement = self::$database->prepare("SELECT id,idname,displayname FROM games");
             $gameliststatement->execute();
             $gamelist = $gameliststatement->fetchAll();
-            $statement = $this->database->prepare("SELECT factoids.id,factoids.name, factoids.content, games.displayname "
-                    . "FROM factoids "
-                    . "INNER JOIN games ON (factoids.game = games.id) "
-                    . "WHERE games.idname = ?");
+            $statement = self::$database->prepare("SELECT factoids.id,factoids.name, factoids.content, games.displayname "
+                  . "FROM factoids "
+                  . "INNER JOIN games ON (factoids.game = games.id) "
+                  . "WHERE games.idname = ?");
             $statement->execute(array(0 => $table));
             $factoids = $statement->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $ex) {
@@ -96,13 +86,13 @@ class Factoids {
         return $collection;
     }
 
-    public function getFactoid($id) {
+    public static function getFactoid($id) {
         try {
-            $statement = $this->database->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game "
-                    . "FROM factoids "
-                    . "INNER JOIN games ON factoids.game = games.id "
-                    . "WHERE factoids.id=? "
-                    . "LIMIT 1");
+            $statement = self::$database->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game "
+                  . "FROM factoids "
+                  . "INNER JOIN games ON factoids.game = games.id "
+                  . "WHERE factoids.id=? "
+                  . "LIMIT 1");
             $statement->execute(array($id));
             return $statement->fetch();
         } catch (PDOException $ex) {
@@ -111,14 +101,14 @@ class Factoids {
         }
     }
 
-    public function createDatabase($idName, $displayName = null) {
+    public static function createDatabase($idName, $displayName = null) {
         Validate::param($idName)->notNull();
         if ($displayName == null) {
             $displayName = $idName;
         }
 
         try {
-            $statement = $this->database->prepare("INSERT INTO games (`idname`,`displayname`) VALUES (?,?)");
+            $statement = self::$database->prepare("INSERT INTO games (`idname`,`displayname`) VALUES (?,?)");
             $statement->execute(array($idName, $displayName));
             return true;
         } catch (PDOException $ex) {
@@ -127,11 +117,11 @@ class Factoids {
         }
     }
 
-    public function renameFactoid($id, $newName) {
+    public static function renameFactoid($id, $newName) {
         Validate::param($id, 'id')->isNum();
         Validate::param($newName, 'name')->notNull();
         try {
-            $statement = $this->database->prepare("UPDATE factoids SET name = ? WHERE id = ?");
+            $statement = self::$database->prepare("UPDATE factoids SET name = ? WHERE id = ?");
             $statement->execute(array($newName, $id));
             return $statement->rowCount() > 0;
         } catch (PDOException $ex) {
@@ -140,15 +130,15 @@ class Factoids {
         }
     }
 
-    public function getGame($id = null) {
+    public static function getGame($id = null) {
         try {
             if ($id != null) {
                 Validate::param($id)->isNum();
 
-                $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games INNER JOIN factoids ON factoids.game = games.id WHERE factoids.id = ?");
+                $statement = self::$database->prepare("SELECT idname AS id,displayname AS name FROM games INNER JOIN factoids ON factoids.game = games.id WHERE factoids.id = ?");
                 return $statement->execute(array($id));
             } else {
-                $statement = $this->database->prepare("SELECT idname AS id,displayname AS name FROM games");
+                $statement = self::$database->prepare("SELECT idname AS id,displayname AS name FROM games");
                 return $statement->execute();
             }
         } catch (PDOException $ex) {
@@ -157,14 +147,22 @@ class Factoids {
         }
     }
 
-    public function getDatabaseNames() {
+    public static function getDatabaseNames() {
         try {
-            $statement = $this->database->prepare("SELECT idname, displayname FROM games");
+            $statement = self::$database->prepare("SELECT idname, displayname FROM games");
             $statement->execute();
             return $statement->fetchAll();
         } catch (PDOException $ex) {
             Utilities::logError($ex);
             return array();
+        }
+    }
+
+    private static function validateDatabase() {
+        if (self::$database == null) {
+            $_DATABASE = Config::getGlobal('database');
+            self::$database = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['factoiddb'], $_DATABASE['user'], $_DATABASE['pass'], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+            self::$database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
     }
 
