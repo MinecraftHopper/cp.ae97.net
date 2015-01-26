@@ -60,7 +60,7 @@ $this->respond('GET', '/user/edit', function($request, $response, $service) {
 
 $this->respond('GET', '/ban', function($request, $response, $service) {
     if (Authentication::verifySession()) {
-        $bans = Bans::getBans(1);
+        $bans = Bans::getBans();
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $bans));
     } else {
         $response->redirect("/auth/login", 302)->send();
@@ -110,18 +110,4 @@ $this->respond('POST', '/user/edit', function($request) {
         return;
     }
     User::editPerms($request->param('user'), $request->param('perms'));
-});
-
-$this->respond('GET', '/bans/get', function($request) {
-    $page = $request->param('p');
-    if ($page === null) {
-        $page = 1;
-    }
-    $page--;
-    if (Authentication::verifySession() && Authentication::checkPermission("bans.get")) {
-        $record = Bans::getBans($page);
-        return json_encode($record);
-    } else {
-        return '{msg="failed"}';
-    }
 });

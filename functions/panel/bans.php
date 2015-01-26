@@ -27,11 +27,13 @@ class Bans {
     public static function getBans($page = 1) {
         self::validateDatabase();
         try {
-            $statement = self::$database->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
+            $statement = self::$database->prepare("SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
                   . "FROM bans "
                   . "INNER JOIN banchannels ON bans.id = banId "
+                  . "INNER JOIN users ON users.uuid = issuedBy "
                   . "ORDER BY id "
-                  . "LIMIT " . strval(intval($page) * 10) . ", 10");
+                  //. "LIMIT " . strval(intval($page) * 10) . ", 10"
+                  );
             $statement->execute();
             $record = $statement->fetchAll(PDO::FETCH_ASSOC);
             return self::combineChans($record);
@@ -101,11 +103,14 @@ class Bans {
             if (!isset($casted[$ban['id']])) {
                 $casted[$ban['id']] = array(
                     'id' => $ban['id'],
-                    'issuer' => $ban['issuedBy'],
+                    'issuer' => $ban['username'],
                     'kickmessage' => $ban['kickMessage'],
                     'issueDate' => $ban['issueDate'],
+                    'expireDate' => $ban['expireDate'],
                     'type' => $ban['type'] === 0 ? "standard" : "extended",
-                    'channels' => array($ban['channel'])
+                    'channels' => array($ban['channel']),
+                    'content' => $ban['content'],
+                    'notes' => $ban['notes']
                 );
             } else {
                 $casted[$ban['id']]['channels'][] = $ban['channel'];
