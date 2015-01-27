@@ -7,31 +7,37 @@
     </div>
 </div>
 
+<style>
+    th {
+        font-weight: normal;
+    }
+</style>
+
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Mask</th>
-                <th>Create date</th>
-                <th>Unban date</th>
-                <th>Created by</th>
-                <th>Channels</th>
-                <th>Reason</th>
-                <th>Action</th>
+                <th><strong>Id</strong></th>
+                <th><strong>Mask</strong></th>
+                <th><strong>Create date</strong></th>
+                <th><strong>Unban date</strong></th>
+                <th><strong>Created by</strong></th>
+                <th><strong>Channels</strong></th>
+                <th><strong>Reason</strong></th>
+                <th><strong>Action</strong></th>
             </tr>
         </thead>
         <tbody id="factoidtable">
             <?php foreach ($this->bans as $key => $val): ?>
                 <tr>
-                    <th><?php echo $val['id']; ?></th>
+                    <th><strong><?php echo $val['id']; ?></strong></th>
                     <th><?php echo $val['content']; ?></th>
                     <th><?php echo $val['issueDate']; ?></th>
-                    <th><?php echo $val['expireDate']; ?></th>
+                    <th><?php echo $val['expireDate'] ?: "Permanent"; ?></th>
                     <th><?php echo $val['issuer']; ?></th>
                     <th><?php echo implode(", ", $val['channels']); ?></th>
                     <th><?php echo $val['notes']; ?></th>
-                    <th></th>
+                    <th><a class="button" href="">Edit</a></th>
                 </tr>
             <?php endforeach; ?>
         </tbody>
