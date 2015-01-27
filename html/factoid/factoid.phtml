@@ -11,76 +11,74 @@
     loadData('<?php echo strtolower($this->db); ?>');
 </script>
 
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-    <h2 class="sub-header">Factoid Management</h2>
-    <div class="navbar navbar-default">
-        <div class="container" style="margin-left: inherit;">
-            <?php
-            foreach ($this->flashes() as $type => $messages) {
-                foreach ($messages as $msg) {
-                    ?><h5 class = \"form-signin-heading\"><?php echo $msg; ?></h5><?php
-                }
+<h2 class="sub-header">Factoid Management</h2>
+<div class="navbar navbar-default">
+    <div class="container" style="margin-left: inherit;">
+        <?php
+        foreach ($this->flashes() as $type => $messages) {
+            foreach ($messages as $msg) {
+                ?><h5 class = \"form-signin-heading\"><?php echo $msg; ?></h5><?php
             }
-            ?>
-            <div class="navbar-header">
-                <a class="navbar-brand">Factoid Database - <a data-bind="text: gameName" id="gamename" class="navbar-brand"></a></a>
-            </div>
-            <div class="navbar-collapse collapse">
+        }
+        ?>
+        <div class="navbar-header">
+            <a class="navbar-brand">Factoid Database - <a data-bind="text: gameName" id="gamename" class="navbar-brand"></a></a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown">Select Database <b class="caret"></b></a>
+                    <ul data-bind="foreach: gameTable" id="dbList" class="dropdown-menu">
+                        <li data-bind="click: loadDataFromMenu"><a data-bind="text: $data.displayname"></a></li>
+                    </ul>
+                </li>
+            </ul>
+            <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
                 <ul class="nav navbar-nav">
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown">Select Database <b class="caret"></b></a>
-                        <ul data-bind="foreach: gameTable" id="dbList" class="dropdown-menu">
-                            <li data-bind="click: loadDataFromMenu"><a data-bind="text: $data.displayname"></a></li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Create Database</a></li>
+                            <li><a href="#">Delete Database</a></li>
+                            <li><a href="/factoid/new">Create Factoid</a></li>
                         </ul>
                     </li>
                 </ul>
-                <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
-                    <ul class="nav navbar-nav">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#">Create Database</a></li>
-                                <li><a href="#">Delete Database</a></li>
-                                <li><a href="/factoid/new">Create Factoid</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                <?php } ?>
-            </div>
+            <?php } ?>
         </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th id="name_column" style="width:20%">Name</th>
-                    <th id="content_column" style="width:80%">Content</th>
-                    <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
-                        <th id="action_column" style="width:70px">Action</th>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th id="name_column" style="width:20%">Name</th>
+                <th id="content_column" style="width:80%">Content</th>
+                <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
+                    <th id="action_column" style="width:70px">Action</th>
+                <?php } ?>
+            </tr>
+        </thead>
+        <tbody data-bind="visible: tableLoaded, foreach: factoidTable" id="factoidtable">
+            <tr>
+                <td><p><strong data-bind="text: $data.name"></strong></p></td>
+                <td><p data-bind="html: $data.content"></p></td>
+                <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
+                    <td>
                     <?php } ?>
-                </tr>
-            </thead>
-            <tbody data-bind="visible: tableLoaded, foreach: factoidTable" id="factoidtable">
-                <tr>
-                    <td><p><strong data-bind="text: $data.name"></strong></p></td>
-                    <td><p data-bind="html: $data.content"></p></td>
-                    <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
-                        <td>
-                        <?php } ?>
-                        <?php if ($this->perms['edit']) { ?>
-                            <a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: '/factoid/edit/' + $data.id}">Edit</a>
-                        <?php } ?>
-                        <?php if ($this->perms['delete']) { ?>
-                            <a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: '/factoid/delete/' + $data.id}">Delete</a>
-                        <?php } ?>
-                        <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
-                        </td>
+                    <?php if ($this->perms['edit']) { ?>
+                        <a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: '/factoid/edit/' + $data.id}">Edit</a>
                     <?php } ?>
+                    <?php if ($this->perms['delete']) { ?>
+                        <a style = "width:60px" class = "btn btn-xs btn-default" data-bind = "attr: {href: '/factoid/delete/' + $data.id}">Delete</a>
+                    <?php } ?>
+                    <?php if ($this->perms['edit'] || $this->perms['delete']) { ?>
                     </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+                <?php } ?>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <script type="text/javascript">

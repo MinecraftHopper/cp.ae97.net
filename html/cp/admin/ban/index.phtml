@@ -1,4 +1,4 @@
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+<div class="main">
     <h2 class="sub-header">Ban Management</h2>
     <div class="">
         <body>
@@ -7,35 +7,33 @@
     </div>
 </div>
 
-<div class="col-md-9 col-md-offset-2">
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Mask</th>
+                <th>Create date</th>
+                <th>Unban date</th>
+                <th>Created by</th>
+                <th>Channels</th>
+                <th>Reason</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="factoidtable">
+            <?php foreach ($this->bans as $key => $val): ?>
                 <tr>
-                    <th>Id</th>
-                    <th>Mask</th>
-                    <th>Create date</th>
-                    <th>Unban date</th>
-                    <th>Created by</th>
-                    <th>Channels</th>
-                    <th>Reason</th>
-                    <th>Action</th>
+                    <th><?php echo $val['id']; ?></th>
+                    <th><?php echo $val['content']; ?></th>
+                    <th><?php echo $val['issueDate']; ?></th>
+                    <th><?php echo $val['expireDate']; ?></th>
+                    <th><?php echo $val['issuer']; ?></th>
+                    <th><?php echo implode(", ", $val['channels']); ?></th>
+                    <th><?php echo $val['notes']; ?></th>
+                    <th></th>
                 </tr>
-            </thead>
-            <tbody id="factoidtable">
-                <?php foreach ($this->bans as $key => $val): ?>
-                    <tr>
-                        <th><?php echo $val['id']; ?></th>
-                        <th><?php echo $val['content']; ?></th>
-                        <th><?php echo $val['issueDate']; ?></th>
-                        <th><?php echo $val['expireDate']; ?></th>
-                        <th><?php echo $val['issuer']; ?></th>
-                        <th><?php echo implode(", ", $val['channels']); ?></th>
-                        <th><?php echo $val['notes']; ?></th>
-                        <th></th>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </div>
