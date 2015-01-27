@@ -59,9 +59,9 @@ $this->respond('GET', '/user/edit', function($request, $response, $service) {
 });
 
 $this->respond('GET', '/ban', function($request, $response, $service) {
-    if (Authentication::verifySession()) {
+    if (Authentication::verifySession() && Authentication::checkPermission('bans.view')) {
         $bans = Bans::getBans();
-        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $bans));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $bans, 'edit' => Authentication::checkPermission('bans.edit')));
     } else {
         $response->redirect("/auth/login", 302)->send();
     }

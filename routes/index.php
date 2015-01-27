@@ -21,8 +21,16 @@ $klein->respond('GET', '/[|index|index.php:page]?', function($request, $response
     $service->render(HTML_DIR . 'index.phtml', array('action' => null, 'page' => null));
 });
 
+$klein->respond('GET', '/settings', function($request, $response, $service) {
+    if (Authentication::verifySession()) {
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'settings', 'page' => HTML_DIR . 'cp/user/settings.phtml'));
+    } else {
+        $response->redirect("/auth/login", 302);
+    }
+});
+
 $klein->with('/auth', ROUTES_DIR . 'auth/index.php');
-$klein->with('/cp', ROUTES_DIR . 'cp/index.php');
+$klein->with('/admin', ROUTES_DIR . 'admin/index.php');
 $klein->with('/factoid', ROUTES_DIR . 'factoid/index.php');
 
 $klein->onHttpError(function($httpCode, $klein) {
