@@ -67,6 +67,14 @@ $this->respond('GET', '/ban', function($request, $response, $service) {
     }
 });
 
+$this->respond('GET', '/ban/new', function($request, $response, $service) {
+    if (Authentication::verifySession() && Authentication::checkPermission('bans.new')) {
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/new.phtml'));
+    } else {
+        $response->redirect("/auth/login", 302)->send();
+    }
+});
+
 $this->respond('GET', '/user', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         if (Authentication::checkPermission('panel.viewusers')) {
@@ -110,4 +118,34 @@ $this->respond('POST', '/user/edit', function($request) {
         return;
     }
     User::editPerms($request->param('user'), $request->param('perms'));
+});
+
+$this->respond('POST', '/ban/new', function($request, $response, $service) {
+    if(!Authentication::verifySession() || !Authentication::checkPermission("bans.new")) {
+      $service->flash("Invalid user");
+      $service->refresh();
+    }
+    try {
+        $service->validateParam('mask', "Mask cannot be empty")->notNull();
+        $service->validateParam('kickmessage', "Kick message cannot be empty")->notNull();
+    } catch (\Exception $ex) {
+        $service->flash($ex->getMessage());
+        $service->refresh();
+    }
+
+    $daysBanned = $request->param('daysbanned');
+
+    $date = null;
+
+    if ($daysBanned != null && $daysBanned != 0) {
+        $date = new DateTime("now", new DateTimeZone("UTC"));
+        $date->modify('+' . $daysBanned . ' day');
+    }
+
+    if(Bans::addBan($request->param('mask'), $_SESSION['uuid'], $request->param('kickmessage'), $date == null ? null : $date->format('Y-j-n G:i:s'))){
+        $response->redirect('/admin/ban');
+    } else {
+        $service->flash('Failed to add ban to the database');
+        $service->refresh();
+    }
 });

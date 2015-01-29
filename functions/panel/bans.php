@@ -14,7 +14,7 @@ class Bans {
         try {
             $statement = self::$database->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
                   . "FROM bans "
-                  . "INNER JOIN banchannels ON bans.id = banId "
+                  . "LEFT JOIN banchannels ON bans.id = banId "
                   . "WHERE id = ?");
             $statement->execute(array($id));
             return self::combineChans($statement->fetch());
@@ -29,8 +29,8 @@ class Bans {
         try {
             $statement = self::$database->prepare("SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
                   . "FROM bans "
-                  . "INNER JOIN banchannels ON bans.id = banId "
-                  . "INNER JOIN users ON users.uuid = issuedBy "
+                  . "LEFT JOIN banchannels ON bans.id = banId "
+                  . "LEFT JOIN users ON users.uuid = issuedBy "
                   . "ORDER BY id "
                   //. "LIMIT " . strval(intval($page) * 10) . ", 10"
                   );
@@ -51,7 +51,7 @@ class Bans {
             return true;
         } catch (PDOException $ex) {
             Utilities::logError($ex);
-            return false;
+            return $ex;
         }
     }
 
