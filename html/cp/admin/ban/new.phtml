@@ -1,6 +1,5 @@
 <div class="main">
-    <h2 class="sub-header">Ban Management</h2>
-    <h3>Add ban</h3>
+    <h2 class="sub-header">Ban Management - Add ban</h2>
 </div>
 
 <div class="container">
@@ -8,7 +7,7 @@
     $flashes = $this->flashes();
     if (count($flashes) > 0) {
         ?><div class="row">
-            <div class="col-md-4 col-md-offset-1 alert alert-danger form-signin-heading"><?php
+            <div class="col-md-6 col-md-offset-1 alert alert-danger form-signin-heading"><?php
                 foreach ($flashes as $type => $messages) {
                     foreach ($messages as $msg) {
                         ?>
@@ -54,9 +53,24 @@
                 <input type="number" value="7" name="daysbanned" size="3" style="width: 75px" required/>
             </div>
         </div>
+        <div class="row" style="padding-bottom: 20px">
+            <div class="col-md-3">
+                <strong>Channels </strong> ('all' for global)<strong>:</strong>
+            </div>
+            <div class="col-md-6">
+                <input name="channels" required size="64" />
+            </div>
+        </div>
 
         <div class="row" style="padding-top: 20px">
             <button type="submit" class="btn btn-default">Add</button>
         </div>
+        <?php if ($this->ban != null) { ?>
+            <div class="row" style="padding-top: 20px">
+                <a href="delete?id=<?php echo $this->ban['id']; ?>" class="btn btn-default">Delete</a>
+            </div>
+
+        <?php } ?>
+
     </form>
 </div>

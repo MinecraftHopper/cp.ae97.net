@@ -31,7 +31,8 @@ class Bans {
                   . "FROM bans "
                   . "LEFT JOIN banchannels ON bans.id = banId "
                   . "LEFT JOIN users ON users.uuid = issuedBy "
-                  . "ORDER BY id "
+                  . "WHERE expireDate IS NULL OR expireDate > current_timestamp() "
+                  . "ORDER BY id "                  
                   //. "LIMIT " . strval(intval($page) * 10) . ", 10"
                   );
             $statement->execute();
@@ -44,6 +45,11 @@ class Bans {
     }
 
     public static function addBan($mask, $issuer, $kickMessage, $expireDate, $notes = "No private notes") {
+        if(preg_match('/[^\*\!\@]/', $mask)) {
+            //string is just a complete wildcard ban, cannot allow
+            //throw new \Exception("");
+            return new \Exception('Invalid ban mask');
+        }
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("INSERT INTO bans (type, content, issuedBy, kickMessage, notes, expireDate) VALUES (?,?,?,?,?,?)");

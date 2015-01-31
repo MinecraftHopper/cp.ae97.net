@@ -13,6 +13,7 @@ class Factoids {
     public static function editFactoid($id, $content) {
         Validate::param($id, 'id')->isNum();
         Validate::param($content, 'content')->notNull();
+        self::validateDatabase();
         try {
             $statement = self::$database->prepare("UPDATE factoids SET content = ? WHERE id = ?");
             $statement->execute(array($content, $id));
@@ -25,6 +26,7 @@ class Factoids {
 
     public static function deleteFactoid($id) {
         Validate::param($id, 'id')->isNum();
+        self::validateDatabase();
         try {
             $statement = self::$database->prepare("DELETE FROM factoids WHERE id = ?");
             $statement->execute(array($id));
@@ -39,6 +41,7 @@ class Factoids {
         Validate::param($table)->notNull();
         Validate::param($key)->notNull();
         Validate::param($content)->notNull();
+        self::validateDatabase();
         try {
             $statement = self::$database->prepare("INSERT INTO factoids (`name`,`game`,`content`) VALUES (?,?,?)");
             $statement->execute(array($key, $content, $table));
@@ -50,6 +53,7 @@ class Factoids {
     }
 
     public static function getDatabase($table = 'global') {
+        self::validateDatabase();
         try {
             $gameliststatement = self::$database->prepare("SELECT id,idname,displayname FROM games");
             $gameliststatement->execute();
@@ -87,6 +91,7 @@ class Factoids {
     }
 
     public static function getFactoid($id) {
+        self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game "
                   . "FROM factoids "
@@ -106,6 +111,7 @@ class Factoids {
         if ($displayName == null) {
             $displayName = $idName;
         }
+        self::validateDatabase();
 
         try {
             $statement = self::$database->prepare("INSERT INTO games (`idname`,`displayname`) VALUES (?,?)");
@@ -120,6 +126,7 @@ class Factoids {
     public static function renameFactoid($id, $newName) {
         Validate::param($id, 'id')->isNum();
         Validate::param($newName, 'name')->notNull();
+        self::validateDatabase();
         try {
             $statement = self::$database->prepare("UPDATE factoids SET name = ? WHERE id = ?");
             $statement->execute(array($newName, $id));
@@ -131,6 +138,7 @@ class Factoids {
     }
 
     public static function getGame($id = null) {
+        self::validateDatabase();
         try {
             if ($id != null) {
                 Validate::param($id)->isNum();
@@ -148,6 +156,7 @@ class Factoids {
     }
 
     public static function getDatabaseNames() {
+        self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT idname, displayname FROM games");
             $statement->execute();

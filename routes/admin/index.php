@@ -75,6 +75,24 @@ $this->respond('GET', '/ban/new', function($request, $response, $service) {
     }
 });
 
+$this->respond('GET', '/ban/edit', function($request, $response, $service) {
+    if ($request->param('id') == null) {
+        $response->redirect('/admin/ban');
+        return;
+    }
+    if (Authentication::verifySession() && Authentication::checkPermission('bans.edit')) {
+        $ban = Bans::getBan($request->param('id'));
+        if ($ban == null || count($ban) == 0) {
+            $service->flash('No ban with id ' . $request->param('id'));
+            $response->redirect('/admin/ban');
+            return;
+        }        
+        //$service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/edit.phtml', 'ban' => $ban[0]));
+    } else {
+        $response->redirect("/auth/login", 302)->send();
+    }
+});
+
 $this->respond('GET', '/user', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         if (Authentication::checkPermission('panel.viewusers')) {
@@ -121,13 +139,14 @@ $this->respond('POST', '/user/edit', function($request) {
 });
 
 $this->respond('POST', '/ban/new', function($request, $response, $service) {
-    if(!Authentication::verifySession() || !Authentication::checkPermission("bans.new")) {
-      $service->flash("Invalid user");
-      $service->refresh();
+    if (!Authentication::verifySession() || !Authentication::checkPermission("bans.new")) {
+        $service->flash("Invalid user");
+        $service->refresh();
     }
     try {
         $service->validateParam('mask', "Mask cannot be empty")->notNull();
         $service->validateParam('kickmessage', "Kick message cannot be empty")->notNull();
+        $service->validateParam('channels', "Ban must apply to at least one channel")->notNull();
     } catch (\Exception $ex) {
         $service->flash($ex->getMessage());
         $service->refresh();
@@ -142,10 +161,15 @@ $this->respond('POST', '/ban/new', function($request, $response, $service) {
         $date->modify('+' . $daysBanned . ' day');
     }
 
-    if(Bans::addBan($request->param('mask'), $_SESSION['uuid'], $request->param('kickmessage'), $date == null ? null : $date->format('Y-j-n G:i:s'))){
+    $result = Bans::addBan($request->param('mask'), $_SESSION['uuid'], $request->param('kickmessage'), $date == null ? null : $date->format('Y-j-n G:i:s'));
+
+    if ($result != -1) {
+        foreach (explode(',', $request->param('channels')) as $chan) {
+            Bans::addChannelToBan($result, $chan);
+        }
         $response->redirect('/admin/ban');
     } else {
-        $service->flash('Failed to add ban to the database');
+        $service->flash('Failed to add ban to the database (likely mask already banned)');
         $service->refresh();
     }
 });
