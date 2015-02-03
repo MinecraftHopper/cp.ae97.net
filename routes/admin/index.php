@@ -86,7 +86,7 @@ $this->respond('GET', '/ban/edit', function($request, $response, $service) {
             $service->flash('No ban with id ' . $request->param('id'));
             $response->redirect('/admin/ban');
             return;
-        }        
+        }
         //$service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/edit.phtml', 'ban' => $ban[0]));
     } else {
         $response->redirect("/auth/login", 302)->send();
@@ -171,5 +171,25 @@ $this->respond('POST', '/ban/new', function($request, $response, $service) {
     } else {
         $service->flash('Failed to add ban to the database (likely mask already banned)');
         $service->refresh();
+    }
+});
+
+$this->respond('GET', '/ban/expire', function ($request, $response, $service) {
+    try {
+        $service->validateParam('id')->notNull();
+        if (Authentication::verifySession() && Authentication::checkPermission('bans.expire')) {
+            if (Bans::expire($request->param('id'))) {
+                $service->flash('Ban expired');
+            } else {
+                $service->flash('Could not expire ban');
+            }
+            $service->back();
+        } else {
+            $response->redirect('/auth/login', 302);
+        }
+    } catch (\Exception $ex) {
+        $service->flash($ex->getMessage());
+        $service->back();
+        return;
     }
 });

@@ -13,9 +13,9 @@ class Bans {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
-                  . "FROM bans "
-                  . "LEFT JOIN banchannels ON bans.id = banId "
-                  . "WHERE id = ?");
+                    . "FROM bans "
+                    . "LEFT JOIN banchannels ON bans.id = banId "
+                    . "WHERE id = ?");
             $statement->execute(array($id));
             return self::combineChans($statement->fetch());
         } catch (PDOException $ex) {
@@ -28,13 +28,13 @@ class Bans {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
-                  . "FROM bans "
-                  . "LEFT JOIN banchannels ON bans.id = banId "
-                  . "LEFT JOIN users ON users.uuid = issuedBy "
-                  . "WHERE expireDate IS NULL OR expireDate > current_timestamp() "
-                  . "ORDER BY id "                  
-                  //. "LIMIT " . strval(intval($page) * 10) . ", 10"
-                  );
+                    . "FROM bans "
+                    . "LEFT JOIN banchannels ON bans.id = banId "
+                    . "LEFT JOIN users ON users.uuid = issuedBy "
+                    . "WHERE expireDate IS NULL OR expireDate > current_timestamp() "
+                    . "ORDER BY id "
+                    //. "LIMIT " . strval(intval($page) * 10) . ", 10"
+            );
             $statement->execute();
             $record = $statement->fetchAll(PDO::FETCH_ASSOC);
             return self::combineChans($record);
@@ -45,7 +45,7 @@ class Bans {
     }
 
     public static function addBan($mask, $issuer, $kickMessage, $expireDate, $notes = "No private notes") {
-        if(preg_match('/[^\*\!\@]/', $mask)) {
+        if (preg_match('/[^\*\!\@]/', $mask)) {
             //string is just a complete wildcard ban, cannot allow
             //throw new \Exception("");
             return new \Exception('Invalid ban mask');
@@ -90,6 +90,18 @@ class Bans {
             self::$database->prepare("DELETE FROM banchannels WHERE banId = ? AND channel = ?")->execute(array($banId, $channel));
             return true;
         } catch (PDOException $ex) {
+            Utilities::logError($ex);
+            return false;
+        }
+    }
+
+    public static function expire($banId) {
+        self::validateDatabase();
+        try {
+            self::$database->prepare('UPDATE bans SET expireDate = CURRENT_TIMESTAMP WHERE id = ?')
+                    ->execute(array($banId));
+            return true;
+        } catch (Exception $ex) {
             Utilities::logError($ex);
             return false;
         }

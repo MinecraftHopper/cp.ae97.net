@@ -26,6 +26,13 @@ if (count($flashes) > 0) {
     }
 </style>
 
+<?php if (\AE97\Panel\Authentication::checkPermission('bans.new')) { ?>
+    <a class="btn btn-default" href="ban/new">Add ban</a>
+<?php } ?>
+
+<div style="padding-bottom: 20px">
+</div>
+
 <table class="table table-striped table-responsive">
     <thead>
         <tr>
@@ -49,7 +56,9 @@ if (count($flashes) > 0) {
                 <th><?php echo $val['issuer']; ?></th>
                 <th><?php echo implode(", ", $val['channels']); ?></th>
                 <th><?php echo $val['notes']; ?></th>
-                <th><a class="btn btn-default btn-sm" href="ban/edit?id=<?php echo $val['id']; ?>">Edit</a></th>
+                <?php if (\AE97\Panel\Authentication::checkPermission('bans.expire')) { ?>
+                    <th><a class="btn btn-default btn-sm" href="ban/expire?id=<?php echo $val['id']; ?>">Expire</a></th>
+                    <?php } ?>
             </tr>
         <?php endforeach; ?>
     </tbody>
