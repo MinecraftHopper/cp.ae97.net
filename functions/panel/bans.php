@@ -45,10 +45,10 @@ class Bans {
     }
 
     public static function addBan($mask, $issuer, $kickMessage, $expireDate, $notes = "No private notes") {
-        if (preg_match('/[^\*\!\@]/', $mask)) {
+        if (!preg_match('/[^\*\!\@]/', $mask)) {
             //string is just a complete wildcard ban, cannot allow
             //throw new \Exception("");
-            return new \Exception('Invalid ban mask');
+            return false;
         }
         self::validateDatabase();
         try {
@@ -57,7 +57,7 @@ class Bans {
             return true;
         } catch (PDOException $ex) {
             Utilities::logError($ex);
-            return $ex;
+            return false;
         }
     }
 

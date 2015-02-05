@@ -163,7 +163,7 @@ $this->respond('POST', '/ban/new', function($request, $response, $service) {
 
     $result = Bans::addBan($request->param('mask'), $_SESSION['uuid'], $request->param('kickmessage'), $date == null ? null : $date->format('Y-j-n G:i:s'));
 
-    if ($result != -1) {
+    if ($result) {
         foreach (explode(',', $request->param('channels')) as $chan) {
             Bans::addChannelToBan($result, $chan);
         }
