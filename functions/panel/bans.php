@@ -51,6 +51,7 @@ class Bans {
             return false;
         }
         self::validateDatabase();
+        $mask = str_replace("*", "%", $mask);
         try {
             $statement = self::$database->prepare("INSERT INTO bans (type, content, issuedBy, kickMessage, notes, expireDate) VALUES (?,?,?,?,?,?)");
             $statement->execute(array(0, $mask, $issuer, $kickMessage, $notes, $expireDate));
