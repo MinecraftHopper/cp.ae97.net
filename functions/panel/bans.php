@@ -44,18 +44,23 @@ class Bans {
         }
     }
 
-    public static function addBan($mask, $issuer, $kickMessage, $expireDate, $notes = "No private notes") {
+    public static function addBan($mask, $issuer, $kickMessage, $daysToLast, $notes = "No private notes") {
         if (!preg_match('/[^\*\!\@]/', $mask)) {
             //string is just a complete wildcard ban, cannot allow
             //throw new \Exception("");
             return false;
         }
         self::validateDatabase();
-        $mask = str_replace("*", "%", $mask);
+        $convertedMask = str_replace("*", "%", $mask);
+
+        if(empty(trim($notes))) {
+            $notes = null;
+        }
+
         try {
-            $statement = self::$database->prepare("INSERT INTO bans (type, content, issuedBy, kickMessage, notes, expireDate) VALUES (?,?,?,?,?,?)");
-            $statement->execute(array(0, $mask, $issuer, $kickMessage, $notes, $expireDate));
-            return true;
+            $statement = self::$database->prepare("INSERT INTO bans (type, content, issuedBy, kickMessage, notes, expireDate) VALUES (?,?,?,?,?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL " . $daysToLast . " DAY))");
+            $statement->execute(array(0, $convertedMask, $issuer, $kickMessage, $notes));
+            return self::$database->lastInsertId();
         } catch (PDOException $ex) {
             Utilities::logError($ex);
             return false;

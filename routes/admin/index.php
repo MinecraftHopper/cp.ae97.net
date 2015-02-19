@@ -142,6 +142,7 @@ $this->respond('POST', '/ban/new', function($request, $response, $service) {
     if (!Authentication::verifySession() || !Authentication::checkPermission("bans.new")) {
         $service->flash("Invalid user");
         $service->refresh();
+        return;
     }
     try {
         $service->validateParam('mask', "Mask cannot be empty")->notNull();
@@ -150,22 +151,27 @@ $this->respond('POST', '/ban/new', function($request, $response, $service) {
     } catch (\Exception $ex) {
         $service->flash($ex->getMessage());
         $service->refresh();
+        return;
     }
 
     $daysBanned = $request->param('daysbanned');
 
-    $date = null;
-
-    if ($daysBanned != null && $daysBanned != 0) {
-        $date = new DateTime("now", new DateTimeZone("UTC"));
-        $date->modify('+' . $daysBanned . ' day');
+    if(!is_numeric($daysBanned)) {
+        $service->flash("Days to ban must be in integers (" . $daysBanned . ")");
+        $service->refresh();
+        return;
     }
 
-    $result = Bans::addBan($request->param('mask'), $_SESSION['uuid'], $request->param('kickmessage'), $date == null ? null : $date->format('Y-j-n G:i:s'));
+
+    $result = Bans::addBan($request->param('mask'), $_SESSION['uuid'], $request->param('kickmessage'), $daysBanned, $request->param("notes"));
+
+    $service->flash('Ban #' . $result . ' added');
 
     if ($result) {
         foreach (explode(',', $request->param('channels')) as $chan) {
-            Bans::addChannelToBan($result, $chan);
+            if(!Bans::addChannelToBan($result, trim($chan))) {
+                $service->flash('Could not apply ban to channel: ' . $chan);
+            }
         }
         $response->redirect('/admin/ban');
     } else {
