@@ -42,7 +42,7 @@ $this->respond('GET', '/user/manage', function($request, $response, $service) {
 $this->respond('GET', '/user/edit', function($request, $response, $service) {
     if (Authentication::verifySession() && Authentication::checkPermission('panel.viewusers')) {
         if ($request->param('name') == null) {
-            $response->redirect('/cp/admin/user/manage', 302)->send();
+            $response->redirect('/admin/user/manage', 302)->send();
             return;
         }
         $user = User::get($request->param('name'));
@@ -50,7 +50,7 @@ $this->respond('GET', '/user/edit', function($request, $response, $service) {
         $userPermsTemp = User::getPerms($user['uuid']);
         $userPerms = array();
         foreach ($userPermsTemp as $perm) {
-            $userPerms[$perm['permission']] = true;
+            $userPerms[$perm['perm']] = true;
         }
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/edit.phtml', "user" => $user, "allPerms" => $permList, "userPerms" => $userPerms));
     } else {
@@ -122,7 +122,7 @@ $this->respond('POST', '/user/approve/[:id]', function($request, $response) {
     if (Authentication::verifySession() && Authentication::checkPermission("user.approve")) {
         $id = $request->id;
         User::approve($id);
-        $response->redirect("/cp/admin/user", 302);
+        $response->redirect("/admin/user", 302);
     } else {
         $response->redirect("/auth/login", 302)->send();
     }

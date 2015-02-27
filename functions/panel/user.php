@@ -103,7 +103,7 @@ class User {
             $database->beginTransaction();
             $database->prepare("DELETE FROM userperms WHERE userId = ?")->execute(array($uuid));
             foreach ($perms as $perm) {
-                $database->prepare("INSERT INTO userperms VALUES(?,?)")->execute(array($uuid, $perm));
+                $database->prepare("INSERT INTO userperms VALUES(?,(SELECT id FROM permissions WHERE perm = ?))")->execute(array($uuid, $perm));
             }
             $database->commit();
         } catch (PDOException $ex) {
@@ -129,7 +129,7 @@ class User {
             $permstmt->execute();
             return $permstmt->fetchAll();
         } else {
-            $userpermstmt = self::$database->prepare("SELECT permission FROM userperms WHERE userId = ?");
+            $userpermstmt = self::$database->prepare("SELECT perm FROM permissions INNER JOIN userperms ON userperms.permission = permissions.id WHERE userId = ?");
             $userpermstmt->execute(array($uuid));
             return $userpermstmt->fetchAll();
         }

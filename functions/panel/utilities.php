@@ -15,7 +15,7 @@ class Utilities {
     }
 
     public static function logError($ex) {
-        error_log(addSlashes($ex instanceof Exception ? $ex->getMessage() : $ex) . "\r");
+        error_log(addSlashes($ex instanceof \Exception ? $ex->getMessage() : $ex) . "\r");
     }
 
     public static function generateGUID() {
