@@ -1,24 +1,24 @@
-<div class="main">
-    <script type="text/javascript" src="/assets/js/approval.js"></script>
-    <script type="text/javascript">
-        var viewModel = {
-            'userList': ko.observableArray()
-        };
-    </script>
 
-    <div class="col-lg-6">
-        <h2 class="sub-header">User management</h2>
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Username</th>
-                        <th>Management</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($this->users as $user) { ?>
+<script type="text/javascript" src="/assets/js/approval.js"></script>
+<script type="text/javascript">
+    var viewModel = {
+        'userList': ko.observableArray()
+    };
+</script>
+
+<div class="col-lg-12">
+    <h2 class="sub-header">User management</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Management</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($this->users as $user) { ?>
                     <tr>
                         <td><?php echo $user['id']; ?></td>
                         <td><?php echo $user['username']; ?></td>
@@ -26,9 +26,8 @@
                             <a class="btn btn-default" href="./edit?name=<?php echo $user['username']; ?>">Edit perms</a>
                         </td>
                     </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
+                <?php } ?>
+            </tbody>
+        </table>
     </div>
 </div>

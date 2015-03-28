@@ -1,27 +1,41 @@
-<div class="main">
-    <script type="text/javascript" src="/assets/js/approval.js"></script>
-    <script type="text/javascript">
-        var viewModel = {
-            'userList': ko.observableArray()
-        };
-    </script>
 
-    <div class="col-lg-6">
-        <h3 class="sub-header">User Edit - <?php echo $this->user['username']; ?></h3>
-        <div id="permissions" class="list-group">
-            <h4>Permissions</h4>
-            <div class="row">
-                <div class="col-md-3">
-                    <?php foreach ($this->allPerms as $perm) { ?>
-                        <p class="list-group-item">
-                            <input class="checkbox-inline" type="checkbox" value="<?php echo $perm['perm']; ?>" <?php
-                            if (isset($this->userPerms[$perm['perm']]) && $this->userPerms[$perm['perm']]) {
-                                echo "checked";
-                            }
-                            ?>> <?php echo $perm['perm']; ?></input>
-                        </p>
-                    <?php } ?>
-                </div>
+<script type="text/javascript" src="/assets/js/approval.js"></script>
+<script type="text/javascript">
+    var viewModel = {
+        'userList': ko.observableArray()
+    };
+</script>
+
+<div class="col-lg-6">
+    <h3 class="sub-header">User Edit - <?php echo $this->user['username']; ?></h3>
+    <div id="permissions" class="list-group">
+        <h4>Permissions</h4>
+        <div class="row">
+            <div class="col-md-8">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Give</th>
+                            <th>Permission</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($this->allPerms as $perm) { ?>
+                            <tr>
+                                <td>
+                                    <input class="checkbox-inline" type="checkbox" value="<?php echo $perm['perm']; ?>" <?php
+                                    if (isset($this->userPerms[$perm['perm']]) && $this->userPerms[$perm['perm']]) {
+                                        echo "checked";
+                                    }
+                                    ?> />
+                                </td>
+                                <td>
+                                    <?php echo $perm['perm']; ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div>
@@ -38,7 +52,7 @@
         $.post('edit', {
             'user': "<?php echo $this->user['username']; ?>",
             'perms': $perms
-        }).done(function() {
+        }).done(function () {
             window.location.href = "/admin/user/manage";
         });
     });

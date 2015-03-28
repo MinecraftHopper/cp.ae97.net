@@ -102,8 +102,10 @@ class User {
 
             $database->beginTransaction();
             $database->prepare("DELETE FROM userperms WHERE userId = ?")->execute(array($uuid));
-            foreach ($perms as $perm) {
-                $database->prepare("INSERT INTO userperms VALUES(?,(SELECT id FROM permissions WHERE perm = ?))")->execute(array($uuid, $perm));
+            if ($perms != null) {
+                foreach ($perms as $perm) {
+                    $database->prepare("INSERT INTO userperms VALUES(?,(SELECT id FROM permissions WHERE perm = ?))")->execute(array($uuid, $perm));
+                }
             }
             $database->commit();
         } catch (PDOException $ex) {

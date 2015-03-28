@@ -19,12 +19,12 @@ class Authentication {
             $statement->execute(array($_SESSION["uuid"]));
             $db = $statement->fetch();
         } catch (PDOException $ex) {
-            logError($ex);
-            clearSession();
+            Utilities::logError($ex);
+            self::clearSession();
             return false;
         }
         if (!isset($db['sessionToken']) || $_SESSION['session'] !== $db['sessionToken']) {
-            clearSession();
+            self::clearSession();
             return false;
         } else {
             return true;

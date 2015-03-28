@@ -133,7 +133,7 @@ class Bans {
                     'expireDate' => $ban['expireDate'],
                     'type' => $ban['type'] === 0 ? "standard" : "extended",
                     'channels' => array($ban['channel']),
-                    'content' => $ban['content'],
+                    'content' => str_replace("%", "*", $ban['content']),
                     'notes' => $ban['notes']
                 );
             } else {

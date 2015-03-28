@@ -1,6 +1,4 @@
-<div class="main">
-    <h2 class="sub-header">Ban Management</h2>
-</div>
+<h2 class="sub-header">Ban Management</h2>
 
 <?php
 $flashes = $this->flashes();
@@ -56,9 +54,11 @@ if (count($flashes) > 0) {
                 <th><?php echo $val['issuer']; ?></th>
                 <th><?php echo implode(", ", $val['channels']); ?></th>
                 <th><?php echo $val['notes']; ?></th>
-                <?php if (\AE97\Panel\Authentication::checkPermission('bans.expire')) { ?>
-                    <th><a class="btn btn-default btn-sm" href="ban/expire?id=<?php echo $val['id']; ?>">Expire</a></th>
+                <th>
+                    <?php if (\AE97\Panel\Authentication::checkPermission('bans.expire')) { ?>
+                        <a class="btn btn-default btn-sm" href="ban/expire?id=<?php echo $val['id']; ?>">Expire</a>
                     <?php } ?>
+                </th>
             </tr>
         <?php endforeach; ?>
     </tbody>

@@ -97,7 +97,7 @@ $this->respond('GET', '/user', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         if (Authentication::checkPermission('panel.viewusers')) {
             $perms['approveUser'] = Authentication::checkPermission('panel.approveuser');
-            $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/approval.phtml', 'perms' => $perms));
+            $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/index.phtml', 'perms' => $perms));
         }
     } else {
         $response->redirect("/auth/login", 302)->send();
@@ -130,7 +130,6 @@ $this->respond('POST', '/user/approve/[:id]', function($request, $response) {
 
 $this->respond('POST', '/user/edit', function($request) {
     Validate::param($request->param('user'))->notNull();
-    Validate::param($request->param('perms'))->notNull();
 
     if (!Authentication::verifySession() || !Authentication::checkPermission("user.edit")) {
         return;
