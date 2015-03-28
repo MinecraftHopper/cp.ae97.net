@@ -17,24 +17,13 @@ session_start();
 
 $klein = new \Klein\Klein();
 
-$klein->respond('GET', '/[|index|index.php:page]?', function($request, $response, $service) {
-    $service->render(HTML_DIR . 'index.phtml', array('action' => null, 'page' => null));
-});
-
-$klein->respond('GET', '/settings', function($request, $response, $service) {
-    if (Authentication::verifySession()) {
-        $service->render(HTML_DIR . 'index.phtml', array('action' => 'settings', 'page' => HTML_DIR . 'cp/user/settings.phtml'));
-    } else {
-        $response->redirect("/auth/login", 302);
-    }
-});
-
+$klein->with('/', ROUTES_DIR . 'root/index.php');
 $klein->with('/auth', ROUTES_DIR . 'auth/index.php');
 $klein->with('/admin', ROUTES_DIR . 'admin/index.php');
 $klein->with('/factoid', ROUTES_DIR . 'factoid/index.php');
 
 $klein->onHttpError(function($httpCode, $klein) {
-    $klein->service()->render(HTML_DIR . 'index.phtml', array('action' => '404', 'try' => $klein->request()->uri(), 'page' => HTML_DIR . 'errors/404.phtml'));
+    $klein->service()->render(HTML_DIR . 'index.phtml', array('action' => $httpCode, 'try' => $klein->request()->uri(), 'page' => HTML_DIR . 'errors/'. $httpCode . '.phtml'));
 });
 
 $klein->onError(function($klein, $err_msg) {

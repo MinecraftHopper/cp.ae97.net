@@ -120,7 +120,14 @@ class User {
 
     public static function get($name) {
         self::validateDatabase();
-        $userstmt = self::$database->prepare("SELECT uuid, username, email, verified, approved FROM users WHERE username = ?");
+        $userstmt = self::$database->prepare("SELECT uuid, username, email, verified, approved, nickserv FROM users WHERE username = ?");
+        $userstmt->execute(array($name));
+        return $userstmt->fetch();
+    }
+
+    public static function getByUUID($name) {
+        self::validateDatabase();
+        $userstmt = self::$database->prepare("SELECT uuid, username, email, verified, approved, nickserv FROM users WHERE uuid = ?");
         $userstmt->execute(array($name));
         return $userstmt->fetch();
     }

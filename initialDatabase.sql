@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(64) NOT NULL,
   `verified` tinyint(1) NOT NULL DEFAULT '0',
   `approved` tinyint(1) NOT NULL DEFAULT '0',
+  `nickserv` varchar(64),
   PRIMARY KEY (`uuid`),
   UNIQUE KEY `unique_email` (`email`),
   UNIQUE KEY `unique_username` (`username`),

@@ -1,16 +1,17 @@
-<div class="main">
-    <div class="row">
-        <h2 class="sub-header">Settings</h2>
-    </div>
-    <div class="row">
-        <body>
-            <div class="form-group">
-                <form>
-                    <h3>Change password</h3>
-                    <p>Old password: <input type="text"></input></p>
-                    <p>New password: <input type="password" name="newpw"></input></p>
-                </form>
-            </div>
-        </body>
-    </div>
+<div class="row">
+    <h2 class="sub-header">Settings</h2>
 </div>
+<div class="row">
+    <h4>Password</h4>
+    <input id="newpw" type="password" />
+    <a class="btn btn-sm btn-default">Update</a>
+</div>
+<hr>
+<div class="row">
+    <h4>Nickserv</h4>
+    <input value="<?php echo $this->nickserv; ?>"/>
+    <a class="btn btn-sm btn-default">Update</a>
+</div>
+
+<script type="text/javascript">
+</script>
