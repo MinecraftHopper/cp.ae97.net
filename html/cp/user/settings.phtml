@@ -4,14 +4,25 @@
 <div class="row">
     <h4>Password</h4>
     <input id="newpw" type="password" />
-    <a class="btn btn-sm btn-default">Update</a>
+    <a id="newpwsubmit" class="btn btn-sm btn-default">Update</a>
 </div>
 <hr>
 <div class="row">
     <h4>Nickserv</h4>
-    <input value="<?php echo $this->nickserv; ?>"/>
-    <a class="btn btn-sm btn-default">Update</a>
+    <input id="nickserv" value="<?php echo $this->nickserv; ?>"/>
+    <a id="nickservsubmit" class="btn btn-sm btn-default">Update</a>
 </div>
 
 <script type="text/javascript">
+    $("#nickservsubmit").click(function () {
+        $.post('settings/changens', {nickserv: $("#nickserv").val()}, function () {
+            location.reload();
+        });
+    });
+
+    $("#newpwsubmit").click(function () {
+        $.post('settings/changepw', {newpw: $("#newpw").val()}, function () {
+            location.reload();
+        });
+    });
 </script>

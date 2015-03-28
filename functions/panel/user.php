@@ -151,6 +151,16 @@ class User {
         return $users->fetchAll();
     }
 
+    public static function changePassword($uuid, $newpw) {
+        self::validateDatabase();
+        self::$database->prepare("UPDATE users SET password = ? WHERE uuid = ?")->execute(array(password_hash($newpw, PASSWORD_DEFAULT), $uuid));
+    }
+
+    public static function changeNickserv($uuid, $nickserv) {
+        self::validateDatabase();
+        self::$database->prepare("UPDATE users SET nickserv = ? WHERE uuid = ?")->execute(array($nickserv, $uuid));
+    }
+
     private static function validateDatabase() {
         if (self::$database == null) {
             $_DATABASE = Config::getGlobal('database');
