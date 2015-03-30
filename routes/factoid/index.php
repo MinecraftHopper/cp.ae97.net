@@ -23,7 +23,7 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service) {
         try {
             if (Authentication::checkPermission('factoids.edit')) {
                 $factoids = Factoids::getFactoid($request->param('id'));
-                $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/edit.phtml', 'id' => $factoids['id'], 'name' => $factoids['name'], 'content' => $factoids['content'], 'game' => $factoids['game'], 'mode' => 'Edit'));
+                $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/edit.phtml', 'id' => $factoids['id'], 'name' => $factoids['name'], 'content' => str_replace(';;', "\n", $factoids['content']), 'game' => $factoids['game'], 'mode' => 'Edit'));
             }
         } catch (PDOException $ex) {
             Utilities::logError($ex);

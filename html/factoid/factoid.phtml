@@ -27,9 +27,9 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">Select Database <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Select Database <b class="caret"></b></a>
                     <ul data-bind="foreach: gameTable" id="dbList" class="dropdown-menu">
-                        <li data-bind="click: loadDataFromMenu"><a data-bind="text: $data.displayname"></a></li>
+                        <li><a data-bind="click: loadDataFromMenu, text: $data.displayname, attr: {href: '?db=' + $data.displayname}"></a></li>
                     </ul>
                 </li>
             </ul>
