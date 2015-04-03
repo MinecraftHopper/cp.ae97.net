@@ -94,11 +94,9 @@ $this->respond('GET', '/ban/edit', function($request, $response, $service) {
 });
 
 $this->respond('GET', '/user', function($request, $response, $service) {
-    if (Authentication::verifySession()) {
-        if (Authentication::checkPermission('panel.viewusers')) {
-            $perms['approveUser'] = Authentication::checkPermission('panel.approveuser');
-            $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/index.phtml', 'perms' => $perms));
-        }
+    if (Authentication::verifySession() && Authentication::checkPermission('panel.viewusers')) {
+        $perms['approveUser'] = Authentication::checkPermission('panel.approveuser');
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/index.phtml', 'perms' => $perms));
     } else {
         $response->redirect("/auth/login", 302)->send();
     }
@@ -155,7 +153,7 @@ $this->respond('POST', '/ban/new', function($request, $response, $service) {
 
     $daysBanned = $request->param('daysbanned');
 
-    if(!is_numeric($daysBanned)) {
+    if (!is_numeric($daysBanned)) {
         $service->flash("Days to ban must be in integers (" . $daysBanned . ")");
         $service->refresh();
         return;
@@ -168,7 +166,7 @@ $this->respond('POST', '/ban/new', function($request, $response, $service) {
 
     if ($result) {
         foreach (explode(',', $request->param('channels')) as $chan) {
-            if(!Bans::addChannelToBan($result, trim($chan))) {
+            if (!Bans::addChannelToBan($result, trim($chan))) {
                 $service->flash('Could not apply ban to channel: ' . $chan);
             }
         }
