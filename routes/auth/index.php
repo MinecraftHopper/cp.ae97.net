@@ -71,7 +71,7 @@ $this->respond('POST', '/register', function($request, $response, $service) {
         $response->redirect("/auth/register", 302);
         return;
     }
-    $result = User::create($request->param('email'), $request->param('email'), $request->param('password'));
+    $result = User::create($request->param('email'), $request->param('username'), $request->param('password'));
     if (!$result['success']) {
         $service->flash($result['error']);
     } else {
@@ -115,6 +115,7 @@ $this->respond('POST', '/resetpw', function($request, $response, $service) {
     if ($resetKey == null) {
         $service->flash('Your reset link has been emailed to you');
         $response->redirect('/auth/login', 302);
+        return;
     }
     $url = Config::getGlobal('site')['full'] . '/auth/resetpw?email=' . $request->param('email') . '&resetkey=' . $resetKey;
     Email::send($request->param('email'), 'Password reset for cp.ae97.net', 'Someone requested your password to be reset. If you wanted to do this, please use <strong><a href="' . $url . '">this link</a></strong> to '

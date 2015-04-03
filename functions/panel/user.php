@@ -19,6 +19,7 @@ class User {
         }
         $resetkey = Utilities::generate_string(64);
         self::$database->prepare("UPDATE passwordreset SET resetkey = ? WHERE email = ?")->execute(array($resetkey, $email));
+        return $resetkey;
     }
 
     public static function submitPasswordReset($email, $key) {
