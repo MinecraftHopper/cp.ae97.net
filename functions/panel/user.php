@@ -73,7 +73,7 @@ class User {
         } else {
             $createUserStatement = self::$database->prepare('INSERT INTO users (uuid,username,email,password,verified,approved) values (?,?,?,?,?,?)');
             $hashedPW = password_hash($password, PASSWORD_DEFAULT);
-            $createUserStatement->execute(array(Utilities::generateGUID(), $username, $email, $hashedPW, 0, 0));
+            $createUserStatement->execute(array(Utilities::generateGUID(), $username, $email, $hashedPW, 0, 1));
 
             $verificationStatement = self::$database->prepare('INSERT INTO verification (email, code) VALUES (?, ?)');
             $approveKey = Utilities::generate_string(32);
