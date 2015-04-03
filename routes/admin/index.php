@@ -104,7 +104,7 @@ $this->respond('GET', '/user', function($request, $response, $service) {
 
 $this->respond('POST', '/user/list/unapproved', function() {
     if (Authentication::verifySession()) {
-        $perms['view'] = Authentication::checkPermission('panel.viewuser');
+        $perms['view'] = Authentication::checkPermission('panel.viewusers');
         if ($perms['view']) {
             $accounts = User::getUnapproved();
         } else {
