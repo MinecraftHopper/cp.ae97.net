@@ -61,7 +61,21 @@ $this->respond('GET', '/user/edit', function($request, $response, $service) {
 $this->respond('GET', '/ban', function($request, $response, $service) {
     if (Authentication::verifySession() && Authentication::checkPermission('bans.view')) {
         $bans = Bans::getBans();
-        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $bans, 'edit' => Authentication::checkPermission('bans.edit')));
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $bans));
+    } else {
+        $response->redirect("/auth/login", 302)->send();
+    }
+});
+
+$this->respond('GET', '/ban/view', function($request, $response, $service) {
+    if (Authentication::verifySession() && Authentication::checkPermission('bans.view')) {
+        $ban = Bans::getBan($request->param('id'));
+        if($ban == null) {
+            $service->flash('No ban with id ' . $request->param('id'));
+            $response->redirect("/admin/ban", 302);
+            return;
+        }
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/view.phtml', 'ban' => $ban));
     } else {
         $response->redirect("/auth/login", 302)->send();
     }

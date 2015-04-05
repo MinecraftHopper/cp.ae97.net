@@ -12,15 +12,17 @@ class Bans {
     public static function getBan($id) {
         self::validateDatabase();
         try {
-            $statement = self::$database->prepare("SELECT id, issuedBy, kickMessage, issueDate, channel, type "
+            $statement = self::$database->prepare("SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
                     . "FROM bans "
                     . "LEFT JOIN banchannels ON bans.id = banId "
+                    . "LEFT JOIN users ON users.uuid = issuedBy "
                     . "WHERE id = ?");
             $statement->execute(array($id));
-            return self::combineChans($statement->fetch());
+            $result = self::combineChans($statement->fetchAll());
+            return count($result) >= 1 ? $result[$id] : null;
         } catch (PDOException $ex) {
             Utilities::logError($ex);
-            return array();
+            return null;
         }
     }
 
@@ -53,7 +55,7 @@ class Bans {
         self::validateDatabase();
         $convertedMask = str_replace("*", "%", $mask);
 
-        if(empty(trim($notes))) {
+        if (empty(trim($notes))) {
             $notes = null;
         }
 
