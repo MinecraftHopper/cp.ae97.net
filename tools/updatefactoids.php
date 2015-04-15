@@ -19,7 +19,7 @@ foreach ($list as $line) {
     if (!trim($line)) {
         continue;
     }
-    list($name, $context) = explode('|', $line);
+    list($name, $context) = explode('|', $line, 2);
     $set = $database->prepare("SELECT game FROM factoids WHERE name = ?");
     $set->execute(array($name));
     $record = $set->fetch();
