@@ -9,7 +9,7 @@ $this->respond('GET', '/', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'index', 'page' => HTML_DIR . 'cp/admin/index.phtml'));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -17,7 +17,7 @@ $this->respond('GET', '/bot', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'bot', 'page' => HTML_DIR . 'cp/admin/bot/index.phtml'));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -26,7 +26,7 @@ $this->respond('GET', '/user/approve', function($request, $response, $service) {
         $perms['approveUser'] = Authentication::checkPermission('panel.approveuser');
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/approval.phtml', 'perms' => $perms));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -35,7 +35,7 @@ $this->respond('GET', '/user/manage', function($request, $response, $service) {
         $users = User::getAll();
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/manage.phtml', 'users' => $users));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -54,7 +54,7 @@ $this->respond('GET', '/user/edit', function($request, $response, $service) {
         }
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/edit.phtml', "user" => $user, "allPerms" => $permList, "userPerms" => $userPerms));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -63,7 +63,7 @@ $this->respond('GET', '/ban', function($request, $response, $service) {
         $bans = Bans::getBans();
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $bans));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -77,7 +77,7 @@ $this->respond('GET', '/ban/view', function($request, $response, $service) {
         }
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/view.phtml', 'ban' => $ban));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -85,7 +85,7 @@ $this->respond('GET', '/ban/new', function($request, $response, $service) {
     if (Authentication::verifySession() && Authentication::checkPermission('bans.new')) {
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/new.phtml'));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -103,7 +103,7 @@ $this->respond('GET', '/ban/edit', function($request, $response, $service) {
         }
         //$service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/edit.phtml', 'ban' => $ban[0]));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -112,7 +112,7 @@ $this->respond('GET', '/user', function($request, $response, $service) {
         $perms['approveUser'] = Authentication::checkPermission('panel.approveuser');
         $service->render(HTML_DIR . 'index.phtml', array('action' => 'user', 'page' => HTML_DIR . 'cp/admin/user/index.phtml', 'perms' => $perms));
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 
@@ -136,7 +136,7 @@ $this->respond('POST', '/user/approve/[:id]', function($request, $response) {
         User::approve($id);
         $response->redirect("/admin/user", 302);
     } else {
-        $response->redirect("/auth/login", 302)->send();
+        $response->redirect('/error/401', 401);
     }
 });
 

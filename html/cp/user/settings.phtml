@@ -1,9 +1,33 @@
 <div class="row">
     <h2 class="sub-header">Settings</h2>
 </div>
+
+<?php
+$flashes = $this->flashes();
+if (count($flashes) > 0) {
+    ?><div class="row">
+        <div class="col-md-4 alert alert-danger form-signin-heading"><?php
+            foreach ($flashes as $type => $messages) {
+                foreach ($messages as $msg) {
+                    ?>
+                    <h5><?php echo $msg; ?></h5>
+                    <?php
+                }
+            }
+            ?></div>
+    </div>
+    <?php
+}
+?>
+
 <div class="row">
     <h4>Password</h4>
+    <div id="sameWarning" style="display: none; padding: 20px" class="row">
+        <span  class="alert bg-danger">Passwords must be the same</span>
+    </div>
     <input id="newpw" type="password" />
+    <br />
+    <input id="newpw2" type="password" />
     <a id="newpwsubmit" class="btn btn-sm btn-default">Update</a>
 </div>
 <hr>
@@ -14,6 +38,8 @@
 </div>
 
 <script type="text/javascript">
+    $("#sameWarning").hide();
+
     $("#nickservsubmit").click(function () {
         $.post('settings/changens', {nickserv: $("#nickserv").val()}, function () {
             location.reload();
@@ -21,6 +47,12 @@
     });
 
     $("#newpwsubmit").click(function () {
+        if ($("#newpw").val() !== $("#newpw2").val()) {
+            $("#sameWarning").show();
+            $("#newpw").addClass("has-error");
+            $("#newpw2").addClass("has-error");
+            return false;
+        }
         $.post('settings/changepw', {newpw: $("#newpw").val()}, function () {
             location.reload();
         });
