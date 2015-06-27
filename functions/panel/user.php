@@ -66,10 +66,10 @@ class User {
         $statement->execute(array($email, $username));
         $result = $statement->fetch();
         if (isset($result['uuid'])) {
-            return array('success' => false, 'verify' => 'Email already exists, please use another');
+            return array('success' => false, 'error' => 'Email already exists, please use another');
         }
         if (isset($result['username'])) {
-            return array('success' => false, 'verify' => 'Username already exists, please use another');
+            return array('success' => false, 'error' => 'Username already exists, please use another');
         } else {
             $createUserStatement = self::$database->prepare('INSERT INTO users (uuid,username,email,password,verified,approved) values (?,?,?,?,?,?)');
             $hashedPW = password_hash($password, PASSWORD_DEFAULT);
