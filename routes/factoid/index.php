@@ -2,8 +2,7 @@
 
 use \AE97\Panel\Authentication,
     \AE97\Panel\Utilities,
-    \AE97\Panel\Factoids,
-    \PDOException;
+    \AE97\Panel\Factoids;
 
 $this->respond('GET', '/?', function($request, $response, $service) {
     $perms = array('edit' => false, 'delete' => false);

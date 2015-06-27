@@ -100,6 +100,7 @@ CREATE TABLE `factoid_logs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user` varchar(36) NOT NULL,
   `action` enum ('delete', 'create', 'edit', 'rename', 'move') NOT NULL,
+  `factoidid` int(10) unsigned NOT NULL,
   `data` text,
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_factoid_logs_user` FOREIGN KEY (`user`) REFERENCES `users` (`uuid`)
