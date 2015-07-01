@@ -84,7 +84,7 @@ class Factoids {
 
     public static function getDatabaseNames() {
         try {
-            $statement = openDatabase()->prepare("SELECT idname, displayname FROM games");
+            $statement = self::openConnection()->prepare("SELECT idname, displayname FROM games");
             $statement->execute();
             return $statement->fetchAll();
         } catch (PDOException $ex) {
