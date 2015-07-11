@@ -39,7 +39,6 @@ if (count($flashes) > 0) {
             <th style="width: 10%"><strong>Expires</strong></th>
             <th style="width: 11%"><strong>Created by</strong></th>
             <th style="width: 12%"><strong>Channels</strong></th>
-            <th style="width: 30%"><strong>Reason</strong></th>
             <th style="width: 8%"><strong>Action</strong></th>
         </tr>
     </thead>
@@ -51,7 +50,6 @@ if (count($flashes) > 0) {
                 <th><span class="datedisplay" raw="<?php echo $val['expireDate'] ? : "Permanent"; ?>"></span></th>
                 <th><?php echo $val['issuer']; ?></th>
                 <th><?php echo implode(", ", $val['channels']); ?></th>
-                <th><?php echo $val['notes']; ?></th>
                 <th>
                     <a class="btn btn-default btn-sm" href="ban/view?id=<?php echo $val['id']; ?>">View</a>
                     <?php if (\AE97\Panel\Authentication::checkPermission('bans.expire')) { ?>
