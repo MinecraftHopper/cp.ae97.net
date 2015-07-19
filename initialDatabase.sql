@@ -60,10 +60,10 @@ CREATE TABLE `factoids` (
 ) ENGINE=InnoDB;
 
 CREATE TABLE `passwordreset` (
-  `uuid` varchar(36) NOT NULL,
+  `email` varchar(128) NOT NULL,
   `resetkey` varchar(64) NOT NULL,
-  PRIMARY KEY (`uuid`),
-  CONSTRAINT `FK_passwordreset_users` FOREIGN KEY (`uuid`) REFERENCES `users` (`uuid`)
+  PRIMARY KEY (`email`),
+  CONSTRAINT `FK_passwordreset_users` FOREIGN KEY (`email`) REFERENCES `users` (`email`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `permissions` (

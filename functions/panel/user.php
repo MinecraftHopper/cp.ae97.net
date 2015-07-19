@@ -18,7 +18,13 @@ class User {
             return null;
         }
         $resetkey = Utilities::generate_string(64);
-        self::$database->prepare("UPDATE passwordreset SET resetkey = ? WHERE email = ?")->execute(array($resetkey, $email));
+        $check = self::$database->prepare("SELECT count(*) AS count FROM passwordreset WHERE email = ?");
+        $check->execute(array($email));
+        if ($check->fetch()['has'] > 0) {
+            self::$database->prepare("UPDATE passwordreset SET resetkey = ? WHERE email = ?")->execute(array($resetkey, $email));
+        } else {
+            self::$database->prepare("INSERT INTO passwordreset VALUES (?, ?)")->execute(array($email, $resetkey));
+        }
         return $resetkey;
     }
 
