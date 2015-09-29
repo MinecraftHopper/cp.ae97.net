@@ -170,7 +170,7 @@ class User {
 
     private static function validateDatabase() {
         if (self::$database == null) {
-            $_DATABASE = Config::getGlobal('database');
+            $_DATABASE = Config::getGlobal('database')['auth'];
             self::$database = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['authdb'], $_DATABASE['user'], $_DATABASE['pass'], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
             self::$database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }

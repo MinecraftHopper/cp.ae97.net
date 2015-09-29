@@ -220,15 +220,14 @@ class Factoids {
      * @return PDO database
      */
     private static function openConnection() {
-        $_DATABASE = Config::getGlobal('database');
+        $_DATABASE = Config::getGlobal('database')['factoid'];
         $database = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['factoiddb'], $_DATABASE['user'], $_DATABASE['pass'], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
         $database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $database;
     }
 
     private static function updateLogs(PDO $database, $action, $id, $data) {
-        $database->prepare("INSERT INTO factoid_logs VALUES (?, ?, ?, ?, ?)")->execute(array(
-            0,
+        $database->prepare("INSERT INTO factoid_logs (user, action, factoidid, data) VALUES (?, ?, ?, ?)")->execute(array(
             $_SESSION['uuid'],
             $action,
             $id,

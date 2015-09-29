@@ -13,10 +13,10 @@ class Bans {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
-                    . "FROM bans "
-                    . "LEFT JOIN banchannels ON bans.id = banId "
-                    . "LEFT JOIN users ON users.uuid = issuedBy "
-                    . "WHERE id = ?");
+                  . "FROM bans "
+                  . "LEFT JOIN banchannels ON bans.id = banId "
+                  . "LEFT JOIN users ON users.uuid = issuedBy "
+                  . "WHERE id = ?");
             $statement->execute(array($id));
             $result = self::combineChans($statement->fetchAll());
             return count($result) >= 1 ? $result[$id] : null;
@@ -30,12 +30,12 @@ class Bans {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
-                    . "FROM bans "
-                    . "LEFT JOIN banchannels ON bans.id = banId "
-                    . "LEFT JOIN users ON users.uuid = issuedBy "
-                    . "WHERE expireDate IS NULL OR expireDate > current_timestamp() "
-                    . "ORDER BY id "
-                    //. "LIMIT " . strval(intval($page) * 10) . ", 10"
+                  . "FROM bans "
+                  . "LEFT JOIN banchannels ON bans.id = banId "
+                  . "LEFT JOIN users ON users.uuid = issuedBy "
+                  . "WHERE expireDate IS NULL OR expireDate > current_timestamp() "
+                  . "ORDER BY id "
+                  //. "LIMIT " . strval(intval($page - 1) * 10) . ", 10"
             );
             $statement->execute();
             $record = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -46,7 +46,23 @@ class Bans {
         }
     }
 
-    public static function addBan($mask, $issuer, $kickMessage, $daysToLast, $notes = "No private notes") {
+    public static function getBanPages() {
+        self::validateDatabase();
+        try {
+            $statement = self::$database->prepare("SELECT count(*) AS count"
+                  . "FROM bans "
+                  . "WHERE expireDate IS NULL OR expireDate > current_timestamp() "
+            );
+            $statement->execute();
+            $record = $statement->fetchAll(PDO::FETCH_ASSOC);
+            return $record['count'];
+        } catch (PDOException $ex) {
+            Utilities::logError($ex);
+            return array();
+        }
+    }
+
+    public static function addBan($mask, $issuer, $kickMessage, $daysToLast, $notes = "No private notes", $isExtended = false) {
         if (!preg_match('/[^\*\!\@]/', $mask)) {
             //string is just a complete wildcard ban, cannot allow
             //throw new \Exception("");
@@ -61,7 +77,7 @@ class Bans {
 
         try {
             $statement = self::$database->prepare("INSERT INTO bans (type, content, issuedBy, kickMessage, notes, expireDate) VALUES (?,?,?,?,?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL " . $daysToLast . " DAY))");
-            $statement->execute(array(0, $convertedMask, $issuer, $kickMessage, $notes));
+            $statement->execute(array($isExtended, $convertedMask, $issuer, $kickMessage, $notes));
             return self::$database->lastInsertId();
         } catch (PDOException $ex) {
             Utilities::logError($ex);
@@ -107,7 +123,7 @@ class Bans {
         self::validateDatabase();
         try {
             self::$database->prepare('UPDATE bans SET expireDate = CURRENT_TIMESTAMP WHERE id = ?')
-                    ->execute(array($banId));
+                  ->execute(array($banId));
             return true;
         } catch (Exception $ex) {
             Utilities::logError($ex);
@@ -117,7 +133,7 @@ class Bans {
 
     private static function validateDatabase() {
         if (self::$database == null) {
-            $_DATABASE = Config::getGlobal('database');
+            $_DATABASE = Config::getGlobal('database')['ban'];
             self::$database = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['authdb'], $_DATABASE['user'], $_DATABASE['pass'], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
             self::$database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }

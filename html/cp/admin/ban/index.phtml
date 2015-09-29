@@ -34,6 +34,9 @@ if (count($flashes) > 0) {
 <table class="table table-striped table-responsive">
     <thead>
         <tr>
+            <th>Pages</th>
+        </tr>
+        <tr>
             <th style="width: 4%"><strong>Id</strong></th>
             <th style="width: 30%"><strong>Mask</strong></th>
             <th style="width: 10%"><strong>Expires</strong></th>
@@ -67,15 +70,14 @@ if (count($flashes) > 0) {
         var date = item.attr("raw");
         var dateString = date.split(" ")[0];
         var timeString = date.split(" ")[1];
-        console.log(date);
         var dateObj = new Date(Date.UTC(
-                dateString.split("-")[0],
-                dateString.split("-")[1],
-                dateString.split("-")[2],
-                timeString.split(":")[0],
-                timeString.split(":")[1],
-                timeString.split(":")[2]
-                ));
+              dateString.split("-")[0],
+              dateString.split("-")[1],
+              dateString.split("-")[2],
+              timeString.split(":")[0],
+              timeString.split(":")[1],
+              timeString.split(":")[2]
+              ));
         item.text((dateObj.getMonth() + 1) + "/" + (dateObj.getDate()) + "/" + dateObj.getFullYear());
         item.attr('title', dateObj.toLocaleString());
     });
