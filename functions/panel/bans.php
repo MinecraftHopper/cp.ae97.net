@@ -8,6 +8,7 @@ use \PDO,
 class Bans {
 
     private static $database;
+    private static $bansPerPage = 20;
 
     public static function getBan($id) {
         self::validateDatabase();
@@ -27,16 +28,28 @@ class Bans {
     }
 
     public static function getBans($page = 1) {
+        if($page == null) {
+            $page = 1;
+        }
         self::validateDatabase();
         try {
-            $statement = self::$database->prepare("SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
+            $idList = self::$database->prepare("SELECT filter.id FROM bans AS filter WHERE filter.expireDate IS NULL OR filter.expireDate > current_timestamp() "
+                  . "ORDER BY filter.issueDate DESC "
+                  . "LIMIT " . strval(intval($page - 1) * self::$bansPerPage) . ", " . self::$bansPerPage);
+            $idList->execute();
+            $ids = $idList->fetchAll(PDO::FETCH_ASSOC);
+            $idCasted = array();
+            foreach ($ids as $id) {
+                $idCasted[] = $id["id"];
+            }
+            $query = "SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
                   . "FROM bans "
                   . "LEFT JOIN banchannels ON bans.id = banId "
                   . "LEFT JOIN users ON users.uuid = issuedBy "
-                  . "WHERE expireDate IS NULL OR expireDate > current_timestamp() "
-                  . "ORDER BY id "
-                  //. "LIMIT " . strval(intval($page - 1) * 10) . ", 10"
-            );
+                  . "WHERE id IN (" . implode(',', $idCasted)
+                  . ") ORDER BY issueDate DESC";
+
+            $statement = self::$database->prepare($query);
             $statement->execute();
             $record = $statement->fetchAll(PDO::FETCH_ASSOC);
             return self::combineChans($record);
@@ -49,13 +62,13 @@ class Bans {
     public static function getBanPages() {
         self::validateDatabase();
         try {
-            $statement = self::$database->prepare("SELECT count(*) AS count"
+            $statement = self::$database->prepare("SELECT count(*) AS count "
                   . "FROM bans "
-                  . "WHERE expireDate IS NULL OR expireDate > current_timestamp() "
+                  . "WHERE expireDate IS NULL OR expireDate > current_timestamp()"
             );
             $statement->execute();
-            $record = $statement->fetchAll(PDO::FETCH_ASSOC);
-            return $record['count'];
+            $record = $statement->fetch(PDO::FETCH_ASSOC);
+            return ceil($record['count'] / self::$bansPerPage);
         } catch (PDOException $ex) {
             Utilities::logError($ex);
             return array();

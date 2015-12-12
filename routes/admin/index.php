@@ -60,8 +60,10 @@ $this->respond('GET', '/user/edit', function($request, $response, $service) {
 
 $this->respond('GET', '/ban', function($request, $response, $service) {
     if (Authentication::verifySession() && Authentication::checkPermission('bans.view')) {
-        $bans = Bans::getBans();
-        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $bans));
+        $page = $request->param('page') != null ? $request->param('page') : 1;
+        $bans = Bans::getBans($page);
+        $maxPages = Bans::getBanPages();
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'ban', 'page' => HTML_DIR . 'cp/admin/ban/index.phtml', 'bans' => $bans, 'maxPages' => $maxPages, 'currentPage' => $page));
     } else {
         $response->redirect('/error/401', 401);
     }
@@ -70,7 +72,7 @@ $this->respond('GET', '/ban', function($request, $response, $service) {
 $this->respond('GET', '/ban/view', function($request, $response, $service) {
     if (Authentication::verifySession() && Authentication::checkPermission('bans.view')) {
         $ban = Bans::getBan($request->param('id'));
-        if($ban == null) {
+        if ($ban == null) {
             $service->flash('No ban with id ' . $request->param('id'));
             $response->redirect("/admin/ban", 302);
             return;
