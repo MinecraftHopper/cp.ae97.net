@@ -23,11 +23,11 @@ $klein->with('/admin', ROUTES_DIR . 'admin/index.php');
 $klein->with('/factoid', ROUTES_DIR . 'factoid/index.php');
 
 $klein->respond('GET', '/error/[i:code]', function($request, $response, $service) {
-    $service->render(HTML_DIR . 'index.phtml', array('page' => HTML_DIR . 'errors/'. $request->param('code') . '.phtml'));
+    $service->render(HTML_DIR . 'index.phtml', array('page' => HTML_DIR . 'errors/' . $request->param('code') . '.phtml'));
 });
 
 $klein->onHttpError(function($httpCode, $klein) {
-    $klein->service()->render(HTML_DIR . 'index.phtml', array('action' => $httpCode, 'try' => $klein->request()->uri(), 'page' => HTML_DIR . 'errors/'. $httpCode . '.phtml'));
+    $klein->service()->render(HTML_DIR . 'index.phtml', array('action' => $httpCode, 'try' => $klein->request()->uri(), 'page' => HTML_DIR . 'errors/' . $httpCode . '.phtml'));
 });
 
 $klein->onError(function($klein, $err_msg) {

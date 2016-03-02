@@ -14,10 +14,10 @@ class Bans {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
-                  . "FROM bans "
-                  . "LEFT JOIN banchannels ON bans.id = banId "
-                  . "LEFT JOIN users ON users.uuid = issuedBy "
-                  . "WHERE id = ?");
+                    . "FROM bans "
+                    . "LEFT JOIN banchannels ON bans.id = banId "
+                    . "LEFT JOIN users ON users.uuid = issuedBy "
+                    . "WHERE id = ?");
             $statement->execute(array($id));
             $result = self::combineChans($statement->fetchAll());
             return count($result) >= 1 ? $result[$id] : null;
@@ -28,14 +28,14 @@ class Bans {
     }
 
     public static function getBans($page = 1) {
-        if($page == null) {
+        if ($page == null) {
             $page = 1;
         }
         self::validateDatabase();
         try {
             $idList = self::$database->prepare("SELECT filter.id FROM bans AS filter WHERE filter.expireDate IS NULL OR filter.expireDate > current_timestamp() "
-                  . "ORDER BY filter.issueDate DESC "
-                  . "LIMIT " . strval(intval($page - 1) * self::$bansPerPage) . ", " . self::$bansPerPage);
+                    . "ORDER BY filter.issueDate DESC "
+                    . "LIMIT " . strval(intval($page - 1) * self::$bansPerPage) . ", " . self::$bansPerPage);
             $idList->execute();
             $ids = $idList->fetchAll(PDO::FETCH_ASSOC);
             $idCasted = array();
@@ -43,11 +43,11 @@ class Bans {
                 $idCasted[] = $id["id"];
             }
             $query = "SELECT id, users.username, content, kickMessage, issueDate, expireDate, channel, type, notes "
-                  . "FROM bans "
-                  . "LEFT JOIN banchannels ON bans.id = banId "
-                  . "LEFT JOIN users ON users.uuid = issuedBy "
-                  . "WHERE id IN (" . implode(',', $idCasted)
-                  . ") ORDER BY issueDate DESC";
+                    . "FROM bans "
+                    . "LEFT JOIN banchannels ON bans.id = banId "
+                    . "LEFT JOIN users ON users.uuid = issuedBy "
+                    . "WHERE id IN (" . implode(',', $idCasted)
+                    . ") ORDER BY issueDate DESC";
 
             $statement = self::$database->prepare($query);
             $statement->execute();
@@ -63,8 +63,8 @@ class Bans {
         self::validateDatabase();
         try {
             $statement = self::$database->prepare("SELECT count(*) AS count "
-                  . "FROM bans "
-                  . "WHERE expireDate IS NULL OR expireDate > current_timestamp()"
+                    . "FROM bans "
+                    . "WHERE expireDate IS NULL OR expireDate > current_timestamp()"
             );
             $statement->execute();
             $record = $statement->fetch(PDO::FETCH_ASSOC);
@@ -136,7 +136,7 @@ class Bans {
         self::validateDatabase();
         try {
             self::$database->prepare('UPDATE bans SET expireDate = CURRENT_TIMESTAMP WHERE id = ?')
-                  ->execute(array($banId));
+                    ->execute(array($banId));
             return true;
         } catch (Exception $ex) {
             Utilities::logError($ex);
@@ -148,7 +148,7 @@ class Bans {
         if (self::$database == null) {
             $_DATABASE = Config::getGlobal('database')['ban'];
             self::$database = new PDO("mysql:host=" . $_DATABASE['host'] . ";dbname=" . $_DATABASE['authdb'], $_DATABASE['user'], $_DATABASE['pass'], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
-            self::$database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            self::$database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);            
         }
     }
 

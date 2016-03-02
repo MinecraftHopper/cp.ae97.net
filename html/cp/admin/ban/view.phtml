@@ -72,7 +72,7 @@ if (count($flashes) > 0) {
         var timeString = date.split(" ")[1];
         var dateObj = new Date(Date.UTC(
                 dateString.split("-")[0],
-                dateString.split("-")[1],
+                (dateString.split("-")[1] - 1),
                 dateString.split("-")[2],
                 timeString.split(":")[0],
                 timeString.split(":")[1],

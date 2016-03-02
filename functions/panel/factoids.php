@@ -16,9 +16,9 @@ class Factoids {
             $gameliststatement->execute();
             $gamelist = $gameliststatement->fetchAll();
             $statement = $database->prepare("SELECT factoids.id,factoids.name, factoids.content, games.displayname "
-                  . "FROM factoids "
-                  . "INNER JOIN games ON (factoids.game = games.id) "
-                  . "WHERE games.idname = ?");
+                    . "FROM factoids "
+                    . "INNER JOIN games ON (factoids.game = games.id) "
+                    . "WHERE games.idname = ?");
             $statement->execute(array(0 => $table));
             $factoids = $statement->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $ex) {
@@ -52,10 +52,10 @@ class Factoids {
         $database = self::openConnection();
         try {
             $statement = $database->prepare("SELECT factoids.id AS id,name,content,games.displayname AS game "
-                  . "FROM factoids "
-                  . "INNER JOIN games ON factoids.game = games.id "
-                  . "WHERE factoids.id=? "
-                  . "LIMIT 1");
+                    . "FROM factoids "
+                    . "INNER JOIN games ON factoids.game = games.id "
+                    . "WHERE factoids.id=? "
+                    . "LIMIT 1");
             $statement->execute(array($id));
             return $statement->fetch();
         } catch (PDOException $ex) {
@@ -151,7 +151,7 @@ class Factoids {
         try {
             $database->beginTransaction();
 
-            $statement = $database->prepare("INSERT INTO factoids (`name`,`game`,`content`) VALUES (?,?,?)");
+            $statement = $database->prepare("INSERT INTO factoids (`name`,`game`,`content`) VALUES (?,(SELECT id FROM games WHERE idname = ?),?)");
             $statement->execute(array($key, $table, $content));
 
             $select = $database->prepare("SELECT id FROM factoids WHERE name = ? AND game = ?");
@@ -160,6 +160,7 @@ class Factoids {
 
             $anonObj = new stdClass();
             $anonObj->content = $content;
+            $anonObj->game = $table;
             self::updateLogs($database, 'create', $id, $anonObj);
             $database->commit();
             return $statement->rowCount() > 0;
