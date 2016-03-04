@@ -154,7 +154,7 @@ class Factoids {
             $statement = $database->prepare("INSERT INTO factoids (`name`,`game`,`content`) VALUES (?,(SELECT id FROM games WHERE idname = ?),?)");
             $statement->execute(array($key, $table, $content));
 
-            $select = $database->prepare("SELECT id FROM factoids WHERE name = ? AND game = ?");
+            $select = $database->prepare("SELECT id FROM factoids WHERE name = ? AND game = (SELECT id FROM games WHERE idname = ?)");
             $select->execute(array($key, $table));
             $id = $select->fetch()['id'];
 
