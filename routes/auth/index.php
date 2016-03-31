@@ -5,14 +5,14 @@ use \AE97\Panel\Authentication,
     \AE97\Panel\Config,
     \AE97\Panel\User;
 
-$this->respond('GET', '/login/?', function($request, $response, $service) {
+$this->respond('GET', '/login', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         $response->redirect("/", 302);
     }
     $service->render(HTML_DIR . 'index.phtml', array('action' => 'login', 'page' => HTML_DIR . 'auth/login.phtml', 'redirect' => $request->param('redirect')));
 });
 
-$this->respond('POST', '/login/?', function($request, $response, $service) {
+$this->respond('POST', '/login', function($request, $response, $service) {
     $service->validateParam('email', 'Please enter a valid eamail')->isLen(5, 256);
     $service->validateParam('password', 'Please enter a password')->isLen(1, 256);
     $result = Authentication::validateCreds($request->param('email'), $request->param('password'));
@@ -31,7 +31,11 @@ $this->respond('POST', '/login/?', function($request, $response, $service) {
         return;
     } else {
         Authentication::createSession($result['uuid']);
-        $response->redirect('/', 302);
+        if ($request->param('redirect')) {
+            $response->redirect($request->param('redirect'), 302);
+        } else {
+            $response->redirect('/', 302);
+        }
     }
 });
 

@@ -1,6 +1,6 @@
 <link href="/assets/css/signin.min.css?<?php echo filemtime(__DIR__ . '/../../assets/css/signin.min.css'); ?>" rel="stylesheet">
 
-<form class = "form-signin" role = "form" action = "/auth/login<?php echo ($this->redirect !== null) ? "/" . $this->redirect : "" ?>" method = "post">
+<form class = "form-signin" role = "form" action = "/auth/login?redirect=<?php echo ($this->redirect !== null) ? $this->redirect : "/" ?>" method = "post">
     <h3 class = "form-signin-heading">Login</h3>
     <?php
     foreach ($this->flashes() as $type => $messages) {
