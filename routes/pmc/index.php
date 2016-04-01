@@ -10,7 +10,7 @@ $this->respond('POST', '/clear', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         try {
             if (Authentication::checkPermission('pmc.emails')) {
-                PmcEmail::deleteCode($request->param('ticket'));
+                PmcEmail::deleteCode($request->param('ticket'), $_SESSION['uuid']);
                 $response->redirect('/pmc/email', 200);
             } else {
                 $service->render(HTML_DIR . 'errors/403.phtml');
@@ -29,7 +29,7 @@ $this->respond('POST', '/add', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         try {
             if (Authentication::checkPermission('pmc.emails')) {
-                $code = PmcEmail::addCode($request->param('email'), $request->param('ticket'));
+                $code = PmcEmail::addCode($request->param('email'), $request->param('ticket'), $_SESSION['uuid']);
                 $message = str_replace("\${ticket}", $request->param('ticket'), str_replace("\${code}", $code, file_get_contents(BASE_DIR . '/templates/pmcvalidate.txt')));
                 $subject = str_replace("\${ticket}", $request->param('ticket'), str_replace("\${code}", $code, "PMC Ticket #\${ticket} Validation"));
                 Email::send($request->param('email'), $subject, $message, 'PMC Validation <pmc@ae97.net>');

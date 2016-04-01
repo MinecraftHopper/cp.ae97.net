@@ -8,22 +8,22 @@ class PmcEmail {
 
     public static function getCodes() {
         $database = self::openConnection();
-        $codeListStmt = $database->prepare("SELECT id,email,ticket,code FROM pmcemail ORDER BY ID DESC LIMIT 25");
+        $codeListStmt = $database->prepare("SELECT id,email,ticket,code FROM pmcemail WHERE deleted = 0 ORDER BY ID DESC LIMIT 25");
         $codeListStmt->execute();
         return $codeListStmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function deleteCode($id) {
+    public static function deleteCode($id, $user) {
         $database = self::openConnection();
-        $codeListStmt = $database->prepare("DELETE FROM pmcemail WHERE id = ?");
-        $codeListStmt->execute(array($id));
+        $codeListStmt = $database->prepare("UPDATE pmcemail SET deleted = 1, delete_user = ? WHERE id = ?");
+        $codeListStmt->execute(array($user, $id));
     }
 
-    public static function addCode($email, $ticketId) {
+    public static function addCode($email, $ticketId, $user) {
         $database = self::openConnection();
-        $insert = $database->prepare("INSERT INTO pmcemail VALUES (?, ?, ?, ?)");
+        $insert = $database->prepare("INSERT INTO pmcemail (email, ticket, code, create_user) VALUES (?, ?, ?, ?)");
         $code = PmcEmail::generateCode();
-        $insert->execute(array(0, $email, $ticketId, $code));
+        $insert->execute(array($email, $ticketId, $code, $user));
         return $code;
     }
 
