@@ -3,7 +3,8 @@
 use \AE97\Panel\Authentication,
     \AE97\Panel\Bans,
     \AE97\Panel\User,
-    \AE97\Validate;
+    \AE97\Validate,
+    \AE97\Panel\Bot;
 
 $this->respond('GET', '/', function($request, $response, $service) {
     if (Authentication::verifySession()) {
@@ -14,8 +15,20 @@ $this->respond('GET', '/', function($request, $response, $service) {
 });
 
 $this->respond('GET', '/bot', function($request, $response, $service) {
-    if (Authentication::verifySession()) {
-        $service->render(HTML_DIR . 'index.phtml', array('action' => 'bot', 'page' => HTML_DIR . 'cp/admin/bot/index.phtml'));
+    if (Authentication::verifySession() && Authentication::checkPermission('bot.edit')) {
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'bot', 'page' => HTML_DIR . 'cp/admin/bot/index.phtml', 'config' => Bot::getConfig()));
+    } else {
+        $response->redirect('/error/401', 401);
+    }
+});
+
+$this->respond('POST', '/bot/edit', function($request, $response, $service) {
+    if (Authentication::verifySession() && Authentication::checkPermission('bot.edit')) {
+        $key = $request->param('id');
+        $value = $request->param('val');
+        Bot::set($key, $value);
+        $service->flash($key . ' updated');
+        $response->redirect('/admin/bot');
     } else {
         $response->redirect('/error/401', 401);
     }
