@@ -12,30 +12,62 @@
 
     <div class="col-md-5">
         <h3> Submit a new validation request</h3>
-        <form action="add" method="POST">
+        <form action="/pmc/add" method="POST" id="submitRequest">
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>                        
-                            <th style="width:50%"></th>
-                            <th style="width:50%"></th>
+                            <th style="width:20%"></th>
+                            <th style="width:80%"></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Email</td>
-                            <td><input id="email" name="email" type="email"/></td>
+                            <td><input class="form-control" id="email" name="email" type="email"/></td>
                         </tr>
                         <tr>
                             <td>Ticket ID</td>
-                            <td><input id="ticket" name="ticket" type="number"/></td>
+                            <td><input class="form-control" id="ticket" name="ticket" type="number"/></td>
+                        </tr>                        
+                        <tr>
+                            <td>Subject</td>
+                            <td><input class="form-control" id="subject" name="subject" type="text" value="<?php echo $this->subject; ?>"/></td>
+                        </tr>
+                        <tr>
+                            <td>Body</td>
+                            <td><textarea form="submitRequest" style="resize: vertical" class="form-control" rows="15" id="message" name="message"><?php echo $this->message; ?></textarea></td>
                         </tr>
                         <tr>
                             <td></td>
-                            <td><input type="submit" id="sendRequest" class="btn button" value="Send Request" /></td>
+                            <td align="right"><input type="submit" id="sendRequest" class="btn button btn-primary" value="Send Request" /></td>
+                        </tr>                        
+                    </tbody>
+                </table>
+                <table class="table">
+                    <thead>
+                        <tr>                        
+                            <th style="width:30%"></th>
+                            <th style="width:70%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Available triggers</strong></td>
+                            <td>
+                                <strong>${code}</strong>
+                                <br>
+                                Replaced with a randomly generated string of 10 characters
+                                <br>
+                                <br>
+                                <strong>${ticket}</strong>
+                                <br>
+                                Replaced with the ticket ID
+                            </td>
                         </tr>
                     </tbody>
                 </table>
+
             </div>  
         </form>
     </div>

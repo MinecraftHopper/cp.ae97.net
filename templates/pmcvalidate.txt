@@ -1,13 +1,11 @@
-Greetings!
-<br><br>
+Greeting!
+
 This email was sent to validate an email from a ticket made on http://planetminecraft.net
-<br><br>
+
 To validate your email for that ticket, please leave the following comment on your ticket to validate ownership:
-<br>
 <strong>Code: ${code}</strong>
-<br><br>
+
 If you did not open a ticket on the site, then you may ignore this email.
-<br><br>
-NOTE: This email is not monitored, and will not recieve any replies. 
-<br>
-Should you receive this message in error or need to report spam, please send an email to pmcabuse@ae97.net with a copy of this email
+
+NOTE: This email is not monitored, and will not receive any replies. 
+Should you receive this message in error or need to report spam, please send an email to pmcabuse@ae97.net with a copy of this email.

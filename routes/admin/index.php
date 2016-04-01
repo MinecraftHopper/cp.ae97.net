@@ -25,7 +25,7 @@ $this->respond('GET', '/bot', function($request, $response, $service) {
 $this->respond('POST', '/bot/edit', function($request, $response, $service) {
     if (Authentication::verifySession() && Authentication::checkPermission('bot.edit')) {
         $key = $request->param('id');
-        $value = $request->param('val');
+        $value = $request->param('value');
         Bot::set($key, $value);
         $service->flash($key . ' updated');
         $response->redirect('/admin/bot');
