@@ -32,7 +32,7 @@ $this->respond('POST', '/add', function($request, $response, $service) {
                 $code = PmcEmail::addCode($request->param('email'), $request->param('ticket'), $_SESSION['uuid']);
                 $message = str_replace(array("\r\n", "\n", "\r"), '<br>', str_replace("\${ticket}", $request->param('ticket'), str_replace("\${code}", $code, $request->param('message'))));
                 $subject = str_replace("\${ticket}", $request->param('ticket'), str_replace("\${code}", $code, $request->param('subject')));
-                Email::send($request->param('email'), $subject, $message, 'PMC Validation <pmc@ae97.net>');
+                Email::send($request->param('email'), $subject, $message, 'PMC Validation <pmc@ae97.net>', 'pmcsupport');
                 $response->redirect('/pmc/email', 200);
             } else {
                 $service->render(HTML_DIR . 'errors/403.phtml');

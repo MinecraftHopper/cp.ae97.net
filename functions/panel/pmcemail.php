@@ -34,7 +34,7 @@ class PmcEmail {
         return $database;
     }
 
-    private static function generateCode($length = 10) {
+    private static function generateCode($length = 8) {
         $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';

@@ -6,7 +6,7 @@ use \Mailgun\Mailgun;
 
 class Email {
 
-    public static function send($to, $subject, $html, $from = null) {
+    public static function send($to, $subject, $html, $from = null, $campaign = null) {
         if ($from == null) {
             $from = Config::getGlobal('mail')['email'];
         }
@@ -16,7 +16,8 @@ class Email {
                 'from' => $from,
                 'to' => $to,
                 'subject' => $subject,
-                'html' => $html
+                'html' => $html,
+                'o:campaign' => $campaign
             ));
         } catch (\Exception $ex) {
             Utilities::logError($ex);
