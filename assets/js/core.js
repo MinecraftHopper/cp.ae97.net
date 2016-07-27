@@ -4,7 +4,7 @@ function parseToText($string) {
         twitter: false,
         stripPrefix: false
     });
-    return markdownToHtml(mircToHtml(autolinker.link($string.replace(';;', ' <br>'))));
+    return markdownToHtml(mircToHtml(autolinker.link($string.replace(new RegExp(';;', 'g'), ' <br>'))));
 }
 
 function mircToHtml(text) {
