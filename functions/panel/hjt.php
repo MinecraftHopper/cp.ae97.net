@@ -20,7 +20,7 @@ class Bans {
             return null;
         }
     }
-    public static function getHJTs($page = 1) {
+    public static function getHJTs() {
         if ($page == null) {
             $page = 1;
         }
@@ -37,20 +37,25 @@ class Bans {
             Utilities::logError($ex);
             return array();
         }
-    }
-    public static function getHJTPages() {
-        self::validateDatabase();
+		
+		$database = self::openConnection();
         try {
-            $statement = self::$database->prepare("SELECT count(*) AS count "
-                    . "FROM hjt "
-            );
+            $statement = $database->prepare("SELECT name, value FROM hjt ");
             $statement->execute();
-            $record = $statement->fetch(PDO::FETCH_ASSOC);
-            return ceil($record['count'] / self::$bansPerPage);
+            $hjt = $statement->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $ex) {
             Utilities::logError($ex);
             return array();
         }
+
+        $compiledFactoidlist = array();
+        foreach ($hjt as $f):
+            $compiledHJTlist[] = array('name' => $f['name'], 'content' => $f['content']);
+        endforeach;
+
+        $collection = array();
+        $collection['hjt'] = $compiledHJTlist;
+        return $collection;
     }
     public static function addHJT($name, $value) {
         self::validateDatabase();

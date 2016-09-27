@@ -1,0 +1,147 @@
+<link href="/assets/css/bootstrap-markdown.min.css?<?php echo filemtime("../assets/css/bootstrap-markdown.min.css"); ?>" rel="stylesheet">
+<link href="/assets/fonts/glyphicons-halflings-regular.woff" rel="font">
+<script src="/assets/js/bootstrap-markdown.js?<?php echo filemtime("../assets/js/bootstrap-markdown.js"); ?>"></script>
+
+<div class="main">
+    <h2 class="sub-header">HJT Management</h2>
+    <div class="navbar navbar-default">
+        <div class="container">
+            <h3>Create hjt</h3>
+            <form style="width: 80%" name="edit" action="/hjt/submit-new" method="post" accept-charset="UTF-8">
+                <?php
+                foreach ($this->flashes() as $type => $messages) {
+                    foreach ($messages as $msg) {
+                        ?><h5 class = \"form-signin-heading\"><?php echo $msg; ?>'</h5><?php
+                    }
+                }
+                ?>
+                <p><strong>Name:</strong> <input name = "name"></input></p>
+                <p><strong>Content:</strong></p>
+                <p>
+                    <textarea id = "content" name = "content" data-provide = "markdown"></textarea>
+                </p>
+                <p></p>
+                <p></p>
+                <button type="submit" style="width:75px" class="btn btn-xs btn-success" type="button">Create</button>
+            </form>
+            <p></p>
+            <p></p>
+            <a style="width:75px" class="btn btn-xs btn-danger" href="/hjt">Cancel</a>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#content").markdown({
+        fullscreen: {
+            enable: false
+        },
+        additionalButtons: [[{
+                    name: "htmlGroup",
+                    data: [{
+                            name: 'customBold',
+                            hotkey: 'Ctrl+B',
+                            title: 'Bold',
+                            icon: {glyph: 'glyphicon glyphicon-bold', fa: 'fa fa-bold', 'fa-3': 'icon-bold'},
+                            callback: function (e) {
+                                // Give/remove ** surround the selection
+                                var chunk, cursor, selected = e.getSelection(),
+                                        content = e.getContent();
+
+                                if (selected.length === 0) {
+                                    // Give extra word
+                                    chunk = e.__localize('');
+                                } else {
+                                    chunk = selected.text;
+                                }
+
+                                // transform selection and set the cursor into chunked text
+                                if (content.substr(selected.start - 3, 3) === '[b]'
+                                        && content.substr(selected.end, 4) === '[/b]') {
+                                    e.setSelection(selected.start - 3, selected.end + 4);
+                                    e.replaceSelection(chunk);
+                                    cursor = selected.start - 3;
+                                } else {
+                                    e.replaceSelection('[b]' + chunk + '[/b]');
+                                    cursor = selected.start + 3;
+                                }
+
+                                // Set the cursor
+                                e.setSelection(cursor, cursor + chunk.length);
+                            }
+                        }, {
+                            name: 'customItalic',
+                            title: 'Italic',
+                            hotkey: 'Ctrl+I',
+                            icon: {glyph: 'glyphicon glyphicon-italic', fa: 'fa fa-italic', 'fa-3': 'icon-italic'},
+                            callback: function (e) {
+                                // Give/remove ** surround the selection
+                                var chunk, cursor, selected = e.getSelection(),
+                                        content = e.getContent();
+
+                                if (selected.length === 0) {
+                                    // Give extra word
+                                    chunk = e.__localize('');
+                                } else {
+                                    chunk = selected.text;
+                                }
+
+                                // transform selection and set the cursor into chunked text
+                                if (content.substr(selected.start - 3, 3) === '[i]'
+                                        && content.substr(selected.end, 4) === '[/i]') {
+                                    e.setSelection(selected.start - 3, selected.end + 4);
+                                    e.replaceSelection(chunk);
+                                    cursor = selected.start - 3;
+                                } else {
+                                    e.replaceSelection('[i]' + chunk + '[/i]');
+                                    cursor = selected.start + 3;
+                                }
+
+                                // Set the cursor
+                                e.setSelection(cursor, cursor + chunk.length);
+                            }
+                        }, {
+                            name: "cmdUnderlineC",
+                            toggle: true,
+                            title: "Underline",
+                            hotkey: 'Ctrl+U',
+                            icon: {glyph: 'glyphicon glyphicon-text-width'},
+                            callback: function (e) {
+                                // Give/remove ** surround the selection
+                                var chunk, cursor, selected = e.getSelection(),
+                                        content = e.getContent();
+
+                                if (selected.length === 0) {
+                                    // Give extra word
+                                    chunk = e.__localize('');
+                                } else {
+                                    chunk = selected.text;
+                                }
+
+                                // transform selection and set the cursor into chunked text
+                                if (content.substr(selected.start - 3, 3) === '[u]'
+                                        && content.substr(selected.end, 4) === '[/u]') {
+                                    e.setSelection(selected.start - 3, selected.end + 4);
+                                    e.replaceSelection(chunk);
+                                    cursor = selected.start - 3;
+                                } else {
+                                    e.replaceSelection('[u]' + chunk + '[/u]');
+                                    cursor = selected.start + 3;
+                                }
+
+                                // Set the cursor
+                                e.setSelection(cursor, cursor + chunk.length);
+                            }
+                        }
+                    ]}]]
+    });
+    var markdown = $("#content").data("markdown");
+    markdown.hideButtons(["cmdUrl", "cmdImage", "cmdList", "cmdList0",
+        "cmdCode", "cmdQuote", "cmdPreview", "fullscreen", "cmdBold",
+        "cmdItalic", "cmdHeading"]);
+</script>
