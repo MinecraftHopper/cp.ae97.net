@@ -21,14 +21,10 @@ class Bans {
         }
     }
     public static function getHJTs() {
-        if ($page == null) {
-            $page = 1;
-        }
         self::validateDatabase();
         try {
             $query = "SELECT name, value "
-                    . "FROM hjt "
-                    . "LIMIT " . strval(intval($page - 1) * self::$hjtPerPage) . ", " . self::$hjtPerPage);
+                    . "FROM hjt ");
             $statement = self::$database->prepare($query);
             $statement->execute();
             $record = $statement->fetchAll(PDO::FETCH_ASSOC);
