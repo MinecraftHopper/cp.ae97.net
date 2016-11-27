@@ -9,7 +9,7 @@ use \stdClass,
 
 class Factoids {
 
-    public static function getDatabase($table = 'global') {
+    public static function getDatabase($table = 'minecraft') {
         $database = self::openConnection();
         try {
             $gameliststatement = $database->prepare("SELECT id,idname,displayname FROM games");

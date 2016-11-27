@@ -12,7 +12,7 @@ $this->respond('GET', '/?', function($request, $response, $service) {
     }
     $db = $request->param('db');
     if ($db == null || $db == '') {
-        $db = 'Global';
+        $db = 'minecraft';
     }
     $service->render(HTML_DIR . 'index.phtml', array('action' => 'factoid', 'page' => HTML_DIR . 'factoid/factoid.phtml', 'perms' => $perms, 'db' => $db));
 });
