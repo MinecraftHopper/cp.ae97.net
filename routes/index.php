@@ -22,6 +22,7 @@ $klein->with('/auth', ROUTES_DIR . 'auth/index.php');
 $klein->with('/admin', ROUTES_DIR . 'admin/index.php');
 $klein->with('/factoid', ROUTES_DIR . 'factoid/index.php');
 $klein->with('/pmc', ROUTES_DIR . 'pmc/index.php');
+$klein->with('/hjt', ROUTES_DIR . 'hjt/index.php');
 
 $klein->respond('GET', '/error/[i:code]', function($request, $response, $service) {
     $service->render(HTML_DIR . 'index.phtml', array('page' => HTML_DIR . 'errors/' . $request->param('code') . '.phtml'));
