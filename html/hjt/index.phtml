@@ -26,7 +26,7 @@
                 <th><?php echo $hjt['value']; ?></th>
                 <th>
                     <?php if (\AE97\Panel\Authentication::checkPermission('bans.delete')) { ?>
-                        <a class="btn btn-default btn-sm" href="hjt/delete?id=<?php echo $hjt['name']; ?>">Delete</a>
+                        <a class="btn btn-default btn-sm" href="hjt/delete?name=<?php echo $hjt['name']; ?>">Delete</a>
                     <?php } ?>
                 </th>
             </tr>
