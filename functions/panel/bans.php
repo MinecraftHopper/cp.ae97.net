@@ -87,9 +87,11 @@ class Bans {
         if (empty(trim($notes))) {
             $notes = null;
         }
+        
+        $duration = $daysToLast <= 0 ? 3650 : $daysToLast;
 
         try {
-            $statement = self::$database->prepare("INSERT INTO bans (type, content, issuedBy, kickMessage, notes, expireDate) VALUES (?,?,?,?,?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL " . $daysToLast . " DAY))");
+            $statement = self::$database->prepare("INSERT INTO bans (type, content, issuedBy, kickMessage, notes, expireDate) VALUES (?,?,?,?,?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL " . $duration . " DAY))");
             $statement->execute(array($isExtended, $convertedMask, $issuer, $kickMessage, $notes));
             return self::$database->lastInsertId();
         } catch (PDOException $ex) {
