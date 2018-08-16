@@ -2,20 +2,22 @@
 
 namespace AE97\Panel;
 
-use \PDO,
+use \stdClass,
+    \AE97\Validate,
+    \PDO,
     \PDOException;
 
 class HJT {
 
     private static $database;
 
-    public static function getName($name) {
+    public static function getName($id) {
         self::validateDatabase();
         try {
-            $statement = self::$database->prepare("SELECT name, value "
+            $statement = self::$database->prepare("SELECT id, name, value "
                     . "FROM hjt "
-                    . "WHERE name = ?");
-            $statement->execute(array($name));
+                    . "WHERE id = ?");
+            $statement->execute(array($id));
             $result = $statement->fetchAll();
             return count($result) >= 1 ? $result[0] : null;
         } catch (PDOException $ex) {
@@ -30,7 +32,7 @@ class HJT {
         }
         self::validateDatabase();
         try {
-            $query = "SELECT name, value "
+            $query = "SELECT id, name, value "
                     . "FROM hjt ";
             $statement = self::$database->prepare($query);
             $statement->execute();
@@ -54,10 +56,10 @@ class HJT {
         }
     }
 
-    public static function removeHJT($name) {
+    public static function removeHJT($id) {
         self::validateDatabase();
         try {
-            self::$database->prepare("DELETE FROM hjt WHERE name = ?")->execute(array($name));
+            self::$database->prepare("DELETE FROM hjt WHERE id = ?")->execute(array($id));
             return true;
         } catch (PDOException $ex) {
             Utilities::logError($ex);
@@ -65,10 +67,10 @@ class HJT {
         }
     }
 
-    public static function updateHJT($name, $value) {
+    public static function updateHJT($id, $name, $value) {
         self::validateDatabase();
         try {
-            self::$database->prepare("UPPDATE hjt SET value = ? WHERE name = ?")->execute(array($value, $name));
+            self::$database->prepare("UPDATE hjt SET value = ?, name = ? WHERE id = ?")->execute(array($value, $name, $id));
             return true;
         } catch (PDOException $ex) {
             Utilities::logError($ex);
