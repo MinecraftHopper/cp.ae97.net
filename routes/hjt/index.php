@@ -29,7 +29,7 @@ $this->respond('GET', '/edit/[i:id]', function($request, $response, $service) {
 $this->respond('POST', '/add', function($request, $response, $service) {
     if (Authentication::verifySession()) {
         try {
-            if (Authentication::checkPermission('hjt.add')) {
+            if (Authentication::checkPermission('hjt.create')) {
                 $name = $request->param('name');
                 $value = $request->param('newvalue');
                 HJT::addHJT($name, $value);
