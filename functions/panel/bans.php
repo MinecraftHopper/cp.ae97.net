@@ -92,7 +92,7 @@ class Bans {
 
         try {
             $statement = self::$database->prepare("INSERT INTO bans (type, content, issuedBy, kickMessage, notes, expireDate) VALUES (?,?,?,?,?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL " . $duration . " DAY))");
-            $statement->execute(array($isExtended, $convertedMask, $issuer, $kickMessage, $notes));
+            $statement->execute(array($isExtended ? 1 : 0, $convertedMask, $issuer, $kickMessage, $notes));
             return self::$database->lastInsertId();
         } catch (PDOException $ex) {
             Utilities::logError($ex);
