@@ -5,9 +5,13 @@ use \AE97\Panel\Authentication,
     \AE97\Panel\Utilities;
 
 $this->respond('GET', '/?', function($request, $response, $service) {
-    $page = $request->param('page') != null ? $request->param('page') : 1;
-    $hjts = HJT::getHJTs($page);
-    $service->render(HTML_DIR . 'index.phtml', array('action' => 'hjt', 'page' => HTML_DIR . 'hjt/index.phtml', 'hjts' => $hjts, 'currentPage' => $page));
+    if (Authentication::verifySession()) {
+        $page = $request->param('page') != null ? $request->param('page') : 1;
+        $hjts = HJT::getHJTs($page);
+        $service->render(HTML_DIR . 'index.phtml', array('action' => 'hjt', 'page' => HTML_DIR . 'hjt/index.phtml', 'hjts' => $hjts, 'currentPage' => $page));
+    } else {
+        $response->redirect('/error/401', 401);
+    }
 });
 
 $this->respond('GET', '/edit/[i:id]', function($request, $response, $service) {
