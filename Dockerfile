@@ -2,7 +2,7 @@ FROM php:7-fpm-alpine
 
 RUN apk add --no-cache --virtual .composer-rundeps git subversion openssh-client mercurial tini bash patch make zip unzip coreutils \
  && apk add --no-cache --virtual .build-deps zlib-dev libzip-dev \
- && docker-php-ext-configure zip --with-libzip \
+ && docker-php-ext-configure zip --with-libzip=/usr/include \
  && docker-php-ext-install -j$(getconf _NPROCESSORS_ONLN) zip opcache \
  && docker-php-ext-install pdo_mysql \
  && runDeps="$( \
