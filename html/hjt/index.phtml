@@ -45,10 +45,10 @@
                     <td>
                     <?php } ?>
                     <?php if (\AE97\Panel\Authentication::checkPermission('hjt.edit')) { ?>
-                        <a style="width:60px" class="btn btn-xs btn-default" href="edit/<?php echo $val['id']; ?>"}">Edit</a>
+                        <a style="width:60px" class="btn btn-xs btn-default" href="/hjt/edit/<?php echo $val['id']; ?>"}">Edit</a>
                     <?php } ?>
                     <?php if (\AE97\Panel\Authentication::checkPermission('hjt.delete')) { ?>
-                        <a style="width:60px" class="btn btn-xs btn-default" href="delete/<?php echo $val['id']; ?>"}">Delete</a>
+                        <a style="width:60px" class="btn btn-xs btn-default" href="/hjt/delete/<?php echo $val['id']; ?>"}">Delete</a>
                     <?php } ?>
                     <?php if ((\AE97\Panel\Authentication::checkPermission('hjt.edit')) || (\AE97\Panel\Authentication::checkPermission('hjt.delete'))) { ?>
                     </td>
