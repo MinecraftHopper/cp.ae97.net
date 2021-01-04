@@ -1,0 +1,31 @@
+{
+  "name": "panel",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "vue": "^2.6.12",
+    "vue-router": "^3.4.9",
+    "vuetify": "^2.4.0"
+  },
+  "devDependencies": {
+    "@vue/cli": "^4.5.9",
+    "@vue/cli-service": "^4.5.9",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "private": true,
+  "scripts": {
+    "build": "vue-cli-service build --modern",
+    "dev-build": "vue-cli-service build --mode development",
+    "dev-watch": "vue-cli-service build --mode development --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MinecraftHopper/panel.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/MinecraftHopper/panel/issues"
+  },
+  "homepage": "https://github.com/MinecraftHopper/panel#readme"
+}

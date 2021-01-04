@@ -14,15 +14,12 @@ func main() {
 	viper.AutomaticEnv()
 	_ = viper.ReadInConfig()
 
-	err := ConnectDatabase()
-	if err != nil {
-		panic(err)
-	}
+	ConnectDatabase()
 
 	engine := ConfigureRoutes()
 
 	viper.SetDefault("bind", "0.0.0.0:8080")
-	err = engine.Run(viper.GetString("bind"))
+	err := engine.Run(viper.GetString("bind"))
 	if err != nil {
 		panic(err)
 	}

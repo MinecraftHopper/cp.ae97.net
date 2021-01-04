@@ -3,3 +3,5 @@
 composer.phar
 config/config.json
 .idea/
+dist/
+node_modules/

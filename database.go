@@ -23,7 +23,11 @@ func ConnectDatabase() error {
 		viper.GetString("db.host"),
 		viper.GetString("db.database"),
 	)
-	Database, err = gorm.Open(mysql.Open(connString), &gorm.Config{})
+
+	Database, err = gorm.Open(mysql.New(mysql.Config{
+		DSN: connString,
+	}), &gorm.Config{})
+
 	if Database != nil {
 		Database = Database.Debug()
 	}
