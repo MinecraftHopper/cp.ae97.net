@@ -7,7 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"net/http"
-	"strings"
+  "os"
+  "path/filepath"
+  "strings"
 )
 
 var noHandle404 = []string{"/api/"}
@@ -18,6 +20,11 @@ func ConfigureRoutes() *gin.Engine {
 
 	viper.SetDefault("session.secret", "changeme")
 	viper.SetDefault("session.name", "panelsession")
+	wd, err := os.Getwd()
+	if err != nil {
+	  panic(err)
+  }
+	viper.SetDefault("web.root", wd)
 
 	webRoot = viper.GetString("web.root")
 
@@ -35,24 +42,24 @@ func ConfigureRoutes() *gin.Engine {
 	css := e.Group("/css")
 	{
 		css.Use(gzip.Gzip(gzip.DefaultCompression))
-		css.StaticFS("", http.Dir(webRoot+"/css"))
+		css.StaticFS("", http.Dir(filepath.Join(webRoot, "css")))
 	}
 	fonts := e.Group("/fonts")
 	{
 		fonts.Use(gzip.Gzip(gzip.DefaultCompression))
-		fonts.StaticFS("", http.Dir(webRoot+"/fonts"))
+		fonts.StaticFS("", http.Dir(filepath.Join(webRoot, "fonts")))
 	}
 	img := e.Group("/img")
 	{
-		img.StaticFS("", http.Dir(webRoot+"/img"))
+		img.StaticFS("", http.Dir(filepath.Join(webRoot, "img")))
 	}
 	js := e.Group("/js", setContentType("application/javascript"))
 	{
 		js.Use(gzip.Gzip(gzip.DefaultCompression))
-		js.StaticFS("", http.Dir(webRoot+"/js"))
+		js.StaticFS("", http.Dir(filepath.Join(webRoot, "js")))
 	}
-	e.StaticFile("/favicon.png", webRoot+"/favicon.png")
-	e.StaticFile("/favicon.ico", webRoot+"/favicon.ico")
+	e.StaticFile("/favicon.png", filepath.Join(webRoot, "favicon.png"))
+	e.StaticFile("/favicon.ico", filepath.Join(webRoot, "favicon.ico"))
 	e.NoRoute(handle404)
 
 	return e
@@ -93,31 +100,33 @@ func handle404(c *gin.Context) {
 		}
 	}
 
-	if strings.HasSuffix(c.Request.URL.Path, ".js") {
+	path := strings.TrimPrefix(c.Request.URL.Path, "/")
+
+	if strings.HasSuffix(path, ".js") {
 		c.Header("Content-Type", "application/javascript")
-		c.File(webRoot + c.Request.URL.Path)
+		c.File(filepath.Join(webRoot, path))
 		return
 	}
 
-	if strings.HasSuffix(c.Request.URL.Path, ".json") {
+	if strings.HasSuffix(path, ".json") {
 		c.Header("Content-Type", "application/json")
-		c.File(webRoot + c.Request.URL.Path)
+		c.File(filepath.Join(webRoot, path))
 		return
 	}
 
-	if strings.HasSuffix(c.Request.URL.Path, ".css") {
+	if strings.HasSuffix(path, ".css") {
 		c.Header("Content-Type", "text/css")
-		c.File(webRoot + c.Request.URL.Path)
+		c.File(filepath.Join(webRoot, path))
 		return
 	}
 
-	if strings.HasSuffix(c.Request.URL.Path, ".tar") {
+	if strings.HasSuffix(path, ".tar") {
 		c.Header("Content-Type", "application/x-tar")
-		c.File(webRoot + c.Request.URL.Path)
+		c.File(filepath.Join(webRoot, path))
 		return
 	}
 
-	c.File(webRoot + "/index.html")
+	c.File(filepath.Join(webRoot, "index.html"))
 }
 
 func setContentType(contentType string) gin.HandlerFunc {
