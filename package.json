@@ -4,12 +4,15 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --modern",
+    "build-dev": "vue-cli-service build --mode development --watch",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@mdi/font": "^3.6.95",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "lodash": "^4.17.20",
     "roboto-fontface": "*",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",

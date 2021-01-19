@@ -14,13 +14,13 @@
       <v-list dense nav>
         <v-list-item>
           <v-list-item-content>
-            <router-link to="/">Home</router-link>
+            <router-link to="/factoids">Factoids</router-link>
           </v-list-item-content>
         </v-list-item>
 
         <v-list-item>
           <v-list-item-content>
-            <router-link to="/about">About</router-link>
+            <router-link to="/hjt">HJT</router-link>
           </v-list-item-content>
         </v-list-item>
 
@@ -51,7 +51,6 @@
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 
