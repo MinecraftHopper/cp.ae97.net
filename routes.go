@@ -31,10 +31,11 @@ func ConfigureRoutes() *gin.Engine {
 	store := cookie.NewStore([]byte(viper.GetString("session.secret")))
 	e.Use(sessions.Sessions(viper.GetString("session.name"), store))
 
-	e.Handle("GET", "/api/factoid", getFactoids)
+	e.Handle("GET", "/api/factoid", allowCORS, getFactoids)
 	e.Handle("GET", "/api/factoid/*name", getFactoid)
 	e.Handle("PUT", "/api/factoid/*name", authorized("factoid.manage"), updateFactoid)
 	e.Handle("DELETE", "/api/factoid/*name", authorized("factoid.manage"), deleteFactoid)
+	e.Handle("OPTIONS", "/api/factoid", CreateOptions("GET", "PUT", "DELETE"))
 
 	e.Handle("GET", "/login", login)
 	e.Handle("GET", "/login-callback", loginCallback)
@@ -63,6 +64,28 @@ func ConfigureRoutes() *gin.Engine {
 	e.NoRoute(handle404)
 
 	return e
+}
+
+func CreateOptions(options ...string) gin.HandlerFunc {
+	replacement := make([]string, len(options)+1)
+
+	copy(replacement, options)
+
+	replacement[len(options)] = "OPTIONS"
+	res := strings.Join(replacement, ",")
+
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", res)
+		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+		c.Header("Allow", res)
+		c.Header("Content-Type", "application/json")
+		c.AbortWithStatus(http.StatusOK)
+	}
+}
+
+func allowCORS(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
 }
 
 func authorized(perm string) gin.HandlerFunc {

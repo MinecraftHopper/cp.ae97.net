@@ -14,7 +14,7 @@ func main() {
 	viper.AutomaticEnv()
 	_ = viper.ReadInConfig()
 
-	ConnectDatabase()
+	_ = ConnectDatabase()
 
 	engine := ConfigureRoutes()
 
