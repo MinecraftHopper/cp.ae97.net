@@ -7,18 +7,17 @@
     ></v-text-field>
 
     <v-list three-line>
-      <v-list-item-content v-for="factoid in filteredFactoids" :key="factoid.name" no-action active-class="">
-        <v-list-item-title v-text="factoid.name"></v-list-item-title>
-        <v-list-item-subtitle class="wrap-text" v-text="factoid.content"></v-list-item-subtitle>
+      <v-list-item-content v-for="factoid in filteredFactoids" :key="factoid.name">
+        <v-card>
+          <v-card-title class="font-weight-bold" v-text="factoid.name"></v-card-title>
+          <v-card-text v-text="factoid.content"></v-card-text>
+        </v-card>
       </v-list-item-content>
     </v-list>
   </v-card>
 </template>
 
 <style>
-.wrap-text {
-  -webkit-line-clamp: unset !important;
-}
 </style>
 
 <script>
@@ -58,7 +57,7 @@ export default {
         return factoid.name.toLocaleLowerCase().includes(this.search.toLocaleLowerCase())
             || factoid.content.toLocaleLowerCase().includes(this.search.toLocaleLowerCase())
       }, this)
-    }//, 500)
+    }/*, 500)*/
   },
   watch: {
     search: function () {
