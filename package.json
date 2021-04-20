@@ -12,6 +12,7 @@
     "@mdi/font": "^3.6.95",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "dompurify": "^2.2.7",
     "lodash": "^4.17.20",
     "marked": "^2.0.3",
     "roboto-fontface": "*",

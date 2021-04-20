@@ -11,7 +11,7 @@
       <v-list-item-content v-for="factoid in filteredFactoids" :key="factoid.name">
         <v-card>
           <v-card-title class="font-weight-bold" v-text="factoid.name"></v-card-title>
-          <v-card-text v-text="factoid.content"></v-card-text>
+          <v-card-text><span v-html="markdown(factoid.content)"/></v-card-text>
           <v-card-actions v-if="canEdit">
             <v-btn v-on:click="startEdit(factoid.name)">Edit</v-btn>
           </v-card-actions>
@@ -22,7 +22,7 @@
     <v-card v-if="editing">
       <v-card-title class="font-weight-bold" v-text="editingKey"></v-card-title>
       <v-card-text>
-        <div id="#editor">
+        <div id="editor">
           <textarea :value="editorText" @input="updatePreview"></textarea>
           <div v-html="compiledMarkdown"></div>
         </div>
@@ -74,6 +74,7 @@ code {
 import axios from 'axios'
 import debounce from 'lodash/debounce'
 import marked from 'marked'
+import markdown from '@/utils/markdown'
 
 export default {
   name: 'Factoids',
@@ -93,32 +94,32 @@ export default {
   mounted () {
     this.getFactoids();
     if (this.$cookies.get("perms").split(" ").includes("factoids.manage")) {
-      this.canEdit = true
+      this.canEdit = true;
     }
   },
   methods: {
     getFactoids: function() {
       axios.get('/api/factoid').then(response => {
-        this.factoids = response.data
+        this.factoids = response.data;
         this.filteredFactoids = [];
         for (const rec of this.factoids) {
-          this.filteredFactoids.push(Object.assign({}, rec))
+          this.filteredFactoids.push(Object.assign({}, rec));
         }
       })
     },
     filterBasedOnSearch: debounce(function () {
-      this.filtering = true
+      this.filtering = true;
       if (!this.search) {
-        this.filteredFactoids = this.factoids
-        return
+        this.filteredFactoids = this.factoids;
+        return;
       }
       this.filteredFactoids = this.factoids.filter(function (factoid) {
         return factoid.name.toLocaleLowerCase().includes(this.search.toLocaleLowerCase())
             || factoid.content.toLocaleLowerCase().includes(this.search.toLocaleLowerCase())
-      }, this)
+      }, this);
     }, 500),
     updatePreview: function(e) {
-      this.editorText = e.target.value
+      this.editorText = e.target.value;
     },
     startEdit: function(key) {
       this.editing = true;
@@ -141,11 +142,12 @@ export default {
         this.filterBasedOnSearch();
         this.cancelEdit();
       });
-    }
+    },
+    markdown
   },
   computed: {
     compiledMarkdown: function() {
-      return marked(this.editorText, { sanitize: true });
+      return marked(this.editorText, { sanitizer: markdown });
     }
   },
 }
