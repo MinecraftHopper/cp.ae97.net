@@ -19,17 +19,24 @@
       </v-list-item-content>
     </v-list>
 
+    <!--Editor -->
     <v-card v-if="editing">
       <v-card-title class="font-weight-bold" v-text="editingKey"></v-card-title>
       <v-card-text>
         <div id="editor">
           <textarea :value="editorText" @input="updatePreview"></textarea>
-          <div v-html="compiledMarkdown"></div>
         </div>
+      </v-card-text>
+    </v-card>
+    <v-card v-if="editing">
+      <v-card-title class="font-weight-bold">Preview</v-card-title>
+      <v-card-text>
+        <div v-html="compiledMarkdown"></div>
       </v-card-text>
       <v-card-actions>
         <v-btn v-on:click="saveEdit">Save</v-btn>
         <v-btn v-on:click="cancelEdit">Cancel</v-btn>
+        <v-btn v-on:click="deleteItem">Delete</v-btn>
       </v-card-actions>
     </v-card>
   </v-card>
@@ -46,7 +53,7 @@
 textarea,
 #editor div {
   display: inline-block;
-  width: 49%;
+  width: 100%;
   height: 100%;
   vertical-align: top;
   box-sizing: border-box;
@@ -139,9 +146,18 @@ export default {
     saveEdit: function() {
       axios.put('/api/factoid/' + this.editingKey, this.editorText).then(() => {
         this.getFactoids();
-        this.filterBasedOnSearch();
         this.cancelEdit();
+        this.filterBasedOnSearch();
       });
+    },
+    deleteItem: function() {
+      if (confirm("Are you sure you want to delete this factoid?")) {
+        axios.delete('/api/factoid/' + this.editingKey).then(() => {
+          this.getFactoids();
+          this.cancelEdit();
+          this.filterBasedOnSearch();
+        });
+      }
     },
     markdown
   },
