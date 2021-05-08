@@ -32,10 +32,16 @@ func ConfigureRoutes() *gin.Engine {
 	e.Use(sessions.Sessions(viper.GetString("session.name"), store))
 
 	e.Handle("GET", "/api/factoid", allowCORS, getFactoids)
-	e.Handle("GET", "/api/factoid/*name", getFactoid)
+	e.Handle("GET", "/api/factoid/*name", allowCORS, getFactoid)
 	e.Handle("PUT", "/api/factoid/*name", authorized("factoid.manage"), updateFactoid)
 	e.Handle("DELETE", "/api/factoid/*name", authorized("factoid.manage"), deleteFactoid)
-	e.Handle("OPTIONS", "/api/factoid", CreateOptions("GET", "PUT", "DELETE"))
+	e.Handle("OPTIONS", "/api/factoid", allowCORS, CreateOptions("GET", "PUT", "DELETE"))
+
+	e.Handle("GET", "/api/flags", getFlags)
+	e.Handle("GET", "/api/flags/:user", authorized("user.manage"), getUserFlags)
+	e.Handle("PUT", "/api/flags/:user", authorized("user.manage"), setUserFlags)
+	e.Handle("OPTIONS", "/api/flags", CreateOptions("GET"))
+	e.Handle("OPTIONS", "/api/flags/:user", CreateOptions("GET", "PUT"))
 
 	e.Handle("GET", "/login", login)
 	e.Handle("GET", "/login-callback", loginCallback)
@@ -92,7 +98,7 @@ func authorized(perm string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 		discordId, ok := session.Get("discordId").(string)
-		if !ok || discordId == ""{
+		if !ok || discordId == "" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
