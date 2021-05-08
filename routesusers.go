@@ -8,9 +8,9 @@ import (
 
 var Permissions = map[string]string{
 	"factoid.manage": "Manage factoids",
-	"user.manage": "Manage users",
-	"hjt.manage": "Manage HJT",
-	"logs.view": "View logs",
+	"user.manage":    "Manage users",
+	"hjt.manage":     "Manage HJT",
+	"logs.view":      "View logs",
 }
 
 func getFlags(c *gin.Context) {
@@ -28,7 +28,7 @@ func setUserFlags(c *gin.Context) {
 	}
 
 	for p := range perms {
-	 	if _, ok := Permissions[perms[p]]; !ok {
+		if _, ok := Permissions[perms[p]]; !ok {
 			c.JSON(http.StatusBadRequest, Error{Message: perms[p] + " is not a valid permission"})
 			return
 		}
@@ -52,7 +52,6 @@ func setUserFlags(c *gin.Context) {
 		err = Database.Create(&Permission{DiscordId: userId, Permission: perms[p]}).Error
 	}
 
-
 	if err != nil && gorm.ErrRecordNotFound != err {
 		c.JSON(http.StatusInternalServerError, Error{Message: err.Error()})
 		return
@@ -72,5 +71,20 @@ func getUserFlags(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error{Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, perms)
+
+	//we have the perms for this user, but let's also get their discord info so it's something we can show
+	user, err := getUser(userId)
+	if err != nil {
+		if err == NoDiscordUser {
+			c.JSON(http.StatusNotFound, Error{Message: err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, Error{Message: err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"user": user,
+		"perms": perms,
+	})
 }

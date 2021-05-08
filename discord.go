@@ -8,28 +8,21 @@ import (
 	"net/url"
 )
 
-var userInfoEndpoint *url.URL
-
-func init() {
-	var err error
-	userInfoEndpoint, err = url.Parse("https://discord.com/api/users/@me")
-	if err != nil {
-		panic(err)
-	}
-}
+const userInfoEndpoint string = "https://discord.com/api/users/"
+var NoDiscordUser = errors.New("no discord user")
 
 func redeemCode(code string) (string, error) {
 	clientId := viper.GetString("discord.clientid")
 	clientSecret := viper.GetString("discord.clientsecret")
 	redirectUrl := viper.GetString("discord.redirecturl")
 
-	data := map[string]string {
-		"client_id": clientId,
+	data := map[string]string{
+		"client_id":     clientId,
 		"client_secret": clientSecret,
-		"grant_type": "authorization_code",
-		"code": code,
-		"redirect_uri": redirectUrl,
-		"scope": "identify email connections",
+		"grant_type":    "authorization_code",
+		"code":          code,
+		"redirect_uri":  redirectUrl,
+		"scope":         "identify email connections",
 	}
 
 	values := url.Values{}
@@ -56,8 +49,13 @@ func redeemCode(code string) (string, error) {
 }
 
 func getUserId(accessToken string) (string, error) {
+	url, err := url.Parse(userInfoEndpoint + "@me")
+	if err != nil {
+		return "", err
+	}
+
 	request := &http.Request{
-		URL: userInfoEndpoint,
+		URL:    url,
 		Header: map[string][]string{"Authorization": {"Bearer " + accessToken}},
 	}
 
@@ -77,4 +75,34 @@ func getUserId(accessToken string) (string, error) {
 		return "", err
 	}
 	return discordResponse.Id, nil
+}
+
+func getUser(id string) (DiscordUser, error) {
+	var botToken = viper.GetString("discord.clientbot")
+
+	url, err := url.Parse(userInfoEndpoint + id)
+	if err != nil {
+		return DiscordUser{}, err
+	}
+
+	request := &http.Request{
+		URL:    url,
+		Header: map[string][]string{"Authorization": {"Bot " + botToken}},
+	}
+
+	response, err := HttpClient.Do(request)
+	if err != nil {
+		return DiscordUser{}, err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode == http.StatusNotFound {
+		return DiscordUser{}, NoDiscordUser
+	} else if response.StatusCode != http.StatusOK {
+		return DiscordUser{}, errors.New("invalid response code from Discord (" + response.Status + ")")
+	}
+
+	discordResponse := DiscordUser{}
+	err = json.NewDecoder(response.Body).Decode(&discordResponse)
+	return discordResponse, err
 }
