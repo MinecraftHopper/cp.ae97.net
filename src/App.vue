@@ -33,6 +33,15 @@
           </v-list-item-content>
         </v-list-item>
 
+        <v-list-item link v-if="canEditUsers">
+          <v-list-item-icon>
+            <v-icon>mdi-account-group</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <router-link to="/users">Users</router-link>
+          </v-list-item-content>
+        </v-list-item>
+
         <v-divider></v-divider>
 
         <v-list-item link>
@@ -74,10 +83,20 @@
 <script>
 
 export default {
+  data () {
+    return {
+      canEditUsers: false
+    }
+  },
   beforeCreate() {
     const t = localStorage.getItem("dark-theme");
     if (t === "dark") {
       this.$vuetify.theme.dark = true;
+    }
+  },
+  mounted() {
+    if (this.$cookies.get("perms").split("+").includes("user.manage")) {
+      this.canEditUsers = true;
     }
   },
   methods: {

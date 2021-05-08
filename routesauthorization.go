@@ -63,7 +63,7 @@ func loginCallback(c *gin.Context) {
 	}
 
 	//perms don't really matter too much in terms of security, so we'll not enforce it being secure
-	c.SetCookie("perms", strings.Join(perms, " "), 64000, "/", c.Request.Host, false, false)
+	c.SetCookie("perms", strings.Join(perms, "+"), 64000, "/", c.Request.Host, false, false)
 
 	_ = session.Save()
 	c.Redirect(http.StatusTemporaryRedirect, "/")

@@ -13,6 +13,11 @@ const routes = [
     path: '/factoids',
     name: 'Factoids',
     component: () => import(/* webpackChunkName: "factoids" */ '../views/Factoids.vue')
+  },
+  {
+    path: '/users',
+    name: 'Users',
+    component: () => import(/* webpackChunkName: "users" */ '../views/Users.vue')
   }
 ]
 
