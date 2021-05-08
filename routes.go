@@ -113,7 +113,8 @@ func authorized(perm string) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Message: err.Error()})
 			return
 		}
-		if exists > 1 {
+
+		if exists == 0 {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
