@@ -44,7 +44,15 @@
 
         <v-divider></v-divider>
 
-        <v-list-item link>
+        <v-list-item link v-if="loggedIn">
+          <v-list-item-icon>
+            <v-icon>mdi-account-arrow-right</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <a href="#" v-on:click="logout">Logout</a>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item link v-else>
           <v-list-item-icon>
             <v-icon>mdi-account-arrow-right</v-icon>
           </v-list-item-icon>
@@ -81,11 +89,13 @@
 </style>
 
 <script>
+import axios from "axios";
 
 export default {
   data () {
     return {
-      canEditUsers: false
+      canEditUsers: false,
+      loggedIn: false
     }
   },
   beforeCreate() {
@@ -98,11 +108,21 @@ export default {
     if (this.$cookies.get("perms").split("+").includes("user.manage")) {
       this.canEditUsers = true;
     }
+    if (this.$cookies.get("perms")) {
+      this.loggedIn = true
+    }
   },
   methods: {
     toggleTheme: function() {
       localStorage.setItem("dark-theme", !this.$vuetify.theme.dark ? "dark": "light");
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+    },
+    logout: function() {
+      axios.post('/auth/logout').then(() => {
+        this.loggedIn = false
+        this.$cookies.remove("perms")
+        this.$cookies.remove("panelsession")
+      })
     }
   }
 }

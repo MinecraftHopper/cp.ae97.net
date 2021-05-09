@@ -68,3 +68,7 @@ func loginCallback(c *gin.Context) {
 	_ = session.Save()
 	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
+
+func logout(c *gin.Context) {
+	sessions.Default(c).Clear()
+}

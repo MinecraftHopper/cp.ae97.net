@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -19,6 +20,18 @@ func getFlags(c *gin.Context) {
 
 func setUserFlags(c *gin.Context) {
 	userId := c.Param("user")
+
+	session := sessions.Default(c)
+	discordId, ok := session.Get("discordId").(string)
+	if !ok || discordId == "" {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	if discordId == userId {
+		c.JSON(http.StatusForbidden, Error{Message: "cannot edit yourself"})
+		return
+	}
 
 	perms := make([]string, 0)
 	err := c.Bind(&perms)
