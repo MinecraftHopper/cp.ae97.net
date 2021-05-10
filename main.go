@@ -6,6 +6,7 @@ import (
 )
 
 const MaxFactoidLength = 1000
+const MaxHJTLength = 1000
 const DiscordEndpoint = "https://discord.com/api/v6/oauth2/token"
 
 var HttpClient = http.Client{}

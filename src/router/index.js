@@ -5,20 +5,25 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: () => import(/* webpackChunkName: "home" */ '../views/Home.vue')
+	  path: '/',
+	  name: 'Home',
+	  component: () => import(/* webpackChunkName: "home" */ '../views/Home.vue')
   },
-  {
-    path: '/factoids',
-    name: 'Factoids',
-    component: () => import(/* webpackChunkName: "factoids" */ '../views/Factoids.vue')
-  },
-  {
-    path: '/users',
-    name: 'Users',
-    component: () => import(/* webpackChunkName: "users" */ '../views/Users.vue')
-  }
+	{
+		path: '/factoids',
+		name: 'Factoids',
+		component: () => import(/* webpackChunkName: "factoids" */ '../views/Factoids.vue')
+	},
+	{
+		path: '/hjt',
+		name: 'HJT',
+		component: () => import(/* webpackChunkName: "hjt" */ '../views/HJT.vue')
+	},
+	{
+		path: '/users',
+		name: 'Users',
+		component: () => import(/* webpackChunkName: "users" */ '../views/Users.vue')
+	}
 ]
 
 const router = new VueRouter({

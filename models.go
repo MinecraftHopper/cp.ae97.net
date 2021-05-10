@@ -5,6 +5,13 @@ type Factoid struct {
 	Content string `json:"content"`
 }
 
+type HJT struct {
+	Name     string `json:"name"`
+	Content  string `json:"content"`
+	Category string `json:"category"`
+	Severity string `json:"severity"`
+}
+
 type Error struct {
 	Message string `json:"message"`
 }
