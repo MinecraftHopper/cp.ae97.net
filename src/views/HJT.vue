@@ -7,6 +7,8 @@
                   @input="filterBasedOnSearch"
     ></v-text-field>
 
+    <v-btn v-if="canEdit" v-on:click="startEdit()">Create</v-btn>
+
     <v-list three-line v-if="!editingHjt">
       <v-list-item-content v-for="hjt in filteredHjts" :key="hjt.id">
         <v-card>
@@ -14,7 +16,7 @@
                         v-text="hjt.name + (hjt.match_criteria === hjt.name ? '' : ' (' + hjt.match_criteria + ')')"></v-card-title>
           <v-card-text>
             <span v-html="'Severity: ' + hjt.severity_description"/>
-            <br />
+            <br/>
             <span v-html="hjt.description"/>
           </v-card-text>
           <v-card-actions v-if="canEdit">
@@ -31,7 +33,8 @@
         <v-text-field label="Name" v-model="editingHjt.name"></v-text-field>
         <v-text-field label="Match Criteria" v-model="editingHjt.match_criteria"></v-text-field>
         <v-text-field label="Category" v-model="editingHjt.category"></v-text-field>
-        <v-select label="Severity" v-model="editingHjt.severity" :items="severityOptions" item-text="description" item-value="id">
+        <v-select label="Severity" v-model="editingHjt.severity" :items="severityOptions" item-text="description"
+                  item-value="id">
         </v-select>
         <div id="editor">
           <textarea :value="editingHjt.description" @input="updatePreview"></textarea>
@@ -151,22 +154,24 @@ export default {
       for (const hjt of this.hjts) {
         if (hjt.id === key) {
           this.editingHjt = hjt;
-          break;
+          return;
         }
+      }
+      if (!this.editingHjt) {
+        this.editingHjt = {};
       }
     },
     cancelEdit: function () {
       this.editingHjt = null;
-      this.editing = false;
     },
     saveEdit: function () {
       //fix description since it's set by the pull....
       this.editingHjt.severity_description = "";
-      axios.put('/api/hjt/' + this.editingHjt.id, this.editingHjt).then(() => {
-        this.getHJTs();
-        this.cancelEdit();
-        this.filterBasedOnSearch();
-      });
+      if (this.editingHjt.id) {
+        axios.put('/api/hjt/' + this.editingHjt.id, this.editingHjt).then(this.refresh);
+      } else {
+        axios.post('/api/hjt', this.editingHjt).then(this.refresh);
+      }
     },
     deleteItem: function () {
       if (confirm("Are you sure you want to delete this HJT?")) {
@@ -176,6 +181,11 @@ export default {
           this.filterBasedOnSearch();
         });
       }
+    },
+    refresh: function () {
+      this.getHJTs();
+      this.cancelEdit();
+      this.filterBasedOnSearch();
     }
   }
 }

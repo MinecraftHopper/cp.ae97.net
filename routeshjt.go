@@ -72,6 +72,10 @@ func updateHJT(c *gin.Context) {
 		record.SeverityDescription = record.Severity.ToString()
 	}
 
+	if record.MatchCriteria == "" {
+		record.MatchCriteria = record.Name
+	}
+
 	err = Database.Save(&record).Error
 
 	if err != nil {
@@ -94,7 +98,7 @@ func deleteHJT(c *gin.Context) {
 	}
 
 	record := HJT{ID: uint(tempId)}
-	res := Database.Where(&record).Delete(&record)
+	res := Database.Delete(&record)
 	if res.Error != nil {
 		c.JSON(http.StatusInternalServerError, Error{Message: res.Error.Error()})
 		return
