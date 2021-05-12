@@ -40,9 +40,9 @@ func ConfigureRoutes() *gin.Engine {
 
 	e.Handle("GET", "/api/hjt", allowCORS, getHJTs)
 	e.Handle("GET", "/api/hjt/:id", allowCORS, getHJT)
-	e.Handle("PUT", "/api/hjt/:id", /*authorized("hjt.manage"),*/ updateHJT)
-	e.Handle("POST", "/api/hjt", /*authorized("hjt.manage"),*/ updateHJT)
-	e.Handle("DELETE", "/api/hjt/:id", /*authorized("hjt.manage"),*/ deleteHJT)
+	e.Handle("PUT", "/api/hjt/:id", authorized("hjt.manage"), updateHJT)
+	e.Handle("POST", "/api/hjt", authorized("hjt.manage"), updateHJT)
+	e.Handle("DELETE", "/api/hjt/:id", authorized("hjt.manage"), deleteHJT)
 	e.Handle("OPTIONS", "/api/hjt", allowCORS, CreateOptions("GET", "POST"))
 	e.Handle("OPTIONS", "/api/hjt/:id", allowCORS, CreateOptions("GET", "PUT", "DELETE"))
 
