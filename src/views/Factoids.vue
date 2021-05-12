@@ -7,6 +7,8 @@
         @input="filterBasedOnSearch"
     ></v-text-field>
 
+    <v-btn v-if="canEdit" v-on:click="startEdit()">Create</v-btn>
+
     <v-list three-line v-if="!editing">
       <v-list-item-content v-for="factoid in filteredFactoids" :key="factoid.name">
         <v-card>
@@ -23,6 +25,7 @@
     <v-card v-if="editing">
       <v-card-title class="font-weight-bold" v-text="editingKey"></v-card-title>
       <v-card-text>
+        <v-text-field v-if="newFactoid" label="Name" v-model="editingKey"></v-text-field>
         <div id="editor">
           <textarea :value="editorText" @input="updatePreview"></textarea>
         </div>
@@ -96,6 +99,7 @@ export default {
       editing: false,
       editorText: '',
       editingKey: '',
+      newFactoid: false
     }
   },
   mounted () {
@@ -134,30 +138,32 @@ export default {
       for (const factoid of this.factoids) {
         if (factoid.name === key) {
           this.editorText = factoid.content;
-          break;
+          return;
         }
+      }
+      if (!this.editorText) {
+        this.editorText = "";
+        this.newFactoid = true;
       }
     },
     cancelEdit: function() {
       this.editorText = '';
       this.editingKey = '';
       this.editing = false;
+      this.newFactoid = false;
     },
     saveEdit: function() {
-      axios.put('/api/factoid/' + this.editingKey, this.editorText).then(() => {
-        this.getFactoids();
-        this.cancelEdit();
-        this.filterBasedOnSearch();
-      });
+      axios.put('/api/factoid/' + this.editingKey, this.editorText).then(this.reset);
     },
     deleteItem: function() {
       if (confirm("Are you sure you want to delete this factoid?")) {
-        axios.delete('/api/factoid/' + this.editingKey).then(() => {
-          this.getFactoids();
-          this.cancelEdit();
-          this.filterBasedOnSearch();
-        });
+        axios.delete('/api/factoid/' + this.editingKey).then(this.reset);
       }
+    },
+    reset: function() {
+      this.getFactoids();
+      this.cancelEdit();
+      this.filterBasedOnSearch();
     },
     markdown
   },
