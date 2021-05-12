@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"net/http"
-  "os"
-  "path/filepath"
-  "strings"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 var noHandle404 = []string{"/api/"}
@@ -22,8 +22,8 @@ func ConfigureRoutes() *gin.Engine {
 	viper.SetDefault("session.name", "panelsession")
 	wd, err := os.Getwd()
 	if err != nil {
-	  panic(err)
-  }
+		panic(err)
+	}
 	viper.SetDefault("web.root", wd)
 
 	webRoot = viper.GetString("web.root")
@@ -35,7 +35,16 @@ func ConfigureRoutes() *gin.Engine {
 	e.Handle("GET", "/api/factoid/*name", allowCORS, getFactoid)
 	e.Handle("PUT", "/api/factoid/*name", authorized("factoid.manage"), updateFactoid)
 	e.Handle("DELETE", "/api/factoid/*name", authorized("factoid.manage"), deleteFactoid)
-	e.Handle("OPTIONS", "/api/factoid", allowCORS, CreateOptions("GET", "PUT", "DELETE"))
+	e.Handle("OPTIONS", "/api/factoid", allowCORS, CreateOptions("GET"))
+	e.Handle("OPTIONS", "/api/factoid/*name", allowCORS, CreateOptions("GET", "PUT", "DELETE"))
+
+	e.Handle("GET", "/api/hjt", allowCORS, getHJTs)
+	e.Handle("GET", "/api/hjt/:id", allowCORS, getHJT)
+	e.Handle("PUT", "/api/hjt/:id", /*authorized("hjt.manage"),*/ updateHJT)
+	e.Handle("POST", "/api/hjt", /*authorized("hjt.manage"),*/ updateHJT)
+	e.Handle("DELETE", "/api/hjt/:id", /*authorized("hjt.manage"),*/ deleteHJT)
+	e.Handle("OPTIONS", "/api/hjt", allowCORS, CreateOptions("GET", "POST"))
+	e.Handle("OPTIONS", "/api/hjt/:id", allowCORS, CreateOptions("GET", "PUT", "DELETE"))
 
 	e.Handle("GET", "/api/flags", getFlags)
 	e.Handle("GET", "/api/flags/:user", authorized("user.manage"), getUserFlags)

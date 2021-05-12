@@ -76,7 +76,7 @@
     </v-main>
 
     <v-footer app>
-      <span><small>Copyright 2020&#169; MinecraftHopper</small></span>
+      <span><small>Copyright 2021&#169; MinecraftHopper</small></span>
     </v-footer>
   </v-app>
 </template>
