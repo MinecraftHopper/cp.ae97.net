@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 )
 
 func login(c *gin.Context) {
-	state := "abc"
+	state := uuid.New().String()
 
 	session := sessions.Default(c)
 	session.Set("state", state)
@@ -22,7 +23,7 @@ func login(c *gin.Context) {
 		viper.GetString("discord.clientid"),
 		strings.Join([]string{"identify", "guilds"}, "%20"),
 		state,
-		url2.QueryEscape(viper.GetString("discord.redirecturl")),
+		url2.QueryEscape(viper.GetString("web.host") + "/login-callback"),
 	)
 
 	c.Redirect(http.StatusTemporaryRedirect, url)

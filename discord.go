@@ -14,7 +14,7 @@ var NoDiscordUser = errors.New("no discord user")
 func redeemCode(code string) (string, error) {
 	clientId := viper.GetString("discord.clientid")
 	clientSecret := viper.GetString("discord.clientsecret")
-	redirectUrl := viper.GetString("discord.redirecturl")
+	redirectUrl := viper.GetString("web.host") + "/login-callback"
 
 	data := map[string]string{
 		"client_id":     clientId,

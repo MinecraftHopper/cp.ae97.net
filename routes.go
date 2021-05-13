@@ -54,6 +54,7 @@ func ConfigureRoutes() *gin.Engine {
 
 	e.Handle("GET", "/login", login)
 	e.Handle("GET", "/login-callback", loginCallback)
+	e.Handle("GET", "/logout", logout)
 
 	css := e.Group("/css")
 	{

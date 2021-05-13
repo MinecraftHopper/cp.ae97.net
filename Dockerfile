@@ -27,13 +27,13 @@ COPY --from=builder /panel /panel
 
 ENV DISCORD.CLIENTID=
 ENV DISCORD.CLIENTSECRET=
-ENV DISCORD.REDIRECTURL=http://localhost:8080/login-callback
 ENV DB.USERNAME=panel
 ENV DB.PASSWORD=panel
 ENV DB.HOST=127.0.0.1
 ENV DB.DATABASE=panel
 ENV SECRET.NAME=panel
 ENV SESSION.SECRET=secret
+ENV WEB.HOST=http://localhost:8080
 ENV WEB.ROOT=/panel
 
 WORKDIR /panel
