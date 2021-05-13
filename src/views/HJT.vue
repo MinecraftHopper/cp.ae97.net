@@ -121,7 +121,7 @@ export default {
   },
   mounted() {
     this.getHJTs();
-    if (this.$cookies.get("perms").split("+").includes("hjt.manage")) {
+    if (this.$cookies.get("perms")?.split("+").includes("hjt.manage")) {
       this.canEdit = true;
     }
   },

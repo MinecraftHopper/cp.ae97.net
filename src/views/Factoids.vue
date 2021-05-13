@@ -104,7 +104,7 @@ export default {
   },
   mounted () {
     this.getFactoids();
-    if (this.$cookies.get("perms").split("+").includes("factoid.manage")) {
+    if (this.$cookies.get("perms")?.split("+").includes("factoid.manage")) {
       this.canEdit = true;
     }
   },

@@ -7,7 +7,7 @@
         @input="searchDiscord"
     ></v-text-field>
 
-    <v-card v-if="discordId.length === 18" :loading="searching">
+    <v-card v-if="searching || hasRecord" :loading="searching">
       <template slot="progress">
         <v-progress-linear
             color="deep-purple"
@@ -77,16 +77,19 @@ export default {
       }
     },
     searchDiscord: function() {
-      if (this.discordId.length === 18) {
-        axios.get('/api/flags/' + this.discordId).then((e) => {
-          this.searching = false
-          this.hasRecord = true
-          this.discordUser = e.data
-        }).catch((e) => {
-          this.error = e.data.message
-          this.searching = false
-        });
-      }
+      axios.get('/api/flags/' + this.discordId).then((e) => {
+        this.searching = false
+        this.hasRecord = true
+        this.discordUser = e.data
+      }).catch((e) => {
+        this.error = e.data.message
+        this.searching = false
+        this.hasRecord = false;
+        this.discordUser = {
+          user: {},
+          perms: []
+        };
+      });
     },
     save: function() {
       this.searching = true

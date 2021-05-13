@@ -14,50 +14,57 @@
 
       <v-divider></v-divider>
 
+
       <v-list dense nav mini>
-        <v-list-item link>
-          <v-list-item-icon>
-            <v-icon>mdi-account-question</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <router-link to="/factoids">Factoids</router-link>
-          </v-list-item-content>
-        </v-list-item>
+        <router-link to="/factoids" tag="div">
+          <v-list-item link>
+            <v-list-item-icon>
+              <v-icon>mdi-account-question</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <span>Factoids</span>
+            </v-list-item-content>
+          </v-list-item>
+        </router-link>
 
-        <v-list-item link>
-          <v-list-item-icon>
-            <v-icon>mdi-bug</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <router-link to="/hjt">HJT</router-link>
-          </v-list-item-content>
-        </v-list-item>
+        <router-link to="/hjt" tag="div">
+          <v-list-item link>
+            <v-list-item-icon>
+              <v-icon>mdi-bug</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <span>HJT</span>
+            </v-list-item-content>
+          </v-list-item>
+        </router-link>
 
-        <v-list-item link v-if="canEditUsers">
-          <v-list-item-icon>
-            <v-icon>mdi-account-group</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <router-link to="/users">Users</router-link>
-          </v-list-item-content>
-        </v-list-item>
+        <router-link to="/users" tag="div" v-if="canEditUsers">
+          <v-list-item link>
+            <v-list-item-icon>
+              <v-icon>mdi-account-group</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <span>Users</span>
+            </v-list-item-content>
+          </v-list-item>
+        </router-link>
 
         <v-divider></v-divider>
 
-        <v-list-item link v-if="loggedIn">
+        <v-list-item link v-if="loggedIn" v-on:click="logout">
           <v-list-item-icon>
             <v-icon>mdi-account-arrow-right</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <a href="#" v-on:click="logout">Logout</a>
+            <span>Logout</span>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link v-else>
+        <v-list-item link v-else v-on:click="login">
           <v-list-item-icon>
             <v-icon>mdi-account-arrow-right</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <a href="/login">Login</a>
+            <span>Login</span>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -92,7 +99,7 @@
 import axios from "axios";
 
 export default {
-  data () {
+  data() {
     return {
       canEditUsers: false,
       loggedIn: false
@@ -105,24 +112,27 @@ export default {
     }
   },
   mounted() {
-    if (this.$cookies.get("perms").split("+").includes("user.manage")) {
+    if (this.$cookies.get("perms")?.split("+").includes("user.manage")) {
       this.canEditUsers = true;
     }
-    if (this.$cookies.get("perms")) {
+    if (this.$cookies.get("panelsession")) {
       this.loggedIn = true
     }
   },
   methods: {
-    toggleTheme: function() {
-      localStorage.setItem("dark-theme", !this.$vuetify.theme.dark ? "dark": "light");
+    toggleTheme: function () {
+      localStorage.setItem("dark-theme", !this.$vuetify.theme.dark ? "dark" : "light");
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
     },
-    logout: function() {
+    logout: function () {
       axios.post('/logout').then(() => {
         this.loggedIn = false
         this.$cookies.remove("perms")
         this.$cookies.remove("panelsession")
       })
+    },
+    login: function () {
+      window.location.href = "/login";
     }
   }
 }
