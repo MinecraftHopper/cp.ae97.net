@@ -107,7 +107,8 @@ export default {
   },
   beforeCreate() {
     const t = localStorage.getItem("dark-theme");
-    if (t === "dark") {
+    //if the storage doesn't indicate one, and the system is dark, use dark
+    if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !t) || t === 'dark') {
       this.$vuetify.theme.dark = true;
     }
   },
