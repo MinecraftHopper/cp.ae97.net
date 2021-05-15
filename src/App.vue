@@ -126,7 +126,7 @@ export default {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
     },
     logout: function () {
-      axios.post('/logout').then(() => {
+      axios.get('/logout').then(() => {
         this.loggedIn = false
         this.$cookies.remove("perms")
         this.$cookies.remove("panelsession")
