@@ -61,7 +61,7 @@ func updateFactoid(c *gin.Context) {
 	}
 
 	factoid := Factoid{Name: name, Content: string(body)}
-	err = Database.Clauses(clause.OnConflict{ UpdateAll: true }).Create(&factoid).Error
+	err = Database.Clauses(clause.OnConflict{ Columns: []clause.Column{{Name: "name"}}, DoUpdates: clause.AssignmentColumns([]string{"content"})}).Create(&factoid).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error{Message: err.Error()})
 		return
