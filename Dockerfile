@@ -8,7 +8,7 @@ ARG tags=none
 ENV CGOENABLED=1
 
 RUN go version && \
-    apk add --update --no-cache git curl nodejs nodejs-npm && \
+    apk add --update --no-cache git curl nodejs npm && \
     mkdir /panel
 
 WORKDIR /build
