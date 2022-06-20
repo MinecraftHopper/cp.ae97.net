@@ -3,18 +3,19 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/spf13/viper"
+	"github.com/MinecraftHopper/panel/env"
 	"net/http"
 	"net/url"
 )
 
 const userInfoEndpoint string = "https://discord.com/api/users/"
+
 var NoDiscordUser = errors.New("no discord user")
 
 func redeemCode(code string) (string, error) {
-	clientId := viper.GetString("discord.clientid")
-	clientSecret := viper.GetString("discord.clientsecret")
-	redirectUrl := viper.GetString("web.host") + "/login-callback"
+	clientId := env.Get("discord.clientid")
+	clientSecret := env.Get("discord.clientsecret")
+	redirectUrl := env.Get("web.host") + "/login-callback"
 
 	data := map[string]string{
 		"client_id":     clientId,
@@ -78,7 +79,7 @@ func getUserId(accessToken string) (string, error) {
 }
 
 func getUser(id string) (DiscordUser, error) {
-	var botToken = viper.GetString("discord.clientbot")
+	var botToken = env.Get("discord.clientbot")
 
 	url, err := url.Parse(userInfoEndpoint + id)
 	if err != nil {

@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/MinecraftHopper/panel/env"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/spf13/viper"
 	"gorm.io/gorm"
 	"net/http"
 	url2 "net/url"
@@ -20,10 +20,10 @@ func login(c *gin.Context) {
 	_ = session.Save()
 
 	url := fmt.Sprintf("https://discord.com/api/oauth2/authorize?response_type=code&client_id=%s&scope=%s&state=%s&redirect_uri=%s",
-		viper.GetString("discord.clientid"),
+		env.Get("discord.clientid"),
 		strings.Join([]string{"identify", "guilds"}, "%20"),
 		state,
-		url2.QueryEscape(viper.GetString("web.host") + "/login-callback"),
+		url2.QueryEscape(env.Get("web.host")+"/login-callback"),
 	)
 
 	c.Redirect(http.StatusTemporaryRedirect, url)

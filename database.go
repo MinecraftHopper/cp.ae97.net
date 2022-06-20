@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/MinecraftHopper/panel/env"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -18,10 +19,10 @@ func ConnectDatabase() error {
 	viper.SetDefault("db.database", "panel")
 
 	var connString = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		viper.GetString("db.username"),
-		viper.GetString("db.password"),
-		viper.GetString("db.host"),
-		viper.GetString("db.database"),
+		env.Get("db.username"),
+		env.Get("db.password"),
+		env.Get("db.host"),
+		env.Get("db.database"),
 	)
 
 	Database, err = gorm.Open(mysql.New(mysql.Config{

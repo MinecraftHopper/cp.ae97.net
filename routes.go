@@ -1,10 +1,12 @@
 package main
 
 import (
+	"github.com/MinecraftHopper/panel/env"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"net/http"
 	"os"
@@ -18,7 +20,7 @@ var webRoot string
 func ConfigureRoutes() *gin.Engine {
 	e := gin.Default()
 
-	viper.SetDefault("session.secret", "changeme")
+	viper.SetDefault("session.secret", uuid.New().String())
 	viper.SetDefault("session.name", "panelsession")
 	wd, err := os.Getwd()
 	if err != nil {
@@ -26,10 +28,10 @@ func ConfigureRoutes() *gin.Engine {
 	}
 	viper.SetDefault("web.root", wd)
 
-	webRoot = viper.GetString("web.root")
+	webRoot = env.Get("web.root")
 
-	store := cookie.NewStore([]byte(viper.GetString("session.secret")))
-	e.Use(sessions.Sessions(viper.GetString("session.name"), store))
+	store := cookie.NewStore([]byte(env.Get("session.secret")))
+	e.Use(sessions.Sessions(env.Get("session.name"), store))
 
 	e.Handle("GET", "/api/factoid", allowCORS, getFactoids)
 	e.Handle("GET", "/api/factoid/*name", allowCORS, getFactoid)
