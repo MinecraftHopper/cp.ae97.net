@@ -13,7 +13,7 @@ RUN go version && \
 
 WORKDIR /build
 COPY . .
-RUN go build -v -tags $tags -o /panel/panel -v github.com/MinecraftHopper/panel && \
+RUN go build -v -tags $tags -buildvcs=false -o /panel/panel -v github.com/MinecraftHopper/panel && \
     npm install && \
     npm run-script build && \
     mv dist/* /panel
