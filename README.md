@@ -1,4 +1,4 @@
-# cp.ae97.net
+# cp.minecrafthopper.net
 
 ## Project setup
 ```
