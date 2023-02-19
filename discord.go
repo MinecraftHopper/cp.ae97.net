@@ -8,7 +8,9 @@ import (
 	"net/url"
 )
 
-const userInfoEndpoint string = "https://discord.com/api/users/"
+const DiscordEndpoint = "https://discord.com/api/oauth2/token"
+const userInfoEndpoint string = "https://discord.com/api/v10/users/"
+const UserAgent string = "DiscordBot (https://github.com/MinecraftHopper, v0)"
 
 var NoDiscordUser = errors.New("no discord user")
 
@@ -50,14 +52,14 @@ func redeemCode(code string) (string, error) {
 }
 
 func getUserId(accessToken string) (string, error) {
-	url, err := url.Parse(userInfoEndpoint + "@me")
+	u, err := url.Parse(userInfoEndpoint + "@me")
 	if err != nil {
 		return "", err
 	}
 
 	request := &http.Request{
-		URL:    url,
-		Header: map[string][]string{"Authorization": {"Bearer " + accessToken}},
+		URL:    u,
+		Header: map[string][]string{"Authorization": {"Bearer " + accessToken}, "User-Agent": {UserAgent}},
 	}
 
 	response, err := HttpClient.Do(request)
@@ -81,14 +83,14 @@ func getUserId(accessToken string) (string, error) {
 func getUser(id string) (DiscordUser, error) {
 	var botToken = env.Get("discord.clientbot")
 
-	url, err := url.Parse(userInfoEndpoint + id)
+	u, err := url.Parse(userInfoEndpoint + id)
 	if err != nil {
 		return DiscordUser{}, err
 	}
 
 	request := &http.Request{
-		URL:    url,
-		Header: map[string][]string{"Authorization": {"Bot " + botToken}},
+		URL:    u,
+		Header: map[string][]string{"Authorization": {"Bot " + botToken}, "User-Agent": {UserAgent}},
 	}
 
 	response, err := HttpClient.Do(request)

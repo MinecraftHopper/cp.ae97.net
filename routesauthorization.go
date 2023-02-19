@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"net/http"
-	url2 "net/url"
+	"net/url"
 	"strings"
 )
 
@@ -19,14 +19,14 @@ func login(c *gin.Context) {
 	session.Set("state", state)
 	_ = session.Save()
 
-	url := fmt.Sprintf("https://discord.com/api/oauth2/authorize?response_type=code&client_id=%s&scope=%s&state=%s&redirect_uri=%s",
+	u := fmt.Sprintf("https://discord.com/api/oauth2/authorize?response_type=code&client_id=%s&scope=%s&state=%s&redirect_uri=%s",
 		env.Get("discord.clientid"),
 		strings.Join([]string{"identify", "guilds"}, "%20"),
 		state,
-		url2.QueryEscape(env.Get("web.host")+"/login-callback"),
+		url.QueryEscape(env.Get("web.host")+"/login-callback"),
 	)
 
-	c.Redirect(http.StatusTemporaryRedirect, url)
+	c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
 func loginCallback(c *gin.Context) {

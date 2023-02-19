@@ -18,17 +18,23 @@ var noHandle404 = []string{"/api/"}
 var webRoot string
 
 func ConfigureRoutes() *gin.Engine {
-	e := gin.Default()
+	e := gin.New()
+	//_ = e.SetTrustedProxies(nil)
+	e.TrustedPlatform = gin.PlatformCloudflare
+	e.Use(gin.Logger())
+	e.Use(gin.Recovery())
 
 	viper.SetDefault("session.secret", uuid.New().String())
 	viper.SetDefault("session.name", "panelsession")
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	viper.SetDefault("web.root", wd)
 
 	webRoot = env.Get("web.root")
+	if webRoot == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+		webRoot = wd
+	}
 
 	store := cookie.NewStore([]byte(env.Get("session.secret")))
 	e.Use(sessions.Sessions(env.Get("session.name"), store))
@@ -80,7 +86,6 @@ func ConfigureRoutes() *gin.Engine {
 	e.StaticFile("/favicon.png", filepath.Join(webRoot, "favicon.png"))
 	e.StaticFile("/favicon.ico", filepath.Join(webRoot, "favicon.ico"))
 	e.NoRoute(handle404)
-
 	return e
 }
 

@@ -1,7 +1,6 @@
 package env
 
 import (
-	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 	"io"
 	"log"
@@ -33,42 +32,6 @@ func Get(key string) string {
 	//update cache with the full value, so we don't constantly read it
 	cache[key] = val
 	return val
-}
-
-func Set(key string, val string) {
-	cache[key] = val
-}
-
-func GetOr(key string, def string) string {
-	res := Get(key)
-	if res == "" {
-		return def
-	}
-	return res
-}
-
-func GetBool(key string) bool {
-	return cast.ToBool(Get(key))
-}
-
-func GetBoolOr(key string, def bool) bool {
-	res := Get(key)
-	if res == "" {
-		return def
-	}
-	return cast.ToBool(res)
-}
-
-func GetInt(key string) int {
-	return cast.ToInt(Get(key))
-}
-
-func GetStringArray(key, separator string) []string {
-	val := Get(key)
-	if separator == "" {
-		separator = ","
-	}
-	return strings.Split(val, separator)
 }
 
 func readSecret(file string) (string, error) {

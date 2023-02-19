@@ -5,10 +5,11 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
+
+const MaxFactoidLength = 1000
 
 func getFactoids(c *gin.Context) {
 	factoids := make([]Factoid, 0)
@@ -27,7 +28,7 @@ func getFactoid(c *gin.Context) {
 	}
 	if _, exists := c.GetQuery("search"); exists {
 		factoids := make([]Factoid, 0)
-		err := Database.Where("name LIKE ?", name + "%").Find(&factoids).Error
+		err := Database.Where("name LIKE ?", name+"%").Find(&factoids).Error
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, Error{Message: err.Error()})
 			return
@@ -54,14 +55,14 @@ func updateFactoid(c *gin.Context) {
 		name = strings.TrimPrefix(name, "/")
 	}
 
-	body, err := ioutil.ReadAll(io.LimitReader(c.Request.Body, MaxFactoidLength))
+	body, err := io.ReadAll(io.LimitReader(c.Request.Body, MaxFactoidLength))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error{Message: err.Error()})
 		return
 	}
 
 	factoid := Factoid{Name: name, Content: string(body)}
-	err = Database.Clauses(clause.OnConflict{ Columns: []clause.Column{{Name: "name"}}, DoUpdates: clause.AssignmentColumns([]string{"content"})}).Create(&factoid).Error
+	err = Database.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "name"}}, DoUpdates: clause.AssignmentColumns([]string{"content"})}).Create(&factoid).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error{Message: err.Error()})
 		return
