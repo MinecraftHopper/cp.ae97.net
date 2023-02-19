@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var cache map[string]string
+var cache = make(map[string]string)
 
 func init() {
 	viper.AutomaticEnv()
