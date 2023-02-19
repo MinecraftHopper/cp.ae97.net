@@ -14,7 +14,7 @@
     "core-js": "^3.6.5",
     "dompurify": "^2.2.7",
     "lodash": "^4.17.20",
-    "marked": "^2.0.3",
+    "marked": "^4.0.10",
     "roboto-fontface": "*",
     "vue": "^2.6.11",
     "vue-cookies": "^1.7.4",
